@@ -14,8 +14,7 @@ return new class extends Migration
         Schema::create('budgets', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('requisition_id');
-            $table->decimal('total_amount', 15, 2); // Total budgeted amount
-            $table->decimal('actual_amount', 15, 2)->nullable(); // Actual amount spent (for accountability)
+            $table->decimal('total_amount_used', 15, 2)->nullable(); // Actual amount spent (for accountability)
             $table->timestamps();
 
             $table->foreign('requisition_id')->references('id')->on('requisitions')->onDelete('cascade');
