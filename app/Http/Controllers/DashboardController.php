@@ -9,6 +9,8 @@ use Encore\Admin\Facades\Admin;
 use App\Models\Program;
 use App\Models\Requisition;
 
+
+
 class DashboardController extends Controller
 {
 
@@ -61,6 +63,93 @@ class DashboardController extends Controller
             'programs' => $programs,
         ]);
     }
+
+
+    //function to group the activities by project 
+    public static function showProgramsWithActivities()
+    {
+        // Fetch all programs with their associated activities
+        $programs = Program::with('activities')->get(); // Assuming 'activities' relationship exists in the Program model
+
+        return view('dashboard.programs_activities', compact('programs'));
+    }
+
+    public static function getBudgetComparisonData($programId2 = null)
+    {
+        // Get initial budgets from activities
+        $activitiesQuery = DB::table('activities')->select('name', 'budget');
+    
+        // Filter by program if provided
+        if ($programId2) {
+            $activitiesQuery->where('program_id', $programId2);
+        }
+    
+        $activities = $activitiesQuery->get();
+    
+        // Get actual amounts used from budgets
+        $budgetsQuery = DB::table('budgets')
+            ->join('requisitions', 'budgets.requisition_id', '=', 'requisitions.id')
+            ->join('activities', 'requisitions.activity_id', '=', 'activities.id')
+            ->select('activities.name', DB::raw('SUM(budgets.total_amount_used) as total_amount_used'));
+    
+        // Filter by program if provided
+        if ($programId2) {
+            $budgetsQuery->join('programs', 'activities.program_id', '=', 'programs.id')
+                ->where('programs.id', $programId2);
+        }
+    
+        $budgets = $budgetsQuery->groupBy('activities.name')->get();
+    
+        // Get all programs
+        $programs = Program::all();
+    
+        // Combine data for the chart
+        $chartData = $activities->map(function($activity) use ($budgets) {
+            $actualAmount = $budgets->firstWhere('name', $activity->name);
+            return [
+                'name' => $activity->name,
+                'budget' => $activity->budget,
+                'amount_used' => $actualAmount ? $actualAmount->total_amount_used : 0
+            ];
+        });
+    
+        return [
+            'chartData' => $chartData,
+            'programs' => $programs
+        ];
+    }
+
+
+    // In DashboardController.php
+public static function getAverageApprovalTimeData($period = 'month')
+{
+    $programs = Program::all();
+
+    // Fetch requisitions with approval times
+    $query = DB::table('requisitions')
+        ->select(DB::raw('DATE_FORMAT(updated_at, "%Y-%m") as period'), DB::raw('AVG(TIMESTAMPDIFF(DAY, created_at, updated_at)) as avg_days'))
+        ->whereNotNull('updated_at')
+        ->groupBy(DB::raw('DATE_FORMAT(updated_at, "%Y-%m")'))
+        ->orderBy(DB::raw('DATE_FORMAT(updated_at, "%Y-%m")'))
+        ->get();
+
+    // Map results to the required format
+    $chartData = $query->map(function($item) {
+        return [
+            'period' => $item->period,
+            'avg_days' => $item->avg_days,
+        ];
+    });
+
+    return [
+        'chartData' => $chartData,
+        'programs' => $programs,
+    ];
+}
+
+    
+
+
 
 }
     

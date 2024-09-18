@@ -1,4 +1,10 @@
 <style>
+    .chart-container {
+    width: 100%; /* Ensure container uses full width of its parent */
+    max-width: 400px; /* Set a max width to control size */
+    margin: 0 auto; /* Center the container */
+}
+
     .card {
         border: 1px solid #e0e0e0;
         border-radius: 8px;
