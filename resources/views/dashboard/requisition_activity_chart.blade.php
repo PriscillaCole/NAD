@@ -1,5 +1,5 @@
 <!-- Pie Chart in a Card -->
-<div class="col-lg-12 col-md-12 col-sm-12">
+<div>
     <div class="card">
         <div class="card-header">
             <h3 class="card-title">{{ __('Activity Requisitions by Project') }}</h3>
