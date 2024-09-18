@@ -18,6 +18,9 @@ class HomeController extends Controller
         // Fetch data for the chart
         $programId2 = request()->query('programId2');
         $data = DashboardController::getBudgetComparisonData($programId2);
+
+        $period = request()->query('period', 'month'); // Default to 'month' if not specified
+        $chartData = DashboardController::getAverageApprovalTimeData($period);
     
         return $content
             ->row(function (Row $row) {
@@ -34,9 +37,12 @@ class HomeController extends Controller
                     $column->append(DashboardController::showProgramsWithActivities());
                 });
             })
-            ->row(function (Row $row) use ($data) {
+            ->row(function (Row $row) use ($data, $chartData) {
                 $row->column(6, function (Column $column) use ($data) {
                     $column->append(view('dashboard.budget_comparison_chart', $data));
+                });
+                $row->column(6, function (Column $column) use ($chartData) {
+                    $column->append(view('dashboard.average_approval_time', $chartData));
                 });
             });
     }
