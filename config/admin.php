@@ -276,7 +276,7 @@ return [
     |    "skin-red", "skin-red-light", "skin-black", "skin-black-light".
     |
     */
-    'skin' => env('ADMIN_SKIN', 'skin-black'),
+    'skin' => env('ADMIN_SKIN', 'skin-blue-light'),
 
     /*
     |--------------------------------------------------------------------------
