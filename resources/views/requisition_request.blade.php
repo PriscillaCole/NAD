@@ -25,10 +25,18 @@
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        h1, h2 {
-            color: #333;
+        h1 {
             text-align: center;
-           
+            color: #343a40;
+        }
+        .section {
+            margin-bottom: 20px;
+        }
+        .section h2 {
+            font-size: 1.5em;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 5px;
+            color: #007bff;
         }
         .table {
             width: 100%;
@@ -117,24 +125,48 @@
             object-position: center;
             margin-bottom: 20px;
         }
+        .status-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <img src="{{ asset('login-template/images/logo-removebg-preview.png') }}" alt="Logo" >
-        <p>Created by : {{ $requisition->staff->name }}</p>
-        <p>Created at : {{ $requisition->created_at }}</p>
+        <!-- <img src="{{ asset('login-template/images/logo-removebg-preview.png') }}" alt="Logo" > -->
+        <h1>Requisition Request</h1>
+        <label>Date Created: {{ $requisition->created_at }}</label>
         <!-- make the concept note a downloadable file -->
-        <p>Concept note : <a href="{{ asset('storage/'.$requisition->concept_note) }}" download onclick="forceDownload(event, '{{ asset('storage/' . $requisition->concept_note) }}')">Download Concept Note</a></p>
        
-
+        <div class="status-container">
+        <label >Concept note : <a href="{{ asset('storage/'.$requisition->concept_note) }}" download onclick="forceDownload(event, '{{ asset('storage/' . $requisition->concept_note) }}')">Download Concept Note</a></label>
+                <div class="field">
+                    <label for="status">Status</label>
+                    @if ($requisition->status == null)
+                        <span class="label label-warning">Pending</span>
+                    @elseif ($requisition->status == 'approved')
+                        <span class="label label-success">Approved</span>
+                    @elseif ($requisition->status == 'rejected')
+                        <span class="label label-danger">Rejected</span>
+                    @elseif ($requisition->status == 'amended')
+                        <span class="label label-info">Amended</span>
+                    @else
+                        <span class="label label-secondary">Unknown</span>
+                    @endif
+                </div>
+                <button class="btn no-print" onclick="window.print()">Print Request</button>
+            </div>
+      
         <!-- General Information Section -->
-        <h3>General Information</h3>
+        <div class="section">
+        <h2>General Information</h2>
         <table class="table table-bordered">
             <thead>
                 <tr>
-                    <th>ID</th>
+                 
                     <th>Staff ID</th>
+                    <th>Name</th>
                     <th>Code</th>
                     <th>Program</th>
                     <th>Activity</th>
@@ -142,8 +174,8 @@
             </thead>
             <tbody>
                 <tr>
-                    <td>{{ $requisition->id }}</td>
-                    <td>{{ $requisition->staff->staff_number}}
+                    <td>{{ $requisition->staff->staff_number}}</td>
+                    <td>{{ $requisition->staff->name }}</td>
                     <td>{{ $requisition->code }}</td>
                     <td>{{ $requisition->activity->program->name }}</td>
                     <td>{{ $requisition->activity->name }}</td>
@@ -151,8 +183,12 @@
             </tbody>
         </table>
 
+        </div>
+
+
          <!-- Requisition items Section -->
-         <h3>Requistion Items</h3>
+         <div class="section">
+         <h2>Requisition Items</h2>
         
         <table class="table table-bordered">
             <thead>
@@ -191,10 +227,11 @@
                 </tr>
             </tbody>
         </table>
-
+    </div>
 
         <!-- Approval Section -->
-        <h3>Approval list</h3>
+        <div class="section">
+        <h2>Approval list</h2>
         <table class="table table-bordered">
             <thead>
                 <tr>
@@ -233,10 +270,11 @@
                 @endforeach
             </tbody>
         </table>
-
+    </div>
 
         <!-- Comments Section -->
-        <h3>Comments</h3>
+        <div class="section">
+        <h2>Comments</h2>
         <table class="table table-bordered">
             <thead>
                 <tr>
@@ -260,11 +298,13 @@
                 @endforeach
             </tbody>
         </table>
-        
-        <!-- Ammendment notes if any  -->
-        <h3>Ammendment Notes</h3>
-        <p>{{ $requisition->amendment_notes }}</p>
+    </div>
 
+        <!-- Ammendment notes if any  -->
+        <div class="section">
+        <h2>Ammendment Notes</h2>
+        <p>{{ $requisition->amendment_notes }}</p>
+    </div>
 
         <a href="#" onclick="window.print()" class="btn no-print">Print Request</a>
 
