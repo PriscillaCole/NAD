@@ -1,13 +1,18 @@
-
 <div class="card">
     <div class="card-header">
         <h3>Requisition and Accountability Report</h3>
-        
     </div>
+    
     <div class="card-body">
         @if($requisitions->isEmpty())
             <p>No requisitions found for the selected criteria.</p>
         @else
+            <!-- @foreach($requisitions as $requisition)
+            <p>Project Description</p>
+            <p>Project Name: {{ $requisition->activity->program->name }}</p>
+            <p>Project Description: {{ $requisition->activity->program->description }}</p>
+
+            @endforeach -->
             <table class="table table-bordered">
                 <thead>
                     <tr>
@@ -38,26 +43,70 @@
     <!-- Add a section for the graph -->
     <div class="card-body">
         <h4>Accountability Overview</h4>
-        <canvas id="requisitionChart"></canvas>
+        <!-- Dropdown for selecting chart type -->
+        <label  class="chartSelection" for="chartType">Select Chart Type: </label>
+        <select id="chartType" class="form-control chartSelection " style="width: 200px;">
+            <option value="bar">Bar</option>
+            <option value="line">Line</option>
+            <option value="pie">Pie</option>
+            <option value="doughnut">Doughnut</option>
+        </select>
+
+       <!-- Add the canvas element with specific dimensions -->
+<canvas id="requisitionChart" style="width: 500px; height: 300px;"></canvas>
+
     </div>
+
     <button class="print-button" onclick="window.print()">Print Report</button>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-    // If you have any data to show in a graph, you can pass it here
-    @if(!$requisitions->isEmpty())
-        const ctx = document.getElementById('requisitionChart').getContext('2d');
-        const chart = new Chart(ctx, {
-            type: 'bar',
+document.addEventListener('DOMContentLoaded', function () {
+    // Get chart context
+    const ctx = document.getElementById('requisitionChart').getContext('2d');
+
+    // Default chart type
+    let chartType = 'bar';
+
+    // Requisition data
+    const requisitionCodes = @json($requisitions->pluck('code'));
+    const requisitionAmounts = @json($requisitions->pluck('amount'));
+
+    // Generate a random color for each requisition
+    function generateRandomColors(length) {
+        const colors = [];
+        for (let i = 0; i < length; i++) {
+            const randomColor = `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 0.5)`;
+            colors.push(randomColor);
+        }
+        return colors;
+    }
+
+    // Function to create chart
+    function createChart(type) {
+        console.log('Creating chart of type:', type); // Debugging line
+
+        // Check if requisitionChart already exists and destroy it before creating a new one
+        if (window.requisitionChart instanceof Chart) {
+            console.log('Destroying existing chart...'); // Debugging line
+            window.requisitionChart.destroy();
+        }
+
+        // Generate dynamic colors for the chart bars/lines/pie slices
+        const backgroundColors = generateRandomColors(requisitionCodes.length);
+
+        // Create new chart
+        window.requisitionChart = new Chart(ctx, {
+            type: type,
             data: {
-                labels: @json($requisitions->pluck('code')),
+                labels: requisitionCodes,
                 datasets: [{
                     label: 'Requisition Amounts',
-                    data: @json($requisitions->pluck('amount')),
-                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                    borderColor: 'rgba(54, 162, 235, 1)',
+                    data: requisitionAmounts,
+                    backgroundColor: backgroundColors, // Apply dynamic colors
+                    borderColor: backgroundColors.map(color => color.replace('0.5', '1')), // Darker border color
                     borderWidth: 1
                 }]
             },
@@ -69,8 +118,22 @@
                 }
             }
         });
-    @endif
+
+        console.log('Chart created successfully'); // Debugging line
+    }
+
+    // Create initial chart
+    createChart(chartType);
+
+    // Listen for chart type changes
+    document.getElementById('chartType').addEventListener('change', function (e) {
+        chartType = e.target.value;
+        createChart(chartType); // Recreate the chart with the new type
+    });
+});
+
 </script>
+
 <style>
 .card {
         border: 1px solid #e0e0e0;
@@ -104,6 +167,12 @@
         th {
             background-color: #f1f1f1;
         }
+        canvas {
+            max-width: 500px; /* Set the maximum width */
+            max-height: 300px; /* Set the maximum height */
+            /* center the canvas */
+            margin: 0 auto;
+        }
         @media print {
             .print-button {
                 display: none;
@@ -114,6 +183,9 @@
             .file-list a {
                 color: black;
                 text-decoration: none;
+            }
+            .chartSelection {
+                display: none;
             }
         }
         .print-button {

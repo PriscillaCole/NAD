@@ -254,7 +254,7 @@
                         No review yet
                     @endif
                 </p>
-                                <!-- add signature -->
+                <!-- add signature -->
                 <label for="signature">Signature</label>
                 <img src="{{ asset('storage/'.$accountability->signature) }}" alt="signature" style="width: 200px; height: 100px;">
             </div>

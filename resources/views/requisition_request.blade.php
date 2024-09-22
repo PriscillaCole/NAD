@@ -229,48 +229,50 @@
         </table>
     </div>
 
-        <!-- Approval Section -->
-        <div class="section">
-        <h2>Approval list</h2>
-        <table class="table table-bordered">
-            <thead>
+       <!-- Approval Section -->
+<div class="section">
+    <h2>Approval list</h2>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>No.</th>
+                <th>Roles</th>
+                <th>Staff Name</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @php
+                $counter = 1; // Initialize a counter variable
+                // Get unique comments by staff_id
+                $uniqueComments = $requisition->comments->unique('staff_id');
+            @endphp
+            @foreach($uniqueComments as $comment)
                 <tr>
-                    <th>No.</th>
-                    <th>Roles</th>
-                    <th>Staff Name</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                @php
-                    $counter = 1; // Initialize a counter variable
-                @endphp
-                @foreach($requisition->comments as $comment)
-                    <tr>
-                        <td>{{ $counter++ }}</td> <!-- Display incremental number -->
-                        <td>
-                            @if($comment->staff && $comment->staff->user)
-                                @if($comment->staff->user->roles->isNotEmpty())
-                                    @foreach($comment->staff->user->roles as $role)
-                                        {{ $role->name }}
-                                        @if(!$loop->last) 
-                                            , 
-                                        @endif
-                                    @endforeach
-                                @else
-                                    No Roles Assigned
-                                @endif
+                    <td>{{ $counter++ }}</td> <!-- Display incremental number -->
+                    <td>
+                        @if($comment->staff && $comment->staff->user)
+                            @if($comment->staff->user->roles->isNotEmpty())
+                                @foreach($comment->staff->user->roles as $role)
+                                    {{ $role->name }}
+                                    @if(!$loop->last) 
+                                        , 
+                                    @endif
+                                @endforeach
                             @else
-                                No User or Staff
+                                No Roles Assigned
                             @endif
-                        </td>
-                        <td>{{ $comment->staff ? $comment->staff->name : 'Unknown' }}</td>
-                        <td>{{ $comment->status }}</td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
+                        @else
+                            No User or Staff
+                        @endif
+                    </td>
+                    <td>{{ $comment->staff ? $comment->staff->name : 'Unknown' }}</td>
+                    <td>{{ $comment->status }}</td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+</div>
 
         <!-- Comments Section -->
         <div class="section">
@@ -300,13 +302,38 @@
         </table>
     </div>
 
-        <!-- Ammendment notes if any  -->
-        <div class="section">
+    <!-- Ammendment notes if any  -->
+    @if ($requisition->amendment_notes != null)
+    <div class="section">
         <h2>Ammendment Notes</h2>
         <p>{{ $requisition->amendment_notes }}</p>
     </div>
+    @endif
 
-        <a href="#" onclick="window.print()" class="btn no-print">Print Request</a>
+    <!-- signatures -->
+    <div class="section">
+       
+        <div class="status-container">
+        
+        <div class="field" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            @if ($requisition->status != null)
+                <div style="text-align: center;">
+                    <label for="signature">Akeem Bowen, Head of Finance</label><br>
+                    <img src="{{ asset('storage/signatures/hofs.png') }}" alt="signature" style="width: 200px; height: 100px;">
+                </div>
+                <div style="text-align: center;">
+                    <label for="signature">Justine Puckett, Country Director</label><br>
+                    <img src="{{ asset('storage/signatures/cds.png') }}" alt="signature" style="width: 200px; height: 100px;">
+                </div>
+            @endif
+        </div>
+
+</div>
+
+        </div>
+    </div>
+
+        
 
         <!-- check the role of the logged in user -->
         @if(auth()->user()->roles->isNotEmpty())
