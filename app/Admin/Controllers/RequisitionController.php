@@ -30,6 +30,9 @@ class RequisitionController extends AdminController
     protected function grid()
     {
         $grid = new Grid(new Requisition());
+
+        // order by latest requisition
+        $grid->model()->orderBy('created_at', 'desc');
         
          //filter by program and activity
          $grid->filter(function($filter){
