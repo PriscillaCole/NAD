@@ -9,6 +9,7 @@ use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
+use App\Models\Activity;
 use Encore\Admin\Facades\Admin;
 use Carbon\Carbon;
 
@@ -29,7 +30,21 @@ class RequisitionController extends AdminController
     protected function grid()
     {
         $grid = new Grid(new Requisition());
-
+        
+         //filter by program and activity
+         $grid->filter(function($filter){
+            $filter->disableIdFilter();
+            $filter->equal('id', 'Requisition ID')->select(Requisition::all()->pluck('code', 'id'));
+            $filter->equal('program_id', 'Program')->select(Program::all()->pluck('name', 'id'));
+            $filter->equal('activity_id', 'Activity')->select(Activity::all()->pluck('name', 'id'));
+            //status filter
+            $filter->equal('status', 'Status')->select([
+                'pending' => 'Pending',
+                'approved' => 'Approved',
+                'rejected' => 'Rejected',
+                'amended' => 'Amended'
+            ]);
+        });
        
         $grid->column('staff_id', __('Requested by'))->display(function($staff_id){
             return Staff::find($staff_id)->name;
@@ -52,7 +67,8 @@ class RequisitionController extends AdminController
         $grid->column('created_at', __('Created at'))->display(function ($created_at) {
             //return human readable format
             return (Carbon::parse($created_at)->diffForHumans());
-        });;
+        });
+        
        
 
         return $grid;
@@ -136,7 +152,9 @@ class RequisitionController extends AdminController
         });
 
         $form->hidden('staff_id', __('Staff'))->default( $staff_id );
-        $form->text('code', __('RequisitionID'))->default('REQ-'.rand(1000, 9999))->readonly();
+        $form->text('code', __('RequisitionID'))
+            ->default('REQ-' . rand(1000, 9999) . '/' . date('y'))  // 'y' gives the two-digit year
+            ->readonly();
         $form->select('program_id', __('Program'))->options(Program::all()->pluck('name', 'id'))->attribute('id', 'program_id')->required();
         $form->select('activity_id', __('Activity'))->attribute('id', 'activity_id')->required()->rules('exists:activities,id');
 

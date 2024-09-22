@@ -19,6 +19,7 @@ Route::group([
     $router->resource('programs', ProgramController::class);
     $router->resource('activities', ActivityController::class);
     $router->resource('categories', CategoryController::class);
+    $router->resource('reports', ReportController::class);
 
    
 

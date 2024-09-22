@@ -30,6 +30,19 @@ class AccountabilityController extends AdminController
     {
         $grid = new Grid(new Accountability());
 
+        //filter by program and activity
+        $grid->filter(function($filter){
+            $filter->disableIdFilter();
+
+            $filter->equal('requisition_id', 'Requisition ID')->select(Requisition::all()->pluck('code', 'id'));
+            //status filter
+            $filter->equal('status', 'Status')->select([
+                'pending' => 'Pending',
+                'closed' => 'Closed',
+                'rejected' => 'Rejected'
+            ]);
+        });
+
       
         $grid->column('requisition_id', __('Requisition id'))->display(function($requisition_id){
             return Requisition::find($requisition_id)->code;

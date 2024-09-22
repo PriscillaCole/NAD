@@ -30,3 +30,8 @@ Route::post('/comments', [App\Http\Controllers\CommentController::class, 'store'
 Route::get('/program-activities/{id}', [App\Admin\Controllers\RequisitionController::class, 'getProgramActivities'])->name('program-activities');
 Route::get('/requisition/{id}', [App\Admin\Controllers\AccountabilityController::class, 'Requisition'])->name('requisition');
 
+// In routes/web.php
+Route::get('/get-activities/{projectId}', [App\Http\Controllers\ReportController::class, 'getActivities']);
+Route::get('/get-staff/{activityId}',  [App\Http\Controllers\ReportController::class, 'getStaff']);
+Route::get('/get-requisitions/{activityId}/{staffId?}',  [App\Http\Controllers\ReportController::class, 'getRequisitions']);
+Route::get('/generate-report', [App\Http\Controllers\ReportController::class, 'generateReport'])->name('generateReport');
