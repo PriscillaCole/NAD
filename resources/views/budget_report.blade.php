@@ -1,10 +1,9 @@
-<!-- Program Selection Form -->
-<style>
-    .activity-row {
-        background-color: #e7f1ff; /* Light blue color */
-    }
-</style>
 
+<div class="card">
+    <div class="card-header">
+        <h4 class="card-title">{{ __('Generate Program Budget') }}</h4>
+    </div>
+    <div class="card-body">
 <form id="programForm" method="POST">
     @csrf
     <div class="form-group">
@@ -15,8 +14,72 @@
             @endforeach
         </select>
     </div>
+    <div class="text-right">
     <button type="button" class="btn btn-primary" id="viewActivitiesBtn">View Program Budget</button>
+    </div>
 </form>
+</div>
+</div>
+
+<style>
+      .activity-row {
+        background-color: #e7f1ff; /* Light blue color */
+    }
+    .card {
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        margin-bottom: 30px;
+        padding: 20px;
+        transition: all 0.3s ease-in-out;
+        background-color: #fff;
+        border-top: 3px solid #0096FF;
+    }
+
+    .card-body {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+    .card-header {
+        border-bottom: 1px solid #e0e0e0;
+        padding-bottom: 5px;
+        margin-bottom: 30px;
+    }
+
+    .form-group {
+        display: flex;
+        justify-content: flex-start;
+        margin-bottom: 15px;
+        padding-left: 50px;
+        padding-right: 50px;
+    }
+
+    .form-group label {
+        margin-right: 10px;
+        min-width: 120px; /* Ensures labels align neatly */
+    }
+
+    .form-control {
+        flex: 1;
+    }
+
+    .form-group.d-flex input,
+    .form-group.d-flex select {
+        width: auto;
+    }
+
+/* add padding to the span class */
+    .span {
+        padding: 0 10px;
+    }
+
+    .text-right {
+        text-align: right;
+    }
+    
+
+    
+</style>
 
 <!-- Modal -->
 <div class="modal fade" id="activitiesModal" tabindex="-1" role="dialog" aria-labelledby="activitiesModalLabel" aria-hidden="true">
