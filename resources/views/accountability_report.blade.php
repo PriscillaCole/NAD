@@ -309,25 +309,37 @@
             $loginUrl = url('/') . '?redirect_to=' . urlencode($redirectUrl);
         @endphp  
 
-        <h2>Copiable Link to Accountability Form</h2>
         <div class="field">
-            <label for="accountability_link">Link:</label>
-            <input type="text" id="accountability_link" value="{{ $loginUrl }}" readonly class="form-control" />
-            <button onclick="copyToClipboard()">Copy Link</button>
+            <label for="accountability_link">Link to accountability Form:</label>
+            <!-- Hidden input field for the link -->
+            <input type="hidden" id="accountability_link" value="{{ $loginUrl }}" />
+            <button onclick="copyLink()">Copy Link</button>
         </div>
-     
-    </div>
+
         <script>
-            function copyToClipboard() {
+            function copyLink() {
+                // Get the hidden input field
                 var copyText = document.getElementById("accountability_link");
-                copyText.select();
-                copyText.setSelectionRange(0, 99999); // For mobile devices
+                
+                // Create a temporary input to copy from
+                var tempInput = document.createElement("input");
+                tempInput.value = copyText.value; // Set the value to the hidden link
+                document.body.appendChild(tempInput); // Append it to the body
 
-                document.execCommand("copy"); // Copy the text inside the text field
+                // Select the temporary input
+                tempInput.select();
+                tempInput.setSelectionRange(0, 99999); // For mobile devices
 
-                alert("Copied the link: " + copyText.value); // Optional: alert the user
+                // Copy the text inside the temporary input
+                document.execCommand("copy");
+
+                // Remove the temporary input from the body
+                document.body.removeChild(tempInput);
+
+                toastr.success('Link copied to clipboard!');
             }
         </script>
+
 
        
         <div class="section">
