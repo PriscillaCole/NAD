@@ -35,3 +35,4 @@ Route::get('/get-activities/{projectId}', [App\Http\Controllers\ReportController
 Route::get('/get-staff/{activityId}',  [App\Http\Controllers\ReportController::class, 'getStaff']);
 Route::get('/get-requisitions/{activityId}/{staffId?}',  [App\Http\Controllers\ReportController::class, 'getRequisitions']);
 Route::get('/generate-report', [App\Http\Controllers\ReportController::class, 'generateReport'])->name('generateReport');
+Route::get('accountabilities/{id}', [App\Admin\Controllers\AccountabilityController::class, 'detail'])->name('accountabilities.show');

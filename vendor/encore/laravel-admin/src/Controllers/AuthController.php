@@ -9,8 +9,10 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Lang;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Validator;
+
 
 class AuthController extends Controller
 {
@@ -43,18 +45,26 @@ class AuthController extends Controller
     public function postLogin(Request $request)
     {
         $this->loginValidator($request->all())->validate();
-
+    
         $credentials = $request->only([$this->email(), 'password']);
         $remember = $request->get('remember', false);
-
+    
         if ($this->guard()->attempt($credentials, $remember)) {
-            return $this->sendLoginResponse($request);
+            // Get the redirect URL from the request or use the default
+            $redirectUrl = $request->input('redirect_to') ?: $this->redirectPath();
+            Log::info('Redirect URL after login:', ['redirect_to' => $redirectUrl]);
+           
+            return redirect()->intended($redirectUrl);
         }
+        
 
+    
         return back()->withInput()->withErrors([
             $this->email() => $this->getFailedLoginMessage(),
         ]);
     }
+    
+    
 
     /**
      * Get a validator for an incoming login request.
@@ -192,11 +202,16 @@ class AuthController extends Controller
     protected function sendLoginResponse(Request $request)
     {
         admin_toastr(trans('admin.login_successful'));
-
+    
         $request->session()->regenerate();
+    
+        // Get the redirect URL or fallback to the default path
+        $redirectUrl = $request->input('redirect_to', $this->redirectPath());
 
-        return redirect()->intended($this->redirectPath());
+    
+        return redirect()->intended($redirectUrl);
     }
+    
 
     /**
      * Get the login username to be used by the controller.

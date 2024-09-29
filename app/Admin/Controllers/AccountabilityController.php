@@ -113,11 +113,13 @@ class AccountabilityController extends AdminController
                 ->attribute('id', 'amount_dispensed')
                 ->readonly();
     
-            $form->decimal('amount_used', __('Total amount used'))
-                ->attribute('id', 'amount_used');
-    
             // Requisition items and receipts (This section will be dynamically populated via JavaScript)
             $form->html('<div id="requisition-items"></div>'); // Placeholder for requisition items and receipt fields
+
+            $form->multipleFile('receiptFiles', __('Receipts for used amount'))->pathColumn('receipt_path')->removable();
+
+            $form->decimal('amount_used', __('Total amount used'))
+            ->attribute('id', 'amount_used');
         }
     
         $form->decimal('returned_amount', __('Amount returned to finance'))
@@ -129,8 +131,14 @@ class AccountabilityController extends AdminController
             ->readonly();
     
         // File fields for proof of funds and narrative report
-        $form->file('proof_of_funds_returned', __('Receipt for funds returned to finance'));
+       
+
+        if($user->isRole('finance')) {
         $form->file('proof_of_funds_to_be_returned', __('Receipt for funds returned to staff'));
+        }else{
+            $form->file('proof_of_funds_returned', __('Receipt for funds returned to finance'));
+        }
+
         $form->file('narrative_report', __('Narrative Report'));
     
         if($form->isEditing()) {
@@ -212,6 +220,10 @@ class AccountabilityController extends AdminController
         }
         return response()->json(['error' => 'Requisition not found'], 404);
     }
+
+
+
+
     
 
 }
