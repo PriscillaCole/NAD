@@ -34,6 +34,12 @@ class Requisition extends Model
         return $this->belongsTo(Activity::class);
     }
 
+      // A requisition can have many accountabilities
+      public function accountabilities()
+      {
+          return $this->hasMany(Accountability::class);
+      }
+
   
 
 

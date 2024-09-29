@@ -28,7 +28,7 @@ Route::get('/dashboardvs', [App\Http\Controllers\DashboardController::class, 'ge
 Route::get('/dashboardwp', [App\Http\Controllers\DashboardController::class, 'showWeeklyPattern'])->name('weekly-pattern');
 Route::post('/comments', [App\Http\Controllers\CommentController::class, 'store'])->name('comments');
 Route::get('/program-activities/{id}', [App\Admin\Controllers\RequisitionController::class, 'getProgramActivities'])->name('program-activities');
-Route::get('/requisition/{id}', [App\Admin\Controllers\AccountabilityController::class, 'Requisition'])->name('requisition');
+Route::get('/requisition/{id}', [App\Admin\Controllers\AccountabilityController::class, 'getRequisitionItems'])->name('requisition');
 
 // In routes/web.php
 Route::get('/get-activities/{projectId}', [App\Http\Controllers\ReportController::class, 'getActivities']);

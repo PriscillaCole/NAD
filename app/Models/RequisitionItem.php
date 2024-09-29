@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Admin\Controllers\RequisitionController;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -28,4 +29,11 @@ class RequisitionItem extends Model
     {
         return $this->belongsTo(Category::class);
     }
+
+      //relationship with activity receipts
+      public function requisitionItemReceipts()
+      {
+          return $this->hasMany(RequisitionItemReceipt::class);
+      }
+ 
 }

@@ -69,7 +69,10 @@ class DashboardController extends Controller
     public static function showProgramsWithActivities()
     {
         // Fetch all programs with their associated activities
-        $programs = Program::with('activities')->get(); // Assuming 'activities' relationship exists in the Program model
+        $programs = Program::with(['activities' => function($query) {
+            $query->paginate(10);
+        }])->get();
+        
 
         return view('dashboard.programs_activities', compact('programs'));
     }
@@ -121,31 +124,31 @@ class DashboardController extends Controller
 
 
     // In DashboardController.php
-public static function getAverageApprovalTimeData($period = 'month')
-{
-    $programs = Program::all();
+    public static function getAverageApprovalTimeData($period = 'month')
+    {
+        $programs = Program::all();
 
-    // Fetch requisitions with approval times
-    $query = DB::table('requisitions')
-        ->select(DB::raw('DATE_FORMAT(updated_at, "%Y-%m") as period'), DB::raw('AVG(TIMESTAMPDIFF(DAY, created_at, updated_at)) as avg_days'))
-        ->whereNotNull('updated_at')
-        ->groupBy(DB::raw('DATE_FORMAT(updated_at, "%Y-%m")'))
-        ->orderBy(DB::raw('DATE_FORMAT(updated_at, "%Y-%m")'))
-        ->get();
+        // Fetch requisitions with approval times
+        $query = DB::table('requisitions')
+            ->select(DB::raw('DATE_FORMAT(updated_at, "%Y-%m") as period'), DB::raw('AVG(TIMESTAMPDIFF(DAY, created_at, updated_at)) as avg_days'))
+            ->whereNotNull('updated_at')
+            ->groupBy(DB::raw('DATE_FORMAT(updated_at, "%Y-%m")'))
+            ->orderBy(DB::raw('DATE_FORMAT(updated_at, "%Y-%m")'))
+            ->get();
 
-    // Map results to the required format
-    $chartData = $query->map(function($item) {
+        // Map results to the required format
+        $chartData = $query->map(function($item) {
+            return [
+                'period' => $item->period,
+                'avg_days' => $item->avg_days,
+            ];
+        });
+
         return [
-            'period' => $item->period,
-            'avg_days' => $item->avg_days,
+            'chartData' => $chartData,
+            'programs' => $programs,
         ];
-    });
-
-    return [
-        'chartData' => $chartData,
-        'programs' => $programs,
-    ];
-}
+    }
 
     
 

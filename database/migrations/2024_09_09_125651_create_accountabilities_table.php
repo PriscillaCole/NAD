@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('proof_of_funds_returned')->nullable();
             $table->decimal('amount_to_be_returned',15, 2)->nullable();
             $table->string('proof_of_funds_to_be_returned')->nullable();
-            $table->decimal('amount_used')->nullable();
+            $table->decimal('amount_used', 15, 2)->nullable();
             $table->string('status')->nullable();
             $table->string('remarks')->nullable();
             $table->string('signature')->nullable();

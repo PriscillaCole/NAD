@@ -20,4 +20,5 @@ class Activity extends Model
     {
         return $this->belongsTo(Program::class);
     }
+
 }
