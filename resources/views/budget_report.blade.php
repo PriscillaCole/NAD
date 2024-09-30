@@ -76,6 +76,56 @@
     .text-right {
         text-align: right;
     }
+   
+    .activity-section {
+        margin-bottom: 30px; /* Space between activities */
+        padding: 15px;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+    }
+
+    .activity-row {
+        background-color: #e7f1ff; /* Light blue color for activity rows */
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 4px;
+    }
+
+    .activity-total-row, .activity-balance-row {
+        padding: 10px;
+        margin-top: 10px;
+        border-radius: 4px;
+    }
+
+    .activity-total-row {
+        background-color: #e0ffe0; /* Light green for total used */
+    }
+
+    .activity-balance-row {
+        background-color: #fff2e6; /* Light orange for balance */
+    }
+
+    .table-bordered {
+        margin-bottom: 20px;
+    }
+
+    .table th {
+        background-color: #f0f8ff; /* Light shade of blue for table headers */
+    }
+
+    .req-section {
+        display: block;
+        margin-top: 20px;
+        padding-bottom: 10px;
+    }
+
+    .row {
+        margin-bottom: 10px; /* Space between rows */
+    }
+
+    
+
     
 
     
@@ -128,6 +178,8 @@ function openActivitiesModal(programData) {
 
     // Populate activities and requisitions
     programData.activities.forEach(activity => {
+        let totalUsed = 0; // Initialize total used amount for the activity
+
         // Create activity section
         const activityDiv = document.createElement('div');
         activityDiv.classList.add('activity-section');
@@ -173,12 +225,15 @@ function openActivitiesModal(programData) {
 
             const tableBody = document.createElement('tbody');
             requisition.items.forEach(item => {
+                const itemTotal = item.quantity * item.unit_price;
+                totalUsed += itemTotal; // Add to total used for the activity
+
                 const itemRow = document.createElement('tr');
                 itemRow.innerHTML = `
                     <td>${item.item}</td>
                     <td>${item.quantity}</td>
                     <td>${item.unit_price}</td>
-                    <td>${(item.quantity * item.unit_price).toFixed(2)}</td>
+                    <td>${itemTotal.toFixed(2)}</td>
                 `;
                 tableBody.appendChild(itemRow);
             });
@@ -187,9 +242,30 @@ function openActivitiesModal(programData) {
             activityDiv.appendChild(requisitionTable);
         });
 
+        // Add total used row
+        const totalUsedRow = document.createElement('div');
+        totalUsedRow.classList.add('row', 'activity-total-row');
+        totalUsedRow.innerHTML = `
+            <div class="col-md-6"><strong>Total Amount Used:</strong></div>
+            <div class="col-md-6">${totalUsed.toFixed(2)}</div>
+        `;
+        activityDiv.appendChild(totalUsedRow);
+
+        // Calculate and display the balance
+        const balance = activity.budget - totalUsed;
+        const balanceRow = document.createElement('div');
+        balanceRow.classList.add('row', 'activity-balance-row');
+        balanceRow.innerHTML = `
+            <div class="col-md-6"><strong>Balance:</strong></div>
+            <div class="col-md-6" style="color: ${balance < 0 ? 'red' : 'black'};">${balance.toFixed(2)}</div>
+        `;
+        activityDiv.appendChild(balanceRow);
+
         activitiesContainer.appendChild(activityDiv);
     });
 }
+
+
 
 
 </script>
