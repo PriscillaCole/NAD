@@ -15,6 +15,7 @@ class Staff extends Model
 
     
     protected $fillable = [
+        'user_id',
         'staff_number',
         'nin_number',
         'name',
@@ -98,12 +99,14 @@ class Staff extends Model
                         // The user already has the role, handle accordingly (optional)
                         Log::info('User already has the staff role with user_id: ' . $new_user->id);
                         }
+                        
+                        $model->user_id = $new_user->id;
                 } else {
                 // User not found, handle accordingly (optional)
                 Log::error('User not found with username: ' . $model->staff_number . ' or name: ' . $model->name);
                 }
 
-                $model->user_id = $new_user->id;
+             
 
                 
         });

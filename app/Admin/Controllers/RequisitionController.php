@@ -33,6 +33,13 @@ class RequisitionController extends AdminController
 
         // order by latest requisition
         $grid->model()->orderBy('created_at', 'desc');
+
+        //show staff only requisitions made by them if they are not admin
+        $user = auth()->user();
+        if ($user->isRole('staff')) {
+            $staff_id = Staff::where('user_id', $user->id)->first()->id;
+            $grid->model()->where('staff_id', $staff_id);
+        }
         
          //filter by program and activity
          $grid->filter(function($filter){
