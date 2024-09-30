@@ -151,6 +151,7 @@ class RequisitionController extends AdminController
         });
         
 
+      
         //when the form is saved , redirect to the show view with a success message that has the total amount of the requisition
         $form->saved(function (Form $form) {
             //get the total amount of the requisition
@@ -161,13 +162,16 @@ class RequisitionController extends AdminController
          
         });
 
-        $form->hidden('staff_id', __('Staff'))->default( $staff_id );
-        $form->text('code', __('RequisitionID'))
-            ->default('REQ-' . rand(1000, 9999) . '/' . date('y'))  // 'y' gives the two-digit year
-            ->readonly();
-        $form->select('program_id', __('Program'))->options(Program::all()->pluck('name', 'id'))->attribute('id', 'program_id')->required();
-        $form->select('activity_id', __('Activity'))->attribute('id', 'activity_id')->required()->rules('exists:activities,id');
-
+        if($user->isRole('staff')){
+            $form->hidden('staff_id', __('Staff'))->default( $staff_id );
+            $form->text('code', __('RequisitionID'))
+                ->default('REQ-' . rand(1000, 9999) . '/' . date('y'))  // 'y' gives the two-digit year
+                ->readonly();
+            $form->select('program_id', __('Program'))->options(Program::all()->pluck('name', 'id'))->attribute('id', 'program_id')->required();
+            $form->select('activity_id', __('Activity'))->attribute('id', 'activity_id')->required()->rules('exists:activities,id');
+   
+        }
+       
         //add requisition items
         $form->hasMany('requisition_items', 'Requisition items', function (Form\NestedForm $form) {
             $form->select('category_id', __('Category'))->options(\App\Models\Category::all()->pluck('name', 'id'))->required();

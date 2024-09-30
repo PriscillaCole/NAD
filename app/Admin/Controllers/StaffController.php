@@ -102,7 +102,11 @@ class StaffController extends AdminController
         $form->text('line_manager', __('Line manager'));
         $form->text('telephone', __('Telephone'));
         // make sure that the email address is unique
-        $form->email('email', __('Email'))->rules('unique:staff,email');
+        $form->email('email', __('Email'))->rules(function ($form) {
+            // Check if the form is being created or updated
+            return $form->model()->exists ? 'nullable|email' : 'required|email|unique:staff,email';
+        });
+        
         $form->text('bank', __('Bank'));
         $form->text('bank_account', __('Bank account'));
         $form->text('tin', __('Tin'));

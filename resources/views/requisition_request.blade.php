@@ -245,8 +245,17 @@
             @php
                 $counter = 1; // Initialize a counter variable
                 // Get unique comments by staff_id
-                $uniqueComments = $requisition->comments->unique('staff_id');
+                $uniqueComments = $requisition->comments->unique('commented_by');
             @endphp
+            @if($requisition->status == 'amended')
+                <tr>
+                    <td>1</td>
+                    <td>Head of finance</td>
+                    <td>Mbabazi Isaac</td>
+                    <td>{{ $requisition->status }}</td>
+
+                </tr>
+            @endif
             @foreach($uniqueComments as $comment)
                 <tr>
                     <td>{{ $counter++ }}</td> <!-- Display incremental number -->
@@ -318,24 +327,27 @@
         <div class="field" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
             @if ($requisition->status != null)
                 <div style="text-align: center;">
-                    <label for="signature">Akeem Bowen, Head of Finance</label><br>
+                    <label for="signature">Mbabazi Isaac, Head of Finance</label><br>
                     <img src="{{ asset('storage/signatures/hofs.png') }}" alt="signature" style="width: 200px; height: 100px;">
                 </div>
-                <div style="text-align: center;">
-                    <label for="signature">Justine Puckett, Country Director</label><br>
-                    <img src="{{ asset('storage/signatures/cds.png') }}" alt="signature" style="width: 200px; height: 100px;">
-                </div>
+                @if($requisition->status == 'approved')
+                    <div style="text-align: center;">
+                        <label for="signature">Amokol Priscilla, Country Director</label><br>
+                        <img src="{{ asset('storage/signatures/cds.png') }}" alt="signature" style="width: 200px; height: 100px;">
+                    </div>
+                @endif
             @endif
         </div>
 
 </div>
 
         </div>
-    </div>
+    
 
         
 
         <!-- check the role of the logged in user -->
+         
         @if(auth()->user()->roles->isNotEmpty())
             @foreach(auth()->user()->roles as $role)
                 @if($role->slug == 'finance' || $role->slug == 'director')
@@ -346,7 +358,7 @@
                 @endif
             @endforeach
         @endif
-       
+        </div>
 
         <!-- Modal -->
         <div id="reasonModal" class="modal">
