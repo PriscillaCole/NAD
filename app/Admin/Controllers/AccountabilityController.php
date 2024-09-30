@@ -116,7 +116,7 @@ class AccountabilityController extends AdminController
             // Requisition items and receipts (This section will be dynamically populated via JavaScript)
             $form->html('<div id="requisition-items"></div>'); // Placeholder for requisition items and receipt fields
 
-            $form->multipleFile('receiptFiles', __('Receipts for used amount'))->pathColumn('receipt_path')->removable();
+            $form->multipleFile('receiptFiles', __('Any other relevant receipts'))->pathColumn('receipt_path')->removable();
 
             $form->decimal('amount_used', __('Total amount used'))
             ->attribute('id', 'amount_used');

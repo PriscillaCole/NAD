@@ -174,12 +174,11 @@ class RequisitionController extends AdminController
        
         //add requisition items
         $form->hasMany('requisition_items', 'Requisition items', function (Form\NestedForm $form) {
-            $form->select('category_id', __('Category'))->options(\App\Models\Category::all()->pluck('name', 'id'))->required();
+            $form->select('category_id', __('Category'))->options(\App\Models\Category::all()->pluck('name', 'id'))->rules('required');
             $form->text('item', __('Item'));
-            $form->decimal('quantity', __('Quantity'))->required();
-            $form->text('unit_of_measure', __('Unit of measure'))->required();
-            $form->decimal('unit_price', __('Unit cost'))->required();
-           
+            $form->decimal('quantity', __('Quantity'))->rules('required');
+            $form->text('unit_of_measure', __('Unit of measure'))->rules('required');
+            $form->decimal('unit_price', __('Unit cost'))->rules('required');
             
             
         });
