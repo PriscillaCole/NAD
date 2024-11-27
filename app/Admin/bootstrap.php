@@ -18,22 +18,4 @@
  *
  */
 
-use Encore\Admin\Facades\Admin;
-use Illuminate\Support\Facades\Auth;
-use App\Models\Notification;
-
 Encore\Admin\Form::forget(['map', 'editor']);
-Admin::favicon(asset('storage/images/favicon-32x32.png'));
-
-
-Admin::navbar(function (\Encore\Admin\Widgets\Navbar $navbar) {
-    $notifications = [];
-    $user =  Auth::user();
-    if ($user != null) {
-        $notifications = Notification::get_notifications($user);
-    }
-
-    $navbar->right(view('notification_bell', ['notifications' => $notifications]));
-   
-    
-});

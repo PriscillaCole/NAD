@@ -11,7 +11,7 @@ return [
     | login page.
     |
     */
-    'name' => 'ReQTrack',
+    'name' => 'Laravel-admin',
 
     /*
     |--------------------------------------------------------------------------
@@ -22,7 +22,7 @@ return [
     | `img` tag, eg '<img src="http://logo-url" alt="Admin logo">'.
     |
     */
-    'logo' => '<b>ReQTrack</b>',
+    'logo' => '<b>REQTRACK</b> ',
 
     /*
     |--------------------------------------------------------------------------
@@ -34,9 +34,8 @@ return [
     | '<img src="http://logo-url" alt="Admin logo">'.
     |
     */
-    //'logo-mini' => '<img src="' . asset('login-template') . '/images/logo.png" alt="Admin logo" style="width: 30px; height: 20px;">',
+    'logo-mini' => '<b>Req</b>',
 
-    'logo-mini' => '<b>ReQ</b>',
     /*
     |--------------------------------------------------------------------------
     | Laravel-admin bootstrap setting
@@ -86,7 +85,7 @@ return [
     | Html title for all pages.
     |
     */
-    'title' => 'CUAMM',
+    'title' => 'Admin',
 
     /*
     |--------------------------------------------------------------------------
@@ -133,7 +132,7 @@ return [
         'remember' => true,
 
         // Redirect to the specified URI when user is not authorized.
-        'redirect_to' => '/',
+        'redirect_to' => 'auth/login',
 
         // The URIs that should be excluded from authorization.
         'excepts' => [
@@ -311,7 +310,7 @@ return [
     | each page
     |
     */
-    'show_version' => false,
+    'show_version' => true,
 
     /*
     |--------------------------------------------------------------------------
@@ -321,7 +320,7 @@ return [
     | Whether to display the environment at the footer of each page
     |
     */
-    'show_environment' => false,
+    'show_environment' => true,
 
     /*
     |--------------------------------------------------------------------------

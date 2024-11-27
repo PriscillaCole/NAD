@@ -241,7 +241,7 @@ class PendingProcess
      * @throws \Illuminate\Process\Exceptions\ProcessTimedOutException
      * @throws \RuntimeException
      */
-    public function run(array|string $command = null, callable $output = null)
+    public function run(array|string|null $command = null, ?callable $output = null)
     {
         $this->command = $command ?: $this->command;
 
@@ -266,10 +266,12 @@ class PendingProcess
      * Start the process in the background.
      *
      * @param  array<array-key, string>|string|null  $command
-     * @param  callable  $output
+     * @param  callable|null  $output
      * @return \Illuminate\Process\InvokedProcess
+     *
+     * @throws \RuntimeException
      */
-    public function start(array|string $command = null, callable $output = null)
+    public function start(array|string|null $command = null, ?callable $output = null)
     {
         $this->command = $command ?: $this->command;
 
@@ -348,7 +350,7 @@ class PendingProcess
     protected function fakeFor(string $command)
     {
         return collect($this->fakeHandlers)
-                ->first(fn ($handler, $pattern) => Str::is($pattern, $command));
+                ->first(fn ($handler, $pattern) => $pattern === '*' || Str::is($pattern, $command));
     }
 
     /**
@@ -362,6 +364,10 @@ class PendingProcess
     {
         $result = $fake($this);
 
+        if (is_int($result)) {
+            return (new FakeProcessResult(exitCode: $result))->withCommand($command);
+        }
+
         if (is_string($result) || is_array($result)) {
             return (new FakeProcessResult(output: $result))->withCommand($command);
         }
@@ -371,6 +377,7 @@ class PendingProcess
             $result instanceof FakeProcessResult => $result->withCommand($command),
             $result instanceof FakeProcessDescription => $result->toProcessResult($command),
             $result instanceof FakeProcessSequence => $this->resolveSynchronousFake($command, fn () => $result()),
+            $result instanceof \Throwable => throw $result,
             default => throw new LogicException('Unsupported synchronous process fake result provided.'),
         };
     }
@@ -382,6 +389,8 @@ class PendingProcess
      * @param  callable|null  $output
      * @param  \Closure  $fake
      * @return \Illuminate\Process\FakeInvokedProcess
+     *
+     * @throw \LogicException
      */
     protected function resolveAsynchronousFake(string $command, ?callable $output, Closure $fake)
     {

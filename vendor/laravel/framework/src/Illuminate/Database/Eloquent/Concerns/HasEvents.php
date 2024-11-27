@@ -3,9 +3,13 @@
 namespace Illuminate\Database\Eloquent\Concerns;
 
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Events\NullDispatcher;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use InvalidArgumentException;
+use ReflectionClass;
 
 trait HasEvents
 {
@@ -26,6 +30,38 @@ trait HasEvents
      * @var array
      */
     protected $observables = [];
+
+    /**
+     * Boot the has event trait for a model.
+     *
+     * @return void
+     */
+    public static function bootHasEvents()
+    {
+        static::observe(static::resolveObserveAttributes());
+    }
+
+    /**
+     * Resolve the observe class names from the attributes.
+     *
+     * @return array
+     */
+    public static function resolveObserveAttributes()
+    {
+        $reflectionClass = new ReflectionClass(static::class);
+
+        $isEloquentGrandchild = is_subclass_of(static::class, Model::class)
+            && get_parent_class(static::class) !== Model::class;
+
+        return collect($reflectionClass->getAttributes(ObservedBy::class))
+            ->map(fn ($attribute) => $attribute->getArguments())
+            ->flatten()
+            ->when($isEloquentGrandchild, function (Collection $attributes) {
+                return collect(get_parent_class(static::class)::resolveObserveAttributes())
+                    ->merge($attributes);
+            })
+            ->all();
+    }
 
     /**
      * Register observers with the model.
@@ -360,9 +396,19 @@ trait HasEvents
     }
 
     /**
+     * Get the event map for the model.
+     *
+     * @return array
+     */
+    public function dispatchesEvents()
+    {
+        return $this->dispatchesEvents;
+    }
+
+    /**
      * Get the event dispatcher instance.
      *
-     * @return \Illuminate\Contracts\Events\Dispatcher
+     * @return \Illuminate\Contracts\Events\Dispatcher|null
      */
     public static function getEventDispatcher()
     {

@@ -43,6 +43,39 @@ class SQLiteGrammar extends Grammar
     }
 
     /**
+     * Compile a "where like" clause.
+     *
+     * @param  \Illuminate\Database\Query\Builder  $query
+     * @param  array  $where
+     * @return string
+     */
+    protected function whereLike(Builder $query, $where)
+    {
+        if ($where['caseSensitive'] == false) {
+            return parent::whereLike($query, $where);
+        }
+        $where['operator'] = $where['not'] ? 'not glob' : 'glob';
+
+        return $this->whereBasic($query, $where);
+    }
+
+    /**
+     * Convert a LIKE pattern to a GLOB pattern using simple string replacement.
+     *
+     * @param  string  $value
+     * @param  bool  $caseSensitive
+     * @return string
+     */
+    public function prepareWhereLikeBinding($value, $caseSensitive)
+    {
+        return $caseSensitive === false ? $value : str_replace(
+            ['*', '?', '%', '_'],
+            ['[*]', '[?]', '*', '?'],
+            $value
+        );
+    }
+
+    /**
      * Compile a "where date" clause.
      *
      * @param  \Illuminate\Database\Query\Builder  $query
@@ -182,6 +215,25 @@ class SQLiteGrammar extends Grammar
         [$field, $path] = $this->wrapJsonFieldAndPath($column);
 
         return 'json_type('.$field.$path.') is not null';
+    }
+
+    /**
+     * Compile a group limit clause.
+     *
+     * @param  \Illuminate\Database\Query\Builder  $query
+     * @return string
+     */
+    protected function compileGroupLimit(Builder $query)
+    {
+        $version = $query->getConnection()->getServerVersion();
+
+        if (version_compare($version, '3.25.0') >= 0) {
+            return parent::compileGroupLimit($query);
+        }
+
+        $query->groupLimit = null;
+
+        return $this->compileSelect($query);
     }
 
     /**
@@ -387,7 +439,7 @@ class SQLiteGrammar extends Grammar
     public function compileTruncate(Builder $query)
     {
         return [
-            'delete from sqlite_sequence where name = ?' => [$query->from],
+            'delete from sqlite_sequence where name = ?' => [$this->getTablePrefix().$query->from],
             'delete from '.$this->wrapTable($query->from) => [],
         ];
     }

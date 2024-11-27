@@ -44,7 +44,7 @@ class AuthController extends Controller
     {
         $this->loginValidator($request->all())->validate();
 
-        $credentials = $request->only([$this->email(), 'password']);
+        $credentials = $request->only([$this->username(), 'password']);
         $remember = $request->get('remember', false);
 
         if ($this->guard()->attempt($credentials, $remember)) {
@@ -52,7 +52,7 @@ class AuthController extends Controller
         }
 
         return back()->withInput()->withErrors([
-            $this->email() => $this->getFailedLoginMessage(),
+            $this->username() => $this->getFailedLoginMessage(),
         ]);
     }
 
@@ -66,7 +66,7 @@ class AuthController extends Controller
     protected function loginValidator(array $data)
     {
         return Validator::make($data, [
-            $this->email()   => 'required',
+            $this->username()   => 'required',
             'password'          => 'required',
         ]);
     }
@@ -178,8 +178,7 @@ class AuthController extends Controller
             return $this->redirectTo();
         }
 
-        return property_exists($this, 'redirectTo') ? $this->redirectTo : '/dashboard';
-    
+        return property_exists($this, 'redirectTo') ? $this->redirectTo : config('admin.route.prefix');
     }
 
     /**
@@ -207,12 +206,6 @@ class AuthController extends Controller
     {
         return 'username';
     }
-
-    protected function email()
-    {
-        return 'email';
-    }
-
 
     /**
      * Get the guard to be used during authentication.

@@ -2,8 +2,6 @@
 
 namespace Encore\Admin\Controllers;
 
-use App\Models\User;
-use Encore\Admin\Auth\Database\Role;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
@@ -30,7 +28,7 @@ class UserController extends AdminController
 
         $grid = new Grid(new $userModel());
 
-        $grid->column('id', 'ID');
+        $grid->column('id', 'ID')->sortable();
         $grid->column('username', trans('admin.username'));
         $grid->column('name', trans('admin.name'));
         $grid->column('roles', trans('admin.roles'))->pluck('name')->label();
@@ -49,20 +47,6 @@ class UserController extends AdminController
             });
         });
 
-        //filter by roles and name
-        $grid->filter(function($filter){
-            // Remove the default id filter
-                $filter->disableIdFilter();
-                $filter->like('name', 'Name')->select(User::all()->pluck('name', 'name'));
-              //filter by roles
-                $filter->where(function ($query) {
-                    $query->whereHas('roles', function ($query) {
-                        $query->where('name', $this->input);
-                    });
-                }, 'Roles', 'roles')->select(Role::all()->pluck('name', 'name'));
-             
-        });
-
         return $grid;
     }
 
@@ -79,9 +63,9 @@ class UserController extends AdminController
 
         $show = new Show($userModel::findOrFail($id));
 
+        $show->field('id', 'ID');
         $show->field('username', trans('admin.username'));
         $show->field('name', trans('admin.name'));
-        $show->field('email', trans('Email'));
         $show->field('roles', trans('admin.roles'))->as(function ($roles) {
             return $roles->pluck('name');
         })->label();
@@ -110,13 +94,12 @@ class UserController extends AdminController
         $userTable = config('admin.database.users_table');
         $connection = config('admin.database.connection');
 
-       
+        $form->display('id', 'ID');
         $form->text('username', trans('admin.username'))
             ->creationRules(['required', "unique:{$connection}.{$userTable}"])
             ->updateRules(['required', "unique:{$connection}.{$userTable},username,{{id}}"]);
 
         $form->text('name', trans('admin.name'))->rules('required');
-        $form->email('email', trans('Email'))->rules('required|email');
         $form->image('avatar', trans('admin.avatar'));
         $form->password('password', trans('admin.password'))->rules('required|confirmed');
         $form->password('password_confirmation', trans('admin.password_confirmation'))->rules('required')
@@ -138,12 +121,6 @@ class UserController extends AdminController
             }
         });
 
-        //disable checkboxes 
-        $form->footer(function ($footer) {
-            $footer->disableViewCheck();
-            $footer->disableEditingCheck();
-            $footer->disableCreatingCheck();
-        });
         return $form;
     }
 }
