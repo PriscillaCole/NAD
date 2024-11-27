@@ -105,7 +105,7 @@ class ProgramController extends AdminController
             $outcomeId = $outcomeform->getKey();
             // dd($outcomeId);
             $output= Outcome::FindOrFail($outcomeId);
-            $form->html('
+            $outcomeform->html('
                 <div class="form-group" >
                                     <label for="outcome_name" class="col-sm-2 asterisk control-label">Outcome Name</label>
                                     <div class="col-sm-8" >

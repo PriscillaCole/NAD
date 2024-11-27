@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Admin\CustomProgramController;
+use App\Http\Controllers\ProgramsController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -32,5 +32,5 @@ Route::post('/comments', [App\Http\Controllers\CommentController::class, 'store'
 Route::get('/program-activities/{id}', [App\Admin\Controllers\RequisitionController::class, 'getProgramActivities'])->name('program-activities');
 Route::get('/requisition/{id}', [App\Admin\Controllers\AccountabilityController::class, 'Requisition'])->name('requisition');
 
-Route::post('/programs/create', [CustomProgramController::class, 'store'])->name('programs');
+Route::post('/programs/create', [ProgramsController::class, 'store'])->name('programs');
 // Route::get('/programs/{program}/edit', [CustomProgramController::class, 'edit'])->name('programsEdit');

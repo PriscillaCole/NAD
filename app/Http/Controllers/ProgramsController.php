@@ -1,5 +1,5 @@
 <?php
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Program;
@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Encore\Admin\Form;
 use Laravel\Pail\ValueObjects\Origin\Console;
 
-class CustomProgramController extends Controller
+class ProgramsController extends Controller
 {
     public function create()
     {
