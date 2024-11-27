@@ -22,7 +22,7 @@
         <div class="box-body">
             <form action="{{url('programs/create')}}" method="POST" id="programForm" class="form-horizontal model-form-6742cbb112c9d" accept-charset="UTF-8" enctype="multipart/form-data" pjax-container>
                 @csrf
-            
+            <input type="text" value= {{$user}} name="user_id" hidden>
                 <div class="fields-group">
                     <div class="col-md-12">
                         <div class="form-group">
@@ -79,16 +79,22 @@
                                     <h5>Outputs for this Outcome</h5>
                                     <div class="output-template d-none">
                                         <div class="output border rounded p-2 mb-2">
-                                            <div class="row mb-2">
+                                            <div class="row mb-2 form-group">
                                                 <label for="output_name" class="col-sm-2 asterisk control-label">Output Name</label>
-                                                <div class="col-sm-10">
-                                                    <input type="text" name="outcomes[__INDEX__][outputs][__SUBINDEX__][name]" class="form-control" placeholder="Enter Output Name" required />
+                                                <div class="col-sm-8 input-group ">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa fa-pencil fa-fw"></i>
+                                                    </span>
+                                                    <input type="text" name="outcomes[__INDEX__][outputs][__SUBINDEX__][name]" class="form-control mb-2" placeholder="Enter Output Name" required />
                                                 </div>
                                             </div>
-                                            <div class="row mb-2">
+                                            <div class="row mb-2 form-group">
                                                 <label for="output_budget" class="col-sm-2 asterisk control-label">Outcome Budget</label>
-                                                <div class="col-sm-10">
-                                                    <input type="text" name="outcomes[__INDEX__][outputs][__SUBINDEX__][budget]" class="form-control" placeholder="Enter Outcome Budget" required />
+                                                <div class="col-sm-8 input-group">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa fa-pencil fa-fw"></i>
+                                                    </span>
+                                                    <input type="text" name="outcomes[__INDEX__][outputs][__SUBINDEX__][budget]" class="form-control mb-2" placeholder="Enter Outcome Budget" required />
                                                 </div>
                                             </div>
                                             <button type="button" class="btn btn-warning btn-sm pull-right" onclick="removeOutput(this)">Remove</button>
@@ -99,15 +105,21 @@
                                                 <h6>Activities for this Output</h6>
                                                 <div class="activity-template d-none">
                                                     <div class="activity border rounded p-2 mb-2">
-                                                        <div class="row mb-2">
+                                                        <div class="row mb-2 form-group">
                                                             <label for="activity_name" class="col-sm-2 asterisk control-label">Activity Name</label>
-                                                            <div class="col-sm-10">
+                                                            <div class="col-sm-8 input-group">
+                                                                <span class="input-group-addon">
+                                                                    <i class="fa fa-pencil fa-fw"></i>
+                                                                </span>
                                                                 <input type="text" name="outcomes[__INDEX__][outputs][__SUBINDEX__][activities][__ACTIVITYINDEX__][name]" class="form-control mb-2" placeholder="Enter Activity Name" required />
                                                             </div>
                                                         </div>
-                                                        <div class="row mb-2">
+                                                        <div class="row mb-2 form-group">
                                                             <label for="output_budget" class="col-sm-2 asterisk control-label">Activity Budget</label>
-                                                            <div class="col-sm-10">
+                                                            <div class="col-sm-8 input-group">
+                                                                <span class="input-group-addon">
+                                                                    <i class="fa fa-pencil fa-fw"></i>
+                                                                </span>
                                                                 <input type="text" name="outcomes[__INDEX__][outputs][__SUBINDEX__][activities][__ACTIVITYINDEX__][budget]" class="form-control mb-2" placeholder="Enter Outcome Budget" required />
                                                             </div>
                                                         </div>
@@ -119,33 +131,48 @@
                                                             <h6>Budget Lines for this Activity</h6>
                                                             <div class="budget-line-template d-none">
                                                                 <div class="budget-line border rounded p-2 mb-2">
-                                                                    <div class="row mb-2">
+                                                                    <div class="row mb-2 form-group">
                                                                         <label for="budget_line_name" class="col-sm-2 asterisk control-label">Budget Line</label>
-                                                                        <div class="col-sm-10">
+                                                                        <div class="col-sm-8 input-group">
+                                                                            <span class="input-group-addon">
+                                                                                <i class="fa fa-pencil fa-fw"></i>
+                                                                            </span>
                                                                             <input type="text" name="outcomes[__INDEX__][outputs][__SUBINDEX__][activities][__ACTIVITYINDEX__][budget_lines][__LINEINDEX__][name]" class="form-control mb-2" placeholder="Enter Budget Line Name" required />
                                                                         </div>
                                                                     </div>
-                                                                    <div class="row mb-2">
+                                                                    <div class="row mb-2 form-group">
                                                                         <label for="budget_line_amount" class="col-sm-2 asterisk control-label">Amount</label>
-                                                                        <div class="col-sm-10">
+                                                                        <div class="col-sm-8 input-group">
+                                                                            <span class="input-group-addon">
+                                                                                <i class="fa fa-pencil fa-fw"></i>
+                                                                            </span>
                                                                             <input type="number" name="outcomes[__INDEX__][outputs][__SUBINDEX__][activities][__ACTIVITYINDEX__][budget_lines][__LINEINDEX__][amount]" class="form-control" placeholder="Enter Amount" required />
                                                                         </div>
                                                                     </div>
-                                                                    <div class="row mb-2">
+                                                                    <div class="row mb-2 form-group">
                                                                         <label for="unit_cost" class="col-sm-2 asterisk control-label">Unit Cost</label>
-                                                                        <div class="col-sm-10">
+                                                                        <div class="col-sm-8 input-group">
+                                                                            <span class="input-group-addon">
+                                                                                <i class="fa fa-pencil fa-fw"></i>
+                                                                            </span>
                                                                             <input type="number" name="outcomes[__INDEX__][outputs][__SUBINDEX__][activities][__ACTIVITYINDEX__][budget_lines][__LINEINDEX__][unit_cost]" class="form-control" placeholder="Enter Amount" required />
                                                                         </div>
                                                                     </div>
-                                                                    <div class="row mb-2">
+                                                                    <div class="row mb-2 form-group">
                                                                         <label for="quantity" class="col-sm-2 asterisk control-label">Quantity</label>
-                                                                        <div class="col-sm-10">
+                                                                        <div class="col-sm-8 input-group">
+                                                                            <span class="input-group-addon">
+                                                                                <i class="fa fa-pencil fa-fw"></i>
+                                                                            </span>
                                                                             <input type="number" name="outcomes[__INDEX__][outputs][__SUBINDEX__][activities][__ACTIVITYINDEX__][budget_lines][__LINEINDEX__][quantity]" class="form-control" placeholder="Enter Amount" required />
                                                                         </div>
                                                                     </div>
-                                                                    <div class="row mb-2">
+                                                                    <div class="row mb-2 form-group">
                                                                         <label for="frequency" class="col-sm-2 asterisk control-label">Frequency</label>
-                                                                        <div class="col-sm-10">
+                                                                        <div class="col-sm-8 input-group">
+                                                                            <span class="input-group-addon">
+                                                                                <i class="fa fa-pencil fa-fw"></i>
+                                                                            </span>
                                                                             <input type="number" name="outcomes[__INDEX__][outputs][__SUBINDEX__][activities][__ACTIVITYINDEX__][budget_lines][__LINEINDEX__][frequency]" class="form-control" placeholder="Enter Amount" required />
                                                                         </div>
                                                                     </div>

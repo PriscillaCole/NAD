@@ -46,6 +46,10 @@ class ProgramController extends AdminController
 
         $grid->column('id', __('Id'));
         $grid->column('name', __('Name'));
+        $grid->column('user_id', __('Project Manager'))->display(function ($user_id) {
+            // Use the relationship to fetch the user's name
+            return $this->user ? $this->user->name : 'No Project Manager';
+        });
         $grid->column('description', __('Description'));
         $grid->column('created_at', __('Created at'))->display(function ($created_at) {
             //return human readable format
@@ -70,6 +74,7 @@ class ProgramController extends AdminController
         $show->field('description', __('Description'));
         $show->field('created_at', __('Created at'));
         $show->field('updated_at', __('Updated at'));
+        // $show->has
 
         return $show;
     }
@@ -83,12 +88,16 @@ class ProgramController extends AdminController
     {
         $form = new Form(new Program());
        
-        $user = auth()->user();
+        $user = auth()->user()->id;
 
+        // redirect to the create view
         if ($form->isCreating()){
-        return view('programs.create');
-
+            // if(!$user->isRole('manager')){
+            //     return Validation:: allowBasicUserToCreate($form);
+            //     }
+            return view('programs.create', compact('user'));
         }
+        
 
         // $form->text('name', __('name'));
 
@@ -102,21 +111,21 @@ class ProgramController extends AdminController
             $form->hasMany('outcomes', function (Form\NestedForm $outcomeform) {
             $outcomeform->text('name');
             
-            $outcomeId = $outcomeform->getKey();
+            // $outcomeId = $outcomeform->model();
             // dd($outcomeId);
             $output= Outcome::FindOrFail($outcomeId);
             $outcomeform->html('
                 <div class="form-group" >
-                                    <label for="outcome_name" class="col-sm-2 asterisk control-label">Outcome Name</label>
-                                    <div class="col-sm-8" >
-                                        <div class="input-group">
-                                            <span class="input-group-addon">
-                                                <i class="fa fa-pencil fa-fw"></i>
-                                            </span>
-                                            <input type="text" name="outcomes[__INDEX__][name]" value="'.$output->name.'" class="form-control mb-2" placeholder="Enter Outcome Name" required />
-                                        </div>
-                                    </div>
-                                </div>
+                    <label for="outcome_name" class="col-sm-2 asterisk control-label">Outcome Name</label>
+                    <div class="col-sm-8" >
+                        <div class="input-group">
+                            <span class="input-group-addon">
+                                <i class="fa fa-pencil fa-fw"></i>
+                            </span>
+                            <input type="text" name="outcomes[__INDEX__][name]" value="'.$output->name.'" class="form-control mb-2" placeholder="Enter Outcome Name" required />
+                        </div>
+                    </div>
+                </div>
             ');
             });
         }
