@@ -9,10 +9,12 @@ use Encore\Admin\Auth\Database\Administrator;
 use Illuminate\Support\Facades\Mail;
 use App\Models\Staff;
 use Encore\Admin\Facades\Admin;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Notification extends Model
 {
     use HasFactory;
+    use SoftDeletes;
 
     
     protected $fillable = 
@@ -72,17 +74,38 @@ class Notification extends Model
 
         return $notifications;
     }
+    //get notification receipients by either role or id
+    public static function get_users_by_role($role_id)
+    {
+        $admin= Administrator::whereHas('roles', function ($query) use ($role_id) {
+            $query->where('admin_role_users.role_id', $role_id);
+        })->get();
+
+        return $admin;
+    }
+
+    public static function get_users_by_id($receiver_id)
+    {
+        $users= Administrator::with('notifications')
+            ->where('id', $receiver_id)
+            ->get();
+
+            return $users;
+    }
         
     //function to send notifications after creation
     public static function send_notification($model, $model_name, $entity)
     {
         $user = Staff::find($model->staff_id);
         $name = $user ? $user->name : null;
+        $receiver = Notification::get_users_by_role(5);
+        
        
         // Check if $entity is a string
         if (is_string($entity)) {
                 $notification = new Notification();
                 $notification->role_id = 5;
+                $notification->receiverid = $receiver->id;
                 $notification->message = "New {$entity} has been submitted by" . $name .' ';
                 $notification->link = admin_url("auth/login");
                 $notification->form_link = admin_url("{$entity}/{$model->id}");
@@ -168,25 +191,6 @@ class Notification extends Model
     }
     
         
-    //get notification receipients by either role or id
-    public static function get_users_by_role($role_id)
-    {
-        $admin= Administrator::whereHas('roles', function ($query) use ($role_id) {
-            $query->where('admin_role_users.role_id', $role_id);
-        })->get();
-
-        return $admin;
-    }
-
-    public static function get_users_by_id($receiver_id)
-    {
-        $users= Administrator::with('notifications')
-            ->where('id', $receiver_id)
-            ->get();
-
-            return $users;
-    }
-        
     //send an email notification
     public static function sendMail($notification)
     {
@@ -210,6 +214,11 @@ class Notification extends Model
         }
 
         return "Email sent successfully.";
+    }
+
+    public static function deleteNotification($notification)
+    {
+        // $note = Notification::
     }
        
 }

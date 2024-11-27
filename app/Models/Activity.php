@@ -13,11 +13,17 @@ class Activity extends Model
         'name',
         'description',
         'budget',
-        'program_id',
+        'output_id',
     ];
 
-    public function program()
+    public function output()
     {
-        return $this->belongsTo(Program::class);
+        return $this->belongsTo(Output::class);
+    }
+
+    
+    public function budgetLines()
+    {
+        return $this->hasMany(BudgetLines::class);
     }
 }

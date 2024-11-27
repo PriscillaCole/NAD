@@ -1,7 +1,6 @@
 {
     "name": "laravel/prompts",
     "type": "library",
-    "description": "Add beautiful and user-friendly forms to your command-line applications.",
     "license": "MIT",
     "autoload": {
         "psr-4": {
@@ -19,13 +18,12 @@
     "require": {
         "php": "^8.1",
         "ext-mbstring": "*",
-        "composer-runtime-api": "^2.2",
+        "illuminate/collections": "^10.0|^11.0",
         "symfony/console": "^6.2|^7.0"
     },
     "require-dev": {
-        "illuminate/collections": "^10.0|^11.0",
         "phpstan/phpstan": "^1.11",
-        "pestphp/pest": "^2.3|^3.4",
+        "pestphp/pest": "^2.3",
         "mockery/mockery": "^1.5",
         "phpstan/phpstan-mockery": "^1.1"
     },
@@ -43,7 +41,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-main": "0.3.x-dev"
+            "dev-main": "0.1.x-dev"
         }
     },
     "prefer-stable": true,

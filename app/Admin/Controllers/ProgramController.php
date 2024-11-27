@@ -2,6 +2,7 @@
 
 namespace App\Admin\Controllers;
 
+use App\Http\Controllers\Admin\CustomProgramController as AdminCustomProgramController;
 use App\Models\Outcome;
 use App\Models\Program;
 use Encore\Admin\Controllers\AdminController;
@@ -9,6 +10,15 @@ use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
 use Carbon\Carbon;
+use Encore\Admin\Layout\Content;
+use App\Http\Controllers\CustomProgramController;
+use Encore\Admin\Form\Layout\Column;
+use Encore\Admin\Layout\Row;
+use Encore\Admin\Facades\Admin;
+use GuzzleHttp\Psr7\Request;
+
+use function Laravel\Prompts\form;
+use function Laravel\Prompts\text;
 
 class ProgramController extends AdminController
 {
@@ -72,37 +82,45 @@ class ProgramController extends AdminController
     protected function form()
     {
         $form = new Form(new Program());
+       
+        $user = auth()->user();
 
-        $form->text('name', __('Program Name'))->rules('unique:programs,name');
-        //enter other costs
-        // $form->divider('Other costs');
-        // $form->text('Activity', __('Activity'));
+        if ($form->isCreating()){
+        return view('programs.create');
 
-        // $form->hasMany('outcomes', 'Outcome', function (Form\NestedForm $form) {
-        //     $form->text('name', __('Outcome name'));
-        //      $form->hasMany('outcomes', 'output', function (Form\NestedForm $form){
-        //         $form->text('item');
-        //         $form->decimal('quantity', __('Quantity'))->required();
-        //         $form->text('unit_of_measure', __('Unit of measure'))->required();
-        //         $form->decimal('unit_price', __('Unit cost'))->required();
+        }
+
+        // $form->text('name', __('name'));
+
+        if ($form->isEditing()) {
+            // $id = request()->route('program') ;
+            // $program = Program::FindOrFail($id);
+
+            // return view('programs.edit', compact('program'));
+          
+            $form->text('name');
+            $form->hasMany('outcomes', function (Form\NestedForm $outcomeform) {
+            $outcomeform->text('name');
             
-        //     });
-        // });
-
-        // entering the activity costs
-        $form->divider('Activity costs');
-        
-        $form->hasMany('outcomes', 'Outcome', function (Form\NestedForm $form) {
-            $form->text('name', __('Outcome name'));
-            // $form = new Form(new Outcome());    
-            $form->hasMany('outputs', 'output', function (Form\NestedForm $form){
-                $form->text('item');
+            $outcomeId = $outcomeform->getKey();
+            // dd($outcomeId);
+            $output= Outcome::FindOrFail($outcomeId);
+            $form->html('
+                <div class="form-group" >
+                                    <label for="outcome_name" class="col-sm-2 asterisk control-label">Outcome Name</label>
+                                    <div class="col-sm-8" >
+                                        <div class="input-group">
+                                            <span class="input-group-addon">
+                                                <i class="fa fa-pencil fa-fw"></i>
+                                            </span>
+                                            <input type="text" name="outcomes[__INDEX__][name]" value="'.$output->name.'" class="form-control mb-2" placeholder="Enter Outcome Name" required />
+                                        </div>
+                                    </div>
+                                </div>
+            ');
             });
-            
-        });
-        $form->text('budget lines', __('Budget lines'));
-        $form->textarea('description', __('Description'));
-
+        }
         return $form;
     }
+
 }

@@ -16,7 +16,8 @@ use Symfony\Component\Mime\MimeTypes;
 
 class Filesystem
 {
-    use Conditionable, Macroable;
+    use Conditionable;
+    use Macroable;
 
     /**
      * Determine if a file or directory exists.
@@ -184,7 +185,7 @@ class Filesystem
      *
      * @param  string  $path
      * @param  string  $algorithm
-     * @return string|false
+     * @return string
      */
     public function hash($path, $algorithm = 'md5')
     {
@@ -347,7 +348,7 @@ class Filesystem
      *
      * @param  string  $target
      * @param  string  $link
-     * @return bool|null
+     * @return void
      */
     public function link($target, $link)
     {

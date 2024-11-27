@@ -45,6 +45,7 @@ class Table
     private array $rows = [];
     private array $effectiveColumnWidths = [];
     private int $numberOfColumns;
+    private OutputInterface $output;
     private TableStyle $style;
     private array $columnStyles = [];
     private array $columnWidths = [];
@@ -54,9 +55,10 @@ class Table
 
     private static array $styles;
 
-    public function __construct(
-        private OutputInterface $output,
-    ) {
+    public function __construct(OutputInterface $output)
+    {
+        $this->output = $output;
+
         self::$styles ??= self::initStyles();
 
         $this->setStyle('default');
@@ -64,8 +66,10 @@ class Table
 
     /**
      * Sets a style definition.
+     *
+     * @return void
      */
-    public static function setStyleDefinition(string $name, TableStyle $style): void
+    public static function setStyleDefinition(string $name, TableStyle $style)
     {
         self::$styles ??= self::initStyles();
 
@@ -190,7 +194,7 @@ class Table
     /**
      * @return $this
      */
-    public function setRows(array $rows): static
+    public function setRows(array $rows)
     {
         $this->rows = [];
 
@@ -308,8 +312,10 @@ class Table
      *     | 9971-5-0210-0 | A Tale of Two Cities  | Charles Dickens  |
      *     | 960-425-059-0 | The Lord of the Rings | J. R. R. Tolkien |
      *     +---------------+-----------------------+------------------+
+     *
+     * @return void
      */
-    public function render(): void
+    public function render()
     {
         $divider = new TableSeparator();
         $isCellWithColspan = static fn ($cell) => $cell instanceof TableCell && $cell->getColspan() >= 2;
@@ -359,15 +365,13 @@ class Table
                 for ($i = 0; $i < $maxRows; ++$i) {
                     $cell = (string) ($row[$i] ?? '');
 
-                    $eol = str_contains($cell, "\r\n") ? "\r\n" : "\n";
-                    $parts = explode($eol, $cell);
+                    $parts = explode("\n", $cell);
                     foreach ($parts as $idx => $part) {
                         if ($headers && !$containsColspan) {
                             if (0 === $idx) {
                                 $rows[] = [sprintf(
-                                    '<comment>%s%s</>: %s',
-                                    str_repeat(' ', $maxHeaderLength - Helper::width(Helper::removeDecoration($formatter, $headers[$i] ?? ''))),
-                                    $headers[$i] ?? '',
+                                    '<comment>%s</>: %s',
+                                    str_pad($headers[$i] ?? '', $maxHeaderLength, ' ', \STR_PAD_LEFT),
                                     $part
                                 )];
                             } else {
@@ -632,10 +636,9 @@ class Table
                 if (!str_contains($cell ?? '', "\n")) {
                     continue;
                 }
-                $eol = str_contains($cell ?? '', "\r\n") ? "\r\n" : "\n";
-                $escaped = implode($eol, array_map(OutputFormatter::escapeTrailingBackslash(...), explode($eol, $cell)));
+                $escaped = implode("\n", array_map(OutputFormatter::escapeTrailingBackslash(...), explode("\n", $cell)));
                 $cell = $cell instanceof TableCell ? new TableCell($escaped, ['colspan' => $cell->getColspan()]) : $escaped;
-                $lines = explode($eol, str_replace($eol, '<fg=default;bg=default></>'.$eol, $cell));
+                $lines = explode("\n", str_replace("\n", "<fg=default;bg=default></>\n", $cell));
                 foreach ($lines as $lineKey => $line) {
                     if ($colspan > 1) {
                         $line = new TableCell($line, ['colspan' => $colspan]);
@@ -697,9 +700,8 @@ class Table
                 $nbLines = $cell->getRowspan() - 1;
                 $lines = [$cell];
                 if (str_contains($cell, "\n")) {
-                    $eol = str_contains($cell, "\r\n") ? "\r\n" : "\n";
-                    $lines = explode($eol, str_replace($eol, '<fg=default;bg=default>'.$eol.'</>', $cell));
-                    $nbLines = \count($lines) > $nbLines ? substr_count($cell, $eol) : $nbLines;
+                    $lines = explode("\n", str_replace("\n", "<fg=default;bg=default>\n</>", $cell));
+                    $nbLines = \count($lines) > $nbLines ? substr_count($cell, "\n") : $nbLines;
 
                     $rows[$line][$column] = new TableCell($lines[0], ['colspan' => $cell->getColspan(), 'style' => $cell->getStyle()]);
                     unset($lines[0]);
@@ -719,7 +721,7 @@ class Table
 
         foreach ($unmergedRows as $unmergedRowKey => $unmergedRow) {
             // we need to know if $unmergedRow will be merged or inserted into $rows
-            if (isset($rows[$unmergedRowKey]) && \is_array($rows[$unmergedRowKey]) && ($this->getNumberOfColumns($rows[$unmergedRowKey]) + $this->getNumberOfColumns($unmergedRow) <= $this->numberOfColumns)) {
+            if (isset($rows[$unmergedRowKey]) && \is_array($rows[$unmergedRowKey]) && ($this->getNumberOfColumns($rows[$unmergedRowKey]) + $this->getNumberOfColumns($unmergedRows[$unmergedRowKey]) <= $this->numberOfColumns)) {
                 foreach ($unmergedRow as $cellKey => $cell) {
                     // insert cell into row at cellKey position
                     array_splice($rows[$unmergedRowKey], $cellKey, 0, [$cell]);
@@ -727,8 +729,8 @@ class Table
             } else {
                 $row = $this->copyRow($rows, $unmergedRowKey - 1);
                 foreach ($unmergedRow as $column => $cell) {
-                    if ($cell) {
-                        $row[$column] = $cell;
+                    if (!empty($cell)) {
+                        $row[$column] = $unmergedRow[$column];
                     }
                 }
                 array_splice($rows, $unmergedRowKey, 0, [$row]);

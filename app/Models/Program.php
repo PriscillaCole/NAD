@@ -15,8 +15,16 @@ class Program extends Model
         
     ];
 
-    public function activities()
+    public function outcomes()
     {
-        return $this->hasMany(Activity::class);
+        return $this->hasMany(Outcome::class);
     }
+
+
+    public function users()
+    {
+    
+        return $this->belongsTo(User::class);
+    }
+    
 }

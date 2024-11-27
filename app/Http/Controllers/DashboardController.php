@@ -69,7 +69,7 @@ class DashboardController extends Controller
     public static function showProgramsWithActivities()
     {
         // Fetch all programs with their associated activities
-        $programs = Program::with('activities')->get(); // Assuming 'activities' relationship exists in the Program model
+        $programs = Program::with('outcomes.outputs.activities')->get(); // Assuming 'activities' relationship exists in the Program model
 
         return view('dashboard.programs_activities', compact('programs'));
     }

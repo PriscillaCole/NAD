@@ -5,6 +5,7 @@ namespace App\Admin\Controllers;
 use App\Http\Controllers\Controller;
 use Encore\Admin\Controllers\Dashboard;
 use Encore\Admin\Layout\Column;
+use App\Http\Controllers\DashboardController;
 use Encore\Admin\Layout\Content;
 use Encore\Admin\Layout\Row;
 
@@ -12,23 +13,38 @@ class HomeController extends Controller
 {
     public function index(Content $content)
     {
+        // Fetch the programId from the request (this assumes you're passing it via query string, i.e., ?programId=1)
+        $programId = request()->query('programId');
+        // Fetch data for the chart
+        $programId2 = request()->query('programId2');
+        $data = DashboardController::getBudgetComparisonData($programId2);
+
+        $period = request()->query('period', 'month'); // Default to 'month' if not specified
+        $chartData = DashboardController::getAverageApprovalTimeData($period);
+    
         return $content
-            ->title('Dashboard')
-            ->description('Description...')
-            ->row(Dashboard::title())
             ->row(function (Row $row) {
-
-                $row->column(4, function (Column $column) {
-                    $column->append(Dashboard::environment());
+                $row->column(12, function (Column $column) {
+                    $column->append(DashboardController::getRequisitionStatus());
                 });
-
-                $row->column(4, function (Column $column) {
-                    $column->append(Dashboard::extensions());
+            })
+            ->row(function (Row $row) use ($programId) {
+                $row->column(6, function (Column $column) use ($programId) {
+                    // Pass the programId to the getActivityRequisitionData function
+                    $column->append(DashboardController::getActivityRequisitionData($programId));
                 });
-
-                $row->column(4, function (Column $column) {
-                    $column->append(Dashboard::dependencies());
+                $row->column(6, function (Column $column) {
+                    $column->append(DashboardController::showProgramsWithActivities());
+                });
+            })
+            ->row(function (Row $row) use ($data, $chartData) {
+                $row->column(6, function (Column $column) use ($data) {
+                    $column->append(view('dashboard.budget_comparison_chart', $data));
+                });
+                $row->column(6, function (Column $column) use ($chartData) {
+                    $column->append(view('dashboard.average_approval_time', $chartData));
                 });
             });
     }
+    
 }

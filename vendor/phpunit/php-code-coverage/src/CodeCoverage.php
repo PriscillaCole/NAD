@@ -37,7 +37,7 @@ use SebastianBergmann\CodeUnitReverseLookup\Wizard;
 /**
  * Provides collection functionality for PHP code coverage information.
  *
- * @phpstan-type TestType = array{
+ * @psalm-type TestType = array{
  *     size: string,
  *     status: string,
  * }
@@ -57,17 +57,17 @@ final class CodeCoverage
     private bool $useAnnotationsForIgnoringCode = true;
 
     /**
-     * @var array<string,list<int>>
+     * @psalm-var array<string,list<int>>
      */
     private array $linesToBeIgnored = [];
 
     /**
-     * @var array<string, TestType>
+     * @psalm-var array<string, TestType>
      */
     private array $tests = [];
 
     /**
-     * @var list<class-string>
+     * @psalm-var list<class-string>
      */
     private array $parentClassesExcludedFromUnintentionallyCoveredCodeCheck = [];
     private ?FileAnalyser $analyser                                         = null;
@@ -145,7 +145,7 @@ final class CodeCoverage
     }
 
     /**
-     * @return array<string, TestType>
+     * @psalm-return array<string, TestType>
      */
     public function getTests(): array
     {
@@ -153,14 +153,14 @@ final class CodeCoverage
     }
 
     /**
-     * @param array<string, TestType> $tests
+     * @psalm-param array<string, TestType> $tests
      */
     public function setTests(array $tests): void
     {
         $this->tests = $tests;
     }
 
-    public function start(string $id, ?TestSize $size = null, bool $clear = false): void
+    public function start(string $id, TestSize $size = null, bool $clear = false): void
     {
         if ($clear) {
             $this->clear();
@@ -175,15 +175,15 @@ final class CodeCoverage
     }
 
     /**
-     * @param array<string,list<int>> $linesToBeIgnored
+     * @psalm-param array<string,list<int>> $linesToBeIgnored
      */
-    public function stop(bool $append = true, ?TestStatus $status = null, array|false $linesToBeCovered = [], array $linesToBeUsed = [], array $linesToBeIgnored = []): RawCodeCoverageData
+    public function stop(bool $append = true, TestStatus $status = null, array|false $linesToBeCovered = [], array $linesToBeUsed = [], array $linesToBeIgnored = []): RawCodeCoverageData
     {
         $data = $this->driver->stop();
 
         $this->linesToBeIgnored = array_merge_recursive(
             $this->linesToBeIgnored,
-            $linesToBeIgnored,
+            $linesToBeIgnored
         );
 
         $this->append($data, null, $append, $status, $linesToBeCovered, $linesToBeUsed, $linesToBeIgnored);
@@ -196,13 +196,13 @@ final class CodeCoverage
     }
 
     /**
-     * @param array<string,list<int>> $linesToBeIgnored
+     * @psalm-param array<string,list<int>> $linesToBeIgnored
      *
      * @throws ReflectionException
      * @throws TestIdMissingException
      * @throws UnintentionallyCoveredCodeException
      */
-    public function append(RawCodeCoverageData $rawData, ?string $id = null, bool $append = true, ?TestStatus $status = null, array|false $linesToBeCovered = [], array $linesToBeUsed = [], array $linesToBeIgnored = []): void
+    public function append(RawCodeCoverageData $rawData, string $id = null, bool $append = true, TestStatus $status = null, array|false $linesToBeCovered = [], array $linesToBeUsed = [], array $linesToBeIgnored = []): void
     {
         if ($id === null) {
             $id = $this->currentId;
@@ -246,7 +246,7 @@ final class CodeCoverage
             $rawData,
             $linesToBeCovered,
             $linesToBeUsed,
-            $size,
+            $size
         );
 
         if (empty($rawData->lineCoverage())) {
@@ -267,7 +267,7 @@ final class CodeCoverage
     public function merge(self $that): void
     {
         $this->filter->includeFiles(
-            $that->filter()->files(),
+            $that->filter()->files()
         );
 
         $this->data->merge($that->data);
@@ -287,17 +287,11 @@ final class CodeCoverage
         $this->checkForUnintentionallyCoveredCode = false;
     }
 
-    /**
-     * @deprecated
-     */
     public function includeUncoveredFiles(): void
     {
         $this->includeUncoveredFiles = true;
     }
 
-    /**
-     * @deprecated
-     */
     public function excludeUncoveredFiles(): void
     {
         $this->includeUncoveredFiles = false;
@@ -324,7 +318,7 @@ final class CodeCoverage
     }
 
     /**
-     * @phpstan-assert-if-true !null $this->cacheDirectory
+     * @psalm-assert-if-true !null $this->cacheDirectory
      */
     public function cachesStaticAnalysis(): bool
     {
@@ -348,7 +342,7 @@ final class CodeCoverage
     {
         if (!$this->cachesStaticAnalysis()) {
             throw new StaticAnalysisCacheNotConfiguredException(
-                'The static analysis cache is not configured',
+                'The static analysis cache is not configured'
             );
         }
 
@@ -356,7 +350,7 @@ final class CodeCoverage
     }
 
     /**
-     * @param class-string $className
+     * @psalm-param class-string $className
      */
     public function excludeSubclassesOfThisClassFromUnintentionallyCoveredCodeCheck(string $className): void
     {
@@ -442,18 +436,18 @@ final class CodeCoverage
 
             $data->keepLineCoverageDataOnlyForLines(
                 $filename,
-                array_keys($linesToBranchMap),
+                array_keys($linesToBranchMap)
             );
 
             $data->markExecutableLineByBranch(
                 $filename,
-                $linesToBranchMap,
+                $linesToBranchMap
             );
         }
     }
 
     /**
-     * @param array<string,list<int>> $linesToBeIgnored
+     * @psalm-param array<string,list<int>> $linesToBeIgnored
      */
     private function applyIgnoredLinesFilter(RawCodeCoverageData $data, array $linesToBeIgnored): void
     {
@@ -465,13 +459,13 @@ final class CodeCoverage
             if (isset($linesToBeIgnored[$filename])) {
                 $data->removeCoverageDataForLines(
                     $filename,
-                    $linesToBeIgnored[$filename],
+                    $linesToBeIgnored[$filename]
                 );
             }
 
             $data->removeCoverageDataForLines(
                 $filename,
-                $this->analyser()->ignoredLinesFor($filename),
+                $this->analyser()->ignoredLinesFor($filename)
             );
         }
     }
@@ -483,7 +477,7 @@ final class CodeCoverage
     {
         $uncoveredFiles = array_diff(
             $this->filter->files(),
-            $this->data->coveredFiles(),
+            $this->data->coveredFiles()
         );
 
         foreach ($uncoveredFiles as $uncoveredFile) {
@@ -491,10 +485,10 @@ final class CodeCoverage
                 $this->append(
                     RawCodeCoverageData::fromUncoveredFile(
                         $uncoveredFile,
-                        $this->analyser(),
+                        $this->analyser()
                     ),
                     self::UNCOVERED_FILES,
-                    linesToBeIgnored: $this->linesToBeIgnored,
+                    linesToBeIgnored: $this->linesToBeIgnored
                 );
             }
         }
@@ -508,7 +502,7 @@ final class CodeCoverage
     {
         $allowedLines = $this->getAllowedLines(
             $linesToBeCovered,
-            $linesToBeUsed,
+            $linesToBeUsed
         );
 
         $unintentionallyCoveredUnits = [];
@@ -525,7 +519,7 @@ final class CodeCoverage
 
         if (!empty($unintentionallyCoveredUnits)) {
             throw new UnintentionallyCoveredCodeException(
-                $unintentionallyCoveredUnits,
+                $unintentionallyCoveredUnits
             );
         }
     }
@@ -541,7 +535,7 @@ final class CodeCoverage
 
             $allowedLines[$file] = array_merge(
                 $allowedLines[$file],
-                $linesToBeCovered[$file],
+                $linesToBeCovered[$file]
             );
         }
 
@@ -552,13 +546,13 @@ final class CodeCoverage
 
             $allowedLines[$file] = array_merge(
                 $allowedLines[$file],
-                $linesToBeUsed[$file],
+                $linesToBeUsed[$file]
             );
         }
 
         foreach (array_keys($allowedLines) as $file) {
             $allowedLines[$file] = array_flip(
-                array_unique($allowedLines[$file]),
+                array_unique($allowedLines[$file])
             );
         }
 
@@ -598,7 +592,7 @@ final class CodeCoverage
                 throw new ReflectionException(
                     $e->getMessage(),
                     $e->getCode(),
-                    $e,
+                    $e
                 );
             }
 
@@ -620,7 +614,7 @@ final class CodeCoverage
 
         $this->analyser = new ParsingFileAnalyser(
             $this->useAnnotationsForIgnoringCode,
-            $this->ignoreDeprecatedCode,
+            $this->ignoreDeprecatedCode
         );
 
         if ($this->cachesStaticAnalysis()) {
@@ -628,7 +622,7 @@ final class CodeCoverage
                 $this->cacheDirectory,
                 $this->analyser,
                 $this->useAnnotationsForIgnoringCode,
-                $this->ignoreDeprecatedCode,
+                $this->ignoreDeprecatedCode
             );
         }
 

@@ -8,7 +8,7 @@
         <div class="table-responsive"> <!-- This makes the table responsive -->
             @foreach($programs as $program)
                 <h4>{{ $program->name }}</h4>
-                <table class="table table-striped">
+                {{-- <table class="table table-striped">
                     <thead>
                         <tr>
                             <th>{{ __('Activity Name') }}</th>
@@ -17,7 +17,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($program->activities as $activity)
+                        @foreach($program->outcomes->outputs->activities as $activity)
                             <tr>
                                 <td>{{ $activity->name }}</td>
                                 <td>{{ number_format($activity->budget, 2) }}</td>
@@ -29,7 +29,7 @@
                             </tr>
                         @endforeach
                     </tbody>
-                </table>
+                </table> --}}
             @endforeach
         </div>
     </div>

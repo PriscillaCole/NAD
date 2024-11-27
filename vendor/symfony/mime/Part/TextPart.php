@@ -123,11 +123,7 @@ class TextPart extends AbstractPart
     public function getBody(): string
     {
         if ($this->body instanceof File) {
-            if (false === $ret = @file_get_contents($this->body->getPath())) {
-                throw new InvalidArgumentException(error_get_last()['message']);
-            }
-
-            return $ret;
+            return file_get_contents($this->body->getPath());
         }
 
         if (null === $this->seekable) {
@@ -236,7 +232,10 @@ class TextPart extends AbstractPart
         return ['_headers', 'body', 'charset', 'subtype', 'disposition', 'name', 'encoding'];
     }
 
-    public function __wakeup(): void
+    /**
+     * @return void
+     */
+    public function __wakeup()
     {
         $r = new \ReflectionProperty(AbstractPart::class, 'headers');
         $r->setValue($this, $this->_headers);

@@ -9,6 +9,7 @@ use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
+use Encore\Admin\Auth\Database\Administrator;
 use Encore\Admin\Facades\Admin;
 use Carbon\Carbon;
 
@@ -29,7 +30,6 @@ class RequisitionController extends AdminController
     protected function grid()
     {
         $grid = new Grid(new Requisition());
-
        
         $grid->column('staff_id', __('Requested by'))->display(function($staff_id){
             return Staff::find($staff_id)->name;
@@ -52,8 +52,8 @@ class RequisitionController extends AdminController
         $grid->column('created_at', __('Created at'))->display(function ($created_at) {
             //return human readable format
             return (Carbon::parse($created_at)->diffForHumans());
-        });;
-       
+        });
+         
 
         return $grid;
     }

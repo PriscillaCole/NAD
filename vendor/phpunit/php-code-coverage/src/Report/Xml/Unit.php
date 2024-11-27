@@ -9,7 +9,6 @@
  */
 namespace SebastianBergmann\CodeCoverage\Report\Xml;
 
-use function assert;
 use DOMElement;
 
 /**
@@ -42,19 +41,17 @@ final class Unit
     {
         $node = $this->contextNode->getElementsByTagNameNS(
             'https://schema.phpunit.de/coverage/1.0',
-            'namespace',
+            'namespace'
         )->item(0);
 
         if (!$node) {
             $node = $this->contextNode->appendChild(
                 $this->contextNode->ownerDocument->createElementNS(
                     'https://schema.phpunit.de/coverage/1.0',
-                    'namespace',
-                ),
+                    'namespace'
+                )
             );
         }
-
-        assert($node instanceof DOMElement);
 
         $node->setAttribute('name', $namespace);
     }
@@ -64,8 +61,8 @@ final class Unit
         $node = $this->contextNode->appendChild(
             $this->contextNode->ownerDocument->createElementNS(
                 'https://schema.phpunit.de/coverage/1.0',
-                'method',
-            ),
+                'method'
+            )
         );
 
         return new Method($node, $name);

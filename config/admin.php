@@ -11,7 +11,7 @@ return [
     | login page.
     |
     */
-    'name' => 'Laravel-admin',
+    'name' => 'ReQTrack',
 
     /*
     |--------------------------------------------------------------------------
@@ -22,7 +22,7 @@ return [
     | `img` tag, eg '<img src="http://logo-url" alt="Admin logo">'.
     |
     */
-    'logo' => '<b>REQTRACK</b> ',
+    'logo' => '<b>ReQTrack</b>',
 
     /*
     |--------------------------------------------------------------------------
@@ -34,8 +34,9 @@ return [
     | '<img src="http://logo-url" alt="Admin logo">'.
     |
     */
-    'logo-mini' => '<b>Req</b>',
+    //'logo-mini' => '<img src="' . asset('login-template') . '/images/logo.png" alt="Admin logo" style="width: 30px; height: 20px;">',
 
+    'logo-mini' => '<b>ReQ</b>',
     /*
     |--------------------------------------------------------------------------
     | Laravel-admin bootstrap setting
@@ -85,7 +86,7 @@ return [
     | Html title for all pages.
     |
     */
-    'title' => 'Admin',
+    'title' => 'CUAMM',
 
     /*
     |--------------------------------------------------------------------------
@@ -132,7 +133,7 @@ return [
         'remember' => true,
 
         // Redirect to the specified URI when user is not authorized.
-        'redirect_to' => 'auth/login',
+        'redirect_to' => '/',
 
         // The URIs that should be excluded from authorization.
         'excepts' => [
@@ -310,7 +311,7 @@ return [
     | each page
     |
     */
-    'show_version' => true,
+    'show_version' => false,
 
     /*
     |--------------------------------------------------------------------------
@@ -320,7 +321,7 @@ return [
     | Whether to display the environment at the footer of each page
     |
     */
-    'show_environment' => true,
+    'show_environment' => false,
 
     /*
     |--------------------------------------------------------------------------
@@ -359,7 +360,7 @@ return [
     | Enable/Disable sidebar menu search
     |--------------------------------------------------------------------------
     */
-    'enable_menu_search' => true,
+    'enable_menu_search' => false,
 
     /*
     |--------------------------------------------------------------------------

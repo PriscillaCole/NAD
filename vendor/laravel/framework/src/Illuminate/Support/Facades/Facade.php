@@ -18,7 +18,7 @@ abstract class Facade
     /**
      * The application instance being facaded.
      *
-     * @var \Illuminate\Contracts\Foundation\Application|null
+     * @var \Illuminate\Contracts\Foundation\Application
      */
     protected static $app;
 
@@ -190,7 +190,7 @@ abstract class Facade
      *
      * @return bool
      */
-    public static function isFake()
+    protected static function isFake()
     {
         $name = static::getFacadeAccessor();
 
@@ -278,9 +278,7 @@ abstract class Facade
             'Broadcast' => Broadcast::class,
             'Bus' => Bus::class,
             'Cache' => Cache::class,
-            'Concurrency' => Concurrency::class,
             'Config' => Config::class,
-            'Context' => Context::class,
             'Cookie' => Cookie::class,
             'Crypt' => Crypt::class,
             'Date' => Date::class,
@@ -305,7 +303,6 @@ abstract class Facade
             'Request' => Request::class,
             'Response' => Response::class,
             'Route' => Route::class,
-            'Schedule' => Schedule::class,
             'Schema' => Schema::class,
             'Session' => Session::class,
             'Storage' => Storage::class,
@@ -320,7 +317,7 @@ abstract class Facade
     /**
      * Get the application instance behind the facade.
      *
-     * @return \Illuminate\Contracts\Foundation\Application|null
+     * @return \Illuminate\Contracts\Foundation\Application
      */
     public static function getFacadeApplication()
     {
@@ -330,7 +327,7 @@ abstract class Facade
     /**
      * Set the application instance.
      *
-     * @param  \Illuminate\Contracts\Foundation\Application|null  $app
+     * @param  \Illuminate\Contracts\Foundation\Application  $app
      * @return void
      */
     public static function setFacadeApplication($app)

@@ -1,11 +1,6 @@
 CHANGELOG
 =========
 
-7.1
----
-
- * Add support for getting all the enum cases with `!php/enum Foo`
-
 7.0
 ---
 

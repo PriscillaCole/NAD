@@ -2,7 +2,6 @@
 
 namespace Illuminate\Database\Eloquent\Relations\Concerns;
 
-use BackedEnum;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Pivot;
@@ -67,7 +66,7 @@ trait InteractsWithPivotTable
      * Sync the intermediate tables with a list of IDs without detaching.
      *
      * @param  \Illuminate\Support\Collection|\Illuminate\Database\Eloquent\Model|array  $ids
-     * @return array{attached: array, detached: array, updated: array}
+     * @return array
      */
     public function syncWithoutDetaching($ids)
     {
@@ -79,7 +78,7 @@ trait InteractsWithPivotTable
      *
      * @param  \Illuminate\Support\Collection|\Illuminate\Database\Eloquent\Model|array  $ids
      * @param  bool  $detaching
-     * @return array{attached: array, detached: array, updated: array}
+     * @return array
      */
     public function sync($ids, $detaching = true)
     {
@@ -102,7 +101,7 @@ trait InteractsWithPivotTable
             $detach = array_diff($current, array_keys($records));
 
             if (count($detach) > 0) {
-                $this->detach($detach, false);
+                $this->detach($detach);
 
                 $changes['detached'] = $this->castKeys($detach);
             }
@@ -133,7 +132,7 @@ trait InteractsWithPivotTable
      * @param  \Illuminate\Support\Collection|\Illuminate\Database\Eloquent\Model|array  $ids
      * @param  array  $values
      * @param  bool  $detaching
-     * @return array{attached: array, detached: array, updated: array}
+     * @return array
      */
     public function syncWithPivotValues($ids, array $values, bool $detaching = true)
     {
@@ -153,10 +152,6 @@ trait InteractsWithPivotTable
         return collect($records)->mapWithKeys(function ($attributes, $id) {
             if (! is_array($attributes)) {
                 [$id, $attributes] = [$attributes, []];
-            }
-
-            if ($id instanceof BackedEnum) {
-                $id = $id->value;
             }
 
             return [$id => $attributes];
@@ -611,10 +606,8 @@ trait InteractsWithPivotTable
             return $value->pluck($this->relatedKey)->all();
         }
 
-        if ($value instanceof BaseCollection || is_array($value)) {
-            return collect($value)->map(function ($item) {
-                return $item instanceof Model ? $item->{$this->relatedKey} : $item;
-            })->all();
+        if ($value instanceof BaseCollection) {
+            return $value->toArray();
         }
 
         return (array) $value;
