@@ -99,8 +99,6 @@ class ProgramController extends AdminController
         }
         
 
-        // $form->text('name', __('name'));
-
         if ($form->isEditing()) {
             // $id = request()->route('program') ;
             // $program = Program::FindOrFail($id);

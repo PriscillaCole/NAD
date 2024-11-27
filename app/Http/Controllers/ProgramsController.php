@@ -22,6 +22,7 @@ class ProgramsController extends Controller
             // Validate the incoming data
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
+                'user_id' => 'required',
                 'description' => 'nullable|string',
                 // 'budget' => 'nullable|numeric|min:0', // Validate program budget
                 'outcomes' => 'nullable|array',
@@ -48,6 +49,7 @@ class ProgramsController extends Controller
             $program = Program::create([
                 'name' => $validated['name'],
                 'description' => $validated['description'] ?? null,
+                'user_id' => $validated['user_id'],
                 // 'budget' => $validated['budget'] ?? null,
             ]);
     
