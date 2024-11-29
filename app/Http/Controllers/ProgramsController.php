@@ -18,6 +18,7 @@ class ProgramsController extends Controller
 
     public function store(Request $request)
     {
+
         try {
             dd($request->all());
             // Validate the incoming data
@@ -25,6 +26,7 @@ class ProgramsController extends Controller
                 'name' => 'required|string|max:255',
                 'user' => 'required',
                 'description' => 'nullable|string',
+                'user_id' => 'required|exists:admin_users,id',
                 // 'budget' => 'nullable|numeric|min:0', // Validate program budget
                 'outcomes' => 'nullable|array',
                 'outcomes.*.name' => 'required_with:outcomes|string|max:255',
@@ -43,9 +45,12 @@ class ProgramsController extends Controller
                 'outcomes.*.outputs.*.activities.*.budget_lines.*.quantity' => 'required_with:outcomes.*.outputs.*.activities.*.budget_lines|numeric|min:0',
             ]);
 
+     
+
             // Begin transaction
             \DB::beginTransaction();
     
+          
             // Create the program
             $program = Program::create([
                 'name' => $validated['name'],
