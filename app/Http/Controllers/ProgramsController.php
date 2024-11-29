@@ -19,8 +19,6 @@ class ProgramsController extends Controller
     public function store(Request $request)
     {
 
-        // prnt the request
-        // dd($request->all());
         try {
             // Validate the incoming data
             $validated = $request->validate([

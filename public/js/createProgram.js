@@ -83,7 +83,7 @@
                         <span class="input-group-addon">
                                 <i class="fa fa-pencil fa-fw"></i>
                             </span>
-                            <input type="text" name="outputs[${outputId}][name]" class="form-control" placeholder="Enter Output Name" required>
+                            <input type="text" name="outcomes[${outcomeId}][outputs][${outputId}][name]" class="form-control" placeholder="Enter Output Name" required>
                         </div>
                         </div>
                     </div>
@@ -94,7 +94,7 @@
                         <span class="input-group-addon">
                                 <i class="fa fa-pencil fa-fw"></i>
                             </span>
-                            <input type="number" name="outputs[${outputId}][budget]" class="form-control" placeholder="Enter Output Budget" required>
+                            <input type="number" name="outcomes[${outcomeId}][outputs][${outputId}][budget]" class="form-control" placeholder="Enter Output Budget" required>
                         </div>
                         </div>
                     </div>
@@ -103,7 +103,7 @@
                     <div id="activities-${outputId}"></div>
                     <div class="form-group">
                       <div class="col-sm-8 col-sm-offset-2" style="display: flex; justify-content: space-between; align-items: center;">
-                        <button type="button" class="btn btn-warning btn-add" onclick="addActivity(${outputId})">Add Activity</button>
+                        <button type="button" class="btn btn-warning btn-add" onclick="addActivity(${outputId}, ${outcomeId})">Add Activity</button>
                         <!-- Delete Button with Bin Icon -->
                         <button type="button" class="btn btn-danger btn-delete"  onclick="deleteOutput(${outputId})">
                             <i class="fa fa-trash"></i> Delete
@@ -118,7 +118,7 @@
     }
 
     // Function to add a new Activity under an Output
-    function addActivity(outputId) {
+    function addActivity(outputId, outcomeId) {
         const activitiesContainer = document.getElementById(`activities-${outputId}`);
         const activityCount = activitiesContainer.children.length + 1;
         const activityId = Date.now();
@@ -139,7 +139,7 @@
                           <span class="input-group-addon">
                                 <i class="fa fa-pencil fa-fw"></i>
                             </span>
-                            <input type="text" name="activities[${activityId}][name]" class="form-control" placeholder="Enter Activity Name" required>
+                            <input type="text" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][name]" class="form-control" placeholder="Enter Activity Name" required>
                         </div>
                         </div>
                     </div>
@@ -150,7 +150,7 @@
                           <span class="input-group-addon">
                                 <i class="fa fa-pencil fa-fw"></i>
                             </span>
-                            <input type="number" name="activities[${activityId}][budget]" class="form-control" placeholder="Enter Activity Budget" required>
+                            <input type="number" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][budget]" class="form-control" placeholder="Enter Activity Budget" required>
                         </div>
                         </div>
                     </div>
@@ -159,7 +159,7 @@
                     <div id="budget-lines-${activityId}"></div>
                     <div class="form-group">
                         <div class="col-sm-8 col-sm-offset-2" style="display: flex; justify-content: space-between; align-items: center;">
-                       <button type="button" class="btn btn-secondary btn-add" onclick="addBudgetLine(${activityId})">Add Budget Line</button>
+                       <button type="button" class="btn btn-secondary btn-add" onclick="addBudgetLine(${activityId}, ${outputId}, ${outcomeId})">Add Budget Line</button>
 
                         <!-- Delete Button with Bin Icon -->
                         <button type="button" class="btn btn-danger btn-delete"  onclick="deleteActivity(${activityId})">
@@ -175,7 +175,7 @@
     }
 
     // Function to add a new Budget Line under an Activity
-    function addBudgetLine(activityId) {
+    function addBudgetLine(activityId, outputId, outcomeId) {
         const budgetLinesContainer = document.getElementById(`budget-lines-${activityId}`);
         const budgetLineCount = budgetLinesContainer.children.length + 1;
         const budgetLineId = Date.now();
@@ -197,8 +197,8 @@
                             <span class="input-group-addon">
                                 <i class="fa fa-pencil fa-fw"></i>
                             </span>
-                            <input type="text" name="budget_lines[${budgetLineId}][name]" class="form-control" placeholder="Enter Budget Line Name" required>
-                        </div>
+                            <input type="text" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][budget_lines][${budgetLineId}][name]" class="form-control" placeholder="Enter Budget Line Name" required>
+                    </div>
                         </div>
                     </div>
                     <div class="form-group">
@@ -208,7 +208,7 @@
                             <span class="input-group-addon">
                                 <i class="fa fa-pencil fa-fw"></i>
                             </span>
-                            <input type="number" name="budget_lines[${budgetLineId}][amount]" class="form-control" placeholder="Enter Budget Line Amount" required>
+                            <input type="number" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][budget_lines][${budgetLineId}][amount]" class="form-control" placeholder="Enter Budget Line Amount" required>
                         </div>
                         </div>
                     </div>
@@ -219,7 +219,7 @@
                             <span class="input-group-addon">
                                 <i class="fa fa-pencil fa-fw"></i>
                             </span>
-                            <input type="number" name="budget_lines[${budgetLineId}][unit_cost]" class="form-control" placeholder="Unit Cost" required>
+                            <input type="number" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][budget_lines][${budgetLineId}][unit_cost]" class="form-control" placeholder="Unit Cost" required>
                         </div>
                         </div>
                     </div>
@@ -230,7 +230,7 @@
                             <span class="input-group-addon">
                                 <i class="fa fa-pencil fa-fw"></i>
                             </span>
-                            <input type="number" name="budget_lines[${budgetLineId}][quantity]" class="form-control" placeholder="Quantity" required>
+                            <input type="number" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][budget_lines][${budgetLineId}][quantity]" class="form-control" placeholder="Quantity" required>
                         </div>
                         </div>
                     </div>
@@ -241,7 +241,7 @@
                             <span class="input-group-addon">
                                 <i class="fa fa-pencil fa-fw"></i>
                             </span>
-                            <input type="number" name="budget_lines[${budgetLineId}][frequency]" class="form-control" placeholder="Frequency" required>
+                            <input type="number" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][budget_lines][${budgetLineId}][frequency]" class="form-control" placeholder="Frequency" required>
                             </div>
                         </div>
                     </div>
