@@ -23,6 +23,7 @@ class ProgramsController extends Controller
             // Validate the incoming data
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
+                'user_id' => 'required',
                 'description' => 'nullable|string',
                 'user_id' => 'required|exists:admin_users,id',
                 // 'budget' => 'nullable|numeric|min:0', // Validate program budget
