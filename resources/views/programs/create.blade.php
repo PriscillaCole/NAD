@@ -22,7 +22,7 @@
         <div class="box-body">
             <form action="{{url('programs/create')}}" method="POST" id="programForm" class="form-horizontal model-form-6742cbb112c9d" accept-charset="UTF-8" enctype="multipart/form-data" pjax-container>
                 @csrf
-            <input type="text" value= {{$user}} name="user_id" hidden>
+            <input type="text" value= {{$user}} name="user" hidden>
                 <div class="fields-group">
                     <div class="col-md-12">
                         <div class="form-group">
@@ -47,7 +47,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="outcome border rounded p-1 mb-3" id="outcomes">
+                        <div class="outcome border rounded p-1 mb-3" id="outcomes" >
                             <div class="outcome-template d-none">   
                                 <div class="form-group" >
                                     <label for="outcome_name" class="col-sm-2 asterisk control-label">Outcome Name</label>
@@ -67,7 +67,7 @@
                                             <span class="input-group-addon">
                                                 <i class="fa fa-pencil fa-fw"></i>
                                             </span>
-                                            <input type="text" name="outcomes[__INDEX__][budget]" class="form-control mb-2" placeholder="Enter Outcome Name" required />
+                                            <input type="number" name="outcomes[__INDEX__][budget]" class="form-control mb-2" placeholder="Enter Outcome Name" required />
                                         </div>
                                     </div>
                                 </div>
@@ -94,7 +94,7 @@
                                                     <span class="input-group-addon">
                                                         <i class="fa fa-pencil fa-fw"></i>
                                                     </span>
-                                                    <input type="text" name="outcomes[__INDEX__][outputs][__SUBINDEX__][budget]" class="form-control mb-2" placeholder="Enter Outcome Budget" required />
+                                                    <input type="number" name="outcomes[__INDEX__][outputs][__SUBINDEX__][budget]" class="form-control mb-2" placeholder="Enter Outcome Budget" required />
                                                 </div>
                                             </div>
                                             <button type="button" class="btn btn-warning btn-sm pull-right" onclick="removeOutput(this)">Remove</button>
@@ -120,7 +120,7 @@
                                                                 <span class="input-group-addon">
                                                                     <i class="fa fa-pencil fa-fw"></i>
                                                                 </span>
-                                                                <input type="text" name="outcomes[__INDEX__][outputs][__SUBINDEX__][activities][__ACTIVITYINDEX__][budget]" class="form-control mb-2" placeholder="Enter Outcome Budget" required />
+                                                                <input type="number" name="outcomes[__INDEX__][outputs][__SUBINDEX__][activities][__ACTIVITYINDEX__][budget]" class="form-control mb-2" placeholder="Enter Outcome Budget" required />
                                                             </div>
                                                         </div>
                                                         <button type="button" class="btn btn-warning btn-sm pull-right" onclick="removeActivity(this)">Remove</button>
@@ -203,7 +203,8 @@
 </div>
 
 <script>
-    function showOutputSection(button) {
+    // function to show the output section
+    function showOutputSection(button) { 
         const outputsDiv = button.nextElementSibling;
         outputsDiv.style.display = 'block';
         addOutput(button);
