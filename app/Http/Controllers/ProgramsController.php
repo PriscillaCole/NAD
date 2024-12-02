@@ -2,9 +2,12 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Activity;
+use App\Models\BudgetLines;
 use App\Models\Program;
 use App\Models\Outcome;
 use App\Models\Output;
+use App\Models\Utils;
 use Illuminate\Http\Request;
 use Encore\Admin\Form;
 use Laravel\Pail\ValueObjects\Origin\Console;
@@ -20,14 +23,11 @@ class ProgramsController extends Controller
     {
 
         try {
-            dd($request->all());
             // Validate the incoming data
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
-                'user' => 'required',
+                'user_id' => 'required',
                 'description' => 'nullable|string',
-                'user_id' => 'required|exists:admin_users,id',
-                // 'budget' => 'nullable|numeric|min:0', // Validate program budget
                 'outcomes' => 'nullable|array',
                 'outcomes.*.name' => 'required_with:outcomes|string|max:255',
                 'outcomes.*.budget' => 'nullable|numeric|min:0', // Validate outcome budget
@@ -39,9 +39,9 @@ class ProgramsController extends Controller
                 'outcomes.*.outputs.*.activities.*.budget' => 'nullable|numeric|min:0', // Validate activity budget
                 'outcomes.*.outputs.*.activities.*.budget_lines' => 'nullable|array',
                 'outcomes.*.outputs.*.activities.*.budget_lines.*.name' => 'required_with:outcomes.*.outputs.*.activities.*.budget_lines|string|max:255',
-                'outcomes.*.outputs.*.activities.*.budget_lines.*.amount' => 'required_with:outcomes.*.outputs.*.activities.*.budget_lines|numeric|min:0',
+                'outcomes.*.outputs.*.activities.*.budget_lines.*.budget' => 'required_with:outcomes.*.outputs.*.activities.*.budget_lines|numeric|min:0',
                 'outcomes.*.outputs.*.activities.*.budget_lines.*.frequency' => 'required_with:outcomes.*.outputs.*.activities.*.budget_lines|numeric|min:0',
-                'outcomes.*.outputs.*.activities.*.budget_lines.*.unit_cost' => 'required_with:outcomes.*.outputs.*.activities.*.budget_lines|numeric|min:0',
+                'outcomes.*.outputs.*.activities.*.budget_lines.*.unitcost' => 'required_with:outcomes.*.outputs.*.activities.*.budget_lines|numeric|min:0',
                 'outcomes.*.outputs.*.activities.*.budget_lines.*.quantity' => 'required_with:outcomes.*.outputs.*.activities.*.budget_lines|numeric|min:0',
             ]);
 
@@ -55,8 +55,7 @@ class ProgramsController extends Controller
             $program = Program::create([
                 'name' => $validated['name'],
                 'description' => $validated['description'] ?? null,
-                'user_id' => $validated['user'],
-                // 'budget' => $validated['budget'] ?? null,
+                'user_id' => $validated['user_id'],
             ]);
     
             // Loop through outcomes
@@ -88,8 +87,8 @@ class ProgramsController extends Controller
                                         foreach ($activityData['budget_lines'] as $budgetLineData) {
                                             $activity->budgetLines()->create([
                                                 'name' => $budgetLineData['name'],
-                                                'budget' => $budgetLineData['amount'],
-                                                'unitcost' => $budgetLineData['unit_cost'] ,
+                                                'budget' => $budgetLineData['budget'],
+                                                'unitcost' => $budgetLineData['unitcost'] ,
                                                 'quantity' => $budgetLineData['quantity'] ,
                                                 'frequency' => $budgetLineData['frequency'],
                                             ]);
@@ -122,88 +121,155 @@ class ProgramsController extends Controller
         }
     }
     
-    public function edit(Program $program)
-    {
-        return view('programs.edit', compact('program'));
-    }
 
     // function to update a program
     public function update(Request $request, $id)
     {
-        // Validate incoming data
+        // dd($request->input());
+        // Validate the incoming request
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'outcomes' => 'nullable|array',
-            'outcomes.*.id' => 'nullable|exists:outcomes,id',
-            'outcomes.*.name' => 'required_with:outcomes|string|max:255',
-            'outcomes.*.outputs' => 'nullable|array',
-            'outcomes.*.outputs.*.id' => 'nullable|exists:outputs,id',
-            'outcomes.*.outputs.*.name' => 'required_with:outcomes.*.outputs|string|max:255',
-            'outcomes.*.outputs.*.activities' => 'nullable|array',
-            'outcomes.*.outputs.*.activities.*.id' => 'nullable|exists:activities,id',
-            'outcomes.*.outputs.*.activities.*.name' => 'required_with:outcomes.*.outputs.*.activities|string|max:255',
-            'outcomes.*.outputs.*.activities.*.budget_lines' => 'nullable|array',
-            'outcomes.*.outputs.*.activities.*.budget_lines.*.id' => 'nullable|exists:budget_lines,id',
-            'outcomes.*.outputs.*.activities.*.budget_lines.*.name' => 'required_with:outcomes.*.outputs.*.activities.*.budget_lines|string|max:255',
-            'outcomes.*.outputs.*.activities.*.budget_lines.*.amount' => 'required_with:outcomes.*.outputs.*.activities.*.budget_lines|numeric|min:0',
+            'description' => 'required|string|max:1000',
+            'outcomes' => 'array',
+            'outcomes.*.id' => 'nullable',  
+            'outcomes.*.name' => 'required|string|max:255',
+            'outcomes.*.budget' => 'required|numeric|min:0',
+            'outcomes.*.outputs' => 'array',
+            'outcomes.*.outputs.*.id' => 'nullable',  
+            'outcomes.*.outputs.*.name' => 'required|string|max:255',
+            'outcomes.*.outputs.*.budget' => 'required|numeric|min:0',
+            'outcomes.*.outputs.*.activities' => 'array',
+            'outcomes.*.outputs.*.activities.*.id' => 'nullable',  
+            'outcomes.*.outputs.*.activities.*.name' => 'required|string|max:255',
+            'outcomes.*.outputs.*.activities.*.budget' => 'required|numeric|min:0',
+            'outcomes.*.outputs.*.activities.*.budget_lines' => 'array',
+            'outcomes.*.outputs.*.activities.*.budget_lines.*.id' => 'nullable',  
+            'outcomes.*.outputs.*.activities.*.budget_lines.*.name' => 'required|string|max:255',
+            'outcomes.*.outputs.*.activities.*.budget_lines.*.unitcost' => 'required|numeric|min:0',
+            'outcomes.*.outputs.*.activities.*.budget_lines.*.quantity' => 'required|numeric|min:0',
+            'outcomes.*.outputs.*.activities.*.budget_lines.*.frequency' => 'required|numeric|min:0',
+            'outcomes.*.outputs.*.activities.*.budget_lines.*.budget' => 'required|numeric|min:0',
         ]);
-
+    
+        // Start database transaction
         \DB::beginTransaction();
-
+    
         try {
+            // Update the program
             $program = Program::findOrFail($id);
             $program->update([
                 'name' => $validated['name'],
-                'description' => $validated['description'] ?? null,
+                'description' => $validated['description'],
             ]);
-
-            if (!empty($validated['outcomes'])) {
-                foreach ($validated['outcomes'] as $outcomeData) {
-                    $outcome = $program->outcomes()->updateOrCreate(
-                        ['id' => $outcomeData['id'] ?? null],
-                        ['name' => $outcomeData['name']]
+    
+            // Load existing relationships
+            $program->load('outcomes.outputs.activities.budget_lines');
+    
+            // Get all current IDs for comparison
+            $currentOutcomeIds = $program->outcomes->pluck('id')->toArray();
+            $submittedOutcomeIds = collect($validated['outcomes'])->pluck('id')->filter()->toArray();
+            
+            // Remove outcomes that are no longer present
+            Outcome::whereIn('id', array_diff($currentOutcomeIds, $submittedOutcomeIds))
+                ->where('program_id', $program->id)
+                ->delete();
+    
+            // Handle outcomes
+            foreach ($validated['outcomes'] as $outcomeData) {
+                $outcome = Outcome::updateOrCreate(
+                    [
+                        'id' => $outcomeData['id'] ?? null,
+                        'program_id' => $program->id
+                    ],
+                    [
+                        'name' => $outcomeData['name'],
+                        'budget' => $outcomeData['budget'],
+                    ]
+                );
+    
+                // Get current output IDs for this outcome
+                $currentOutputIds = $outcome->outputs->pluck('id')->toArray();
+                $submittedOutputIds = collect($outcomeData['outputs'] ?? [])->pluck('id')->filter()->toArray();
+    
+                // Remove outputs that are no longer present
+                Output::whereIn('id', array_diff($currentOutputIds, $submittedOutputIds))
+                    ->where('outcome_id', $outcome->id)
+                    ->delete();
+    
+                // Handle outputs
+                foreach ($outcomeData['outputs'] ?? [] as $outputData) {
+                    $output = Output::updateOrCreate(
+                        [
+                            'id' => $outputData['id'] ?? null,
+                            'outcome_id' => $outcome->id
+                        ],
+                        [
+                            'name' => $outputData['name'],
+                            'budget' => $outputData['budget'],
+                        ]
                     );
-
-                    if (!empty($outcomeData['outputs'])) {
-                        foreach ($outcomeData['outputs'] as $outputData) {
-                            $output = $outcome->outputs()->updateOrCreate(
-                                ['id' => $outputData['id'] ?? null],
-                                ['name' => $outputData['name']]
+    
+                    // Get current activity IDs for this output
+                    $currentActivityIds = $output->activities->pluck('id')->toArray();
+                    $submittedActivityIds = collect($outputData['activities'] ?? [])->pluck('id')->filter()->toArray();
+    
+                    // Remove activities that are no longer present
+                    Activity::whereIn('id', array_diff($currentActivityIds, $submittedActivityIds))
+                        ->where('output_id', $output->id)
+                        ->delete();
+    
+                    // Handle activities
+                    foreach ($outputData['activities'] ?? [] as $activityData) {
+                        $activity = Activity::updateOrCreate(
+                            [
+                                'id' => $activityData['id'] ?? null,
+                                'output_id' => $output->id
+                            ],
+                            [
+                                'name' => $activityData['name'],
+                                'budget' => $activityData['budget'],
+                            ]
+                        );
+    
+                        // Get current budget line IDs for this activity
+                        $currentBudgetLineIds = $activity->budget_lines->pluck('id')->toArray();
+                        $submittedBudgetLineIds = collect($activityData['budget_lines'] ?? [])->pluck('id')->filter()->toArray();
+    
+                        // Remove budget lines that are no longer present
+                        BudgetLines::whereIn('id', array_diff($currentBudgetLineIds, $submittedBudgetLineIds))
+                            ->where('activity_id', $activity->id)
+                            ->delete();
+    
+                        // Handle budget lines
+                        foreach ($activityData['budget_lines'] ?? [] as $budgetLineData) {
+                            BudgetLines::updateOrCreate(
+                                [
+                                    'id' => $budgetLineData['id'] ?? null,
+                                    'activity_id' => $activity->id
+                                ],
+                                [
+                                    'name' => $budgetLineData['name'],
+                                    'unitcost' => $budgetLineData['unitcost'],
+                                    'quantity' => $budgetLineData['quantity'],
+                                    'frequency' => $budgetLineData['frequency'],
+                                    'budget' => $budgetLineData['budget'],
+                                ]
                             );
-
-                            if (!empty($outputData['activities'])) {
-                                foreach ($outputData['activities'] as $activityData) {
-                                    $activity = $output->activities()->updateOrCreate(
-                                        ['id' => $activityData['id'] ?? null],
-                                        ['name' => $activityData['name']]
-                                    );
-
-                                    if (!empty($activityData['budget_lines'])) {
-                                        foreach ($activityData['budget_lines'] as $budgetLineData) {
-                                            $activity->budgetLines()->updateOrCreate(
-                                                ['id' => $budgetLineData['id'] ?? null],
-                                                [
-                                                    'name' => $budgetLineData['name'],
-                                                    'amount' => $budgetLineData['amount'],
-                                                ]
-                                            );
-                                        }
-                                    }
-                                }
-                            }
                         }
                     }
                 }
             }
-
+    
             \DB::commit();
-            return redirect()->route('programs.index')->with('success', 'Program updated successfully.');
+            return redirect(admin_url('programs'));
         } catch (\Exception $e) {
             \DB::rollBack();
-            return back()->with('error', 'Failed to update program: ' . $e->getMessage());
+            \Log::error($e);
+            return redirect()->back()->with('error', 'Failed to update program. ' . $e->getMessage());
         }
     }
+
+
 
 
 }

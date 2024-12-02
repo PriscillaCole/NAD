@@ -25,7 +25,7 @@
                                 <i class="fa fa-pencil fa-fw"></i>
                             </span>
                             <input type="text" name="outcomes[${outcomeId}][name]" class="form-control" placeholder="Enter Outcome Name" required>
-                        </div>
+                            </div>
                         </div>
                     </div>
                     <div class="form-group">
@@ -36,22 +36,22 @@
                                 <i class="fa fa-pencil fa-fw"></i>
                             </span>
                             <input type="number" name="outcomes[${outcomeId}][budget]" class="form-control" placeholder="Enter Outcome Budget" required>
-                        </div>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Outputs Section -->
                     <div id="outputs-${outcomeId}"></div>
                    <div class="form-group">
-                    <div class="col-sm-8 col-sm-offset-2" style="display: flex; justify-content: space-between; align-items: center;">
-                        <button type="button" class="btn btn-info btn-add" onclick="addOutput(${outcomeId})">Add Output</button>
-                        
-                        <!-- Delete Button with Bin Icon -->
-                        <button type="button" class="btn btn-danger btn-delete" onclick="deleteOutcome(${outcomeId})">
-                            <i class="fa fa-trash"></i> Delete
-                        </button>
+                        <div class="col-sm-8 col-sm-offset-2" style="display: flex; justify-content: space-between; align-items: center;">
+                            <button type="button" class="btn btn-info btn-add" onclick="addOutput(${outcomeId})">Add Output</button>
+                            
+                            <!-- Delete Button with Bin Icon -->
+                            <button type="button" class="btn btn-danger btn-delete" onclick="deleteOutcome(${outcomeId})">
+                                <i class="fa fa-trash"></i> Delete
+                            </button>
+                        </div>
                     </div>
-                </div>
 
                 </div>
             </div>
@@ -208,7 +208,7 @@
                             <span class="input-group-addon">
                                 <i class="fa fa-pencil fa-fw"></i>
                             </span>
-                            <input type="number" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][budget_lines][${budgetLineId}][amount]" class="form-control" placeholder="Enter Budget Line Amount" required>
+                            <input type="number" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][budget_lines][${budgetLineId}][budget]" class="form-control" placeholder="Enter Budget Line Amount" required>
                         </div>
                         </div>
                     </div>
@@ -219,7 +219,7 @@
                             <span class="input-group-addon">
                                 <i class="fa fa-pencil fa-fw"></i>
                             </span>
-                            <input type="number" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][budget_lines][${budgetLineId}][unit_cost]" class="form-control" placeholder="Unit Cost" required>
+                            <input type="number" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][budget_lines][${budgetLineId}][unitcost]" class="form-control" placeholder="Unit Cost" required>
                         </div>
                         </div>
                     </div>

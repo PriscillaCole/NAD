@@ -64,7 +64,9 @@
                         </div>
 
                         <!-- Outcome Section -->
-                        <div id="outcomes"></div>
+                        <div id="outcomes">
+                            <script></script>
+                        </div>
 
                         <!-- Add Outcome Button -->
                         <div class="form-group">

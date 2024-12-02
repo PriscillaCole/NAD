@@ -22,7 +22,7 @@ class Activity extends Model
     }
 
     
-    public function budgetLines()
+    public function budget_lines()
     {
         return $this->hasMany(BudgetLines::class);
     }

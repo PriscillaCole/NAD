@@ -2,7 +2,7 @@
 
 namespace App\Admin\Controllers;
 
-use App\Http\Controllers\Admin\CustomProgramController as AdminCustomProgramController;
+use App\Http\Controllers\ProgramsController;
 use App\Models\Outcome;
 use App\Models\Program;
 use Encore\Admin\Controllers\AdminController;
@@ -10,15 +10,8 @@ use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
 use Carbon\Carbon;
+use Encore\Admin\Actions\RowAction;
 use Encore\Admin\Layout\Content;
-use App\Http\Controllers\CustomProgramController;
-use Encore\Admin\Form\Layout\Column;
-use Encore\Admin\Layout\Row;
-use Encore\Admin\Facades\Admin;
-use GuzzleHttp\Psr7\Request;
-
-use function Laravel\Prompts\form;
-use function Laravel\Prompts\text;
 
 class ProgramController extends AdminController
 {
@@ -42,6 +35,12 @@ class ProgramController extends AdminController
         $grid->filter(function($filter){
             $filter->disableIdFilter();
             $filter->like('name', 'Name')->placeholder('Search Name');
+        });
+
+        // change function for edit action
+        $grid->actions(function ($actions) {
+            // Disable delete button
+            $actions->disableDelete();
         });
 
         $grid->column('id', __('Id'));
@@ -68,15 +67,10 @@ class ProgramController extends AdminController
     protected function detail($id)
     {
         $show = new Show(Program::findOrFail($id));
+        $program = Program::findOrFail($id);
 
-        $show->field('id', __('Id'));
-        $show->field('name', __('Name'));
-        $show->field('description', __('Description'));
-        $show->field('created_at', __('Created at'));
-        $show->field('updated_at', __('Updated at'));
-        // $show->has
+        return view('programs.show', compact('program'));
 
-        return $show;
     }
 
     /**
@@ -88,46 +82,26 @@ class ProgramController extends AdminController
     {
         $form = new Form(new Program());
        
-        $user = auth()->user()->id;
-
         // redirect to the create view
         if ($form->isCreating()){
-            // if(!$user->isRole('manager')){
-            //     return Validation:: allowBasicUserToCreate($form);
-            //     }
+            $user = auth()->user()->id;
+            
             return view('programs.create', compact('user'));
         }
         
 
-        if ($form->isEditing()) {
-            // $id = request()->route('program') ;
-            // $program = Program::FindOrFail($id);
-
-            // return view('programs.edit', compact('program'));
-          
-            $form->text('name');
-            $form->hasMany('outcomes', function (Form\NestedForm $outcomeform) {
-            $outcomeform->text('name');
-            
-            // $outcomeId = $outcomeform->model();
-            // dd($outcomeId);
-            $output= Outcome::FindOrFail($outcomeId);
-            $outcomeform->html('
-                <div class="form-group" >
-                    <label for="outcome_name" class="col-sm-2 asterisk control-label">Outcome Name</label>
-                    <div class="col-sm-8" >
-                        <div class="input-group">
-                            <span class="input-group-addon">
-                                <i class="fa fa-pencil fa-fw"></i>
-                            </span>
-                            <input type="text" name="outcomes[__INDEX__][name]" value="'.$output->name.'" class="form-control mb-2" placeholder="Enter Outcome Name" required />
-                        </div>
-                    </div>
-                </div>
-            ');
-            });
-        }
         return $form;
+    }
+
+    public function edit($id, Content $content)
+    {
+        // Fetch the program using the provided ID
+        $program = Program::findOrFail($id);
+
+        return $content
+            ->title('Edit Program') // Page title
+            ->description('Edit the program details') // Page description
+            ->body(view('programs.edit', compact('program'))); // Custom view for editing
     }
 
 }

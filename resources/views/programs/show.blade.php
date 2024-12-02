@@ -43,7 +43,7 @@
                                     <span class="input-group-addon">
                                         <i class="fa fa-pencil fa-fw"></i>
                                     </span>
-                                    <input type="text" name="name" class="form-control" value="{{ $program->name }}" required />
+                                    <input type="text" name="name" class="form-control" value="{{ $program->name }}" readonly />
                                 </div>
                             </div>
                         </div>
@@ -52,7 +52,7 @@
                         <div class="form-group">
                             <label for="description" class="col-sm-2 control-label">Program Description</label>
                             <div class="col-sm-8">
-                                <textarea name="description" class="form-control" required>{{ $program->description }}</textarea>
+                                <textarea name="description" class="form-control" readonly>{{ $program->description }}</textarea>
                             </div>
                         </div>
 
@@ -75,7 +75,7 @@
                                                     <span class="input-group-addon">
                                                         <i class="fa fa-pencil fa-fw"></i>
                                                     </span>
-                                                    <input type="text" name="outcomes[{{ $outcome->id }}][name]" class="form-control" value="{{ $outcome->name }}" required>
+                                                    <input type="text" name="outcomes[{{ $outcome->id }}][name]" class="form-control" value="{{ $outcome->name }}" readonly>
                                                 </div>
                                             </div>
                                         </div>
@@ -86,7 +86,7 @@
                                                     <span class="input-group-addon">
                                                         <i class="fa fa-pencil fa-fw"></i>
                                                     </span>
-                                                    <input type="number" name="outcomes[{{ $outcome->id }}][budget]" class="form-control" value="{{ $outcome->budget }}" required>
+                                                    <input type="number" name="outcomes[{{ $outcome->id }}][budget]" class="form-control" value="{{ $outcome->budget }}" readonly>
                                                 </div>
                                             </div>
                                         </div>
@@ -109,7 +109,7 @@
                                                                     <span class="input-group-addon">
                                                                         <i class="fa fa-pencil fa-fw"></i>
                                                                     </span>
-                                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][name]" class="form-control" value="{{ $output->name }}" required>
+                                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][name]" class="form-control" value="{{ $output->name }}" readonly>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -120,7 +120,7 @@
                                                                     <span class="input-group-addon">
                                                                         <i class="fa fa-pencil fa-fw"></i>
                                                                     </span>
-                                                                    <input type="number" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][budget]" class="form-control" value="{{ $output->budget }}" required>
+                                                                    <input type="number" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][budget]" class="form-control" value="{{ $output->budget }}" readonly>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -143,7 +143,7 @@
                                                                                     <span class="input-group-addon">
                                                                                         <i class="fa fa-pencil fa-fw"></i>
                                                                                     </span>
-                                                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][name]" class="form-control" value="{{ $activity->name }}" required>
+                                                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][name]" class="form-control" value="{{ $activity->name }}" readonly>
                                                                                 </div>
                                                                             </div>
                                                                         </div>
@@ -154,7 +154,7 @@
                                                                                     <span class="input-group-addon">
                                                                                         <i class="fa fa-pencil fa-fw"></i>
                                                                                     </span>
-                                                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][budget]" class="form-control" value="{{ $activity->budget }}" required>
+                                                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][budget]" class="form-control" value="{{ $activity->budget }}" readonly>
                                                                                 </div>
                                                                             </div>
                                                                         </div>
@@ -176,7 +176,7 @@
                                                                                                     <span class="input-group-addon">
                                                                                                         <i class="fa fa-pencil fa-fw"></i>
                                                                                                     </span>
-                                                                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][budget_lines][{{ $budget_line->id }}][name]" class="form-control" value="{{ $budget_line->name }}" required>
+                                                                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][budget_lines][{{ $budget_line->id }}][name]" class="form-control" value="{{ $budget_line->name }}" readonly>
                                                                                                 </div>
                                                                                             </div>
                                                                                         </div>
@@ -187,7 +187,7 @@
                                                                                                     <span class="input-group-addon">
                                                                                                         <i class="fa fa-pencil fa-fw"></i>
                                                                                                     </span>
-                                                                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][budget_lines][{{ $budget_line->id }}][unitcost]" class="form-control" value="{{ $budget_line->unitcost }}" required>
+                                                                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][budget_lines][{{ $budget_line->id }}][unitcost]" class="form-control" value="{{ $budget_line->unitcost }}" readonly>
                                                                                                 </div>
                                                                                             </div>
                                                                                         </div>
@@ -198,7 +198,7 @@
                                                                                                     <span class="input-group-addon">
                                                                                                         <i class="fa fa-pencil fa-fw"></i>
                                                                                                     </span>
-                                                                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][budget_lines][{{ $budget_line->id }}][quantity]" class="form-control" value="{{ $budget_line->quantity }}" required>
+                                                                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][budget_lines][{{ $budget_line->id }}][quantity]" class="form-control" value="{{ $budget_line->quantity }}" readonly>
                                                                                                 </div>
                                                                                             </div>
                                                                                         </div>
@@ -209,7 +209,7 @@
                                                                                                     <span class="input-group-addon">
                                                                                                         <i class="fa fa-pencil fa-fw"></i>
                                                                                                     </span>
-                                                                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][budget_lines][{{ $budget_line->id }}][frequency]" class="form-control" value="{{ $budget_line->frequency }}" required>
+                                                                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][budget_lines][{{ $budget_line->id }}][frequency]" class="form-control" value="{{ $budget_line->frequency }}" readonly>
                                                                                                 </div>
                                                                                             </div>
                                                                                         </div>
@@ -220,80 +220,33 @@
                                                                                                     <span class="input-group-addon">
                                                                                                         <i class="fa fa-pencil fa-fw"></i>
                                                                                                     </span>
-                                                                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][budget_lines][{{ $budget_line->id }}][budget]" class="form-control" value="{{ $budget_line->budget }}" required>
+                                                                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][budget_lines][{{ $budget_line->id }}][budget]" class="form-control" value="{{ $budget_line->budget }}" readonly>
                                                                                                 </div>
                                                                                             </div>
                                                                                         </div>
-                                                                                        <div class="form-group">
-                                                                                            <div class="col-sm-8 col-sm-offset-2" style="display: flex; justify-content: flex-end; align-items: center;">
-                                                                                                <!-- Delete Button with Bin Icon -->
-                                                                                                <button type="button" class="btn btn-danger btn-delete" onclick="deleteBudgetLine({{$budget_line->id}})">
-                                                                                                    <i class="fa fa-trash"></i> Delete
-                                                                                                </button>
-                                                                                            </div>
-                                                                                        </div>
-                                                                    
-                                                                                        <!-- More fields for Budget Lines -->
+                                                                                        
                                                                                     </div>
                                                                                 </div>
                                                                             @endforeach
                                                                         </div>
-                                                                        <div class="form-group">
-                                                                            <div class="col-sm-8 col-sm-offset-2" style="display: flex; justify-content: space-between; align-items: center;">
-                                                                           <button type="button" class="btn btn-secondary btn-add" onclick="addBudgetLine({{$activity->id}}, {{$output->id}}, {{$outcome->id}})">Add Budget Line</button>
-                                                    
-                                                                            <!-- Delete Button with Bin Icon -->
-                                                                            <button type="button" class="btn btn-danger btn-delete"  onclick="deleteActivity({{$activity->id}})">
-                                                                                <i class="fa fa-trash"></i> Delete
-                                                                            </button>
-                                                                        </div>
+                                                                        
                                                                         </div>
                                                                     </div>
                                                                 </div>
                                                             @endforeach
                                                         </div>
-                                                        <div class="form-group">
-                                                            <div class="col-sm-8 col-sm-offset-2" style="display: flex; justify-content: space-between; align-items: center;">
-                                                              <button type="button" class="btn btn-warning btn-add" onclick="addActivity({{$output->id}}, {{$outcome->id}})">Add Activity</button>
-                                                              <!-- Delete Button with Bin Icon -->
-                                                              <button type="button" class="btn btn-danger btn-delete"  onclick="deleteOutput({{$output->id}})">
-                                                                  <i class="fa fa-trash"></i> Delete
-                                                              </button>
-                                                          </div>
-                                                        </div>
+                                                        
                                                     </div>
                                                 </div>
                                             @endforeach
                                         </div>
                                         
-                                        <div class="form-group">
-                                            <div class="col-sm-8 col-sm-offset-2" style="display: flex; justify-content: space-between; align-items: center;">
-                                                <button type="button" class="btn btn-info btn-add" onclick="addOutput({{$outcome->id}})">Add Output</button>
-                                                
-                                                <!-- Delete Button with Bin Icon -->
-                                                <button type="button" class="btn btn-danger btn-delete" onclick="deleteOutcome({{$outcome->id}})">
-                                                    <i class="fa fa-trash"></i> Delete
-                                                </button>
-                                            </div>
-                                        </div>
+                                        
                                     </div>
                                 </div>
                             @endforeach
                         </div>
 
-                        <!-- Add Outcome Button -->
-                        <div class="form-group">
-                            <div class="col-sm-8 col-sm-offset-2">
-                                <button type="button" class="btn btn-success btn-add" onclick="addOutcome()">Add Outcome</button>
-                            </div>
-                        </div>
-
-                        <!-- Save Button -->
-                        <div class="form-group text-right">
-                            <div class="col-sm-8 col-sm-offset-2">
-                                <button type="submit" class="btn btn-primary">Save Changes</button>
-                            </div>
-                        </div>
                     </form>
                 </div>
             </div>
