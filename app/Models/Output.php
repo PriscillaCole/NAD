@@ -14,7 +14,7 @@ class Output extends Model
         'outcome_id',
         'budget',
     ];
-    public function outcomes()
+    public function outcome()
     {
         return $this->belongsTo(Outcome::class);
     }

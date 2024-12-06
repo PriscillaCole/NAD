@@ -13,16 +13,13 @@ return new class extends Migration
     {
         Schema::create('requisition_items', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('requisition_id');
-            $table->unsignedBigInteger('category_id')->nullable();
-            $table->string('item');
+            $table->foreignId('requisition_id')->constrained()->onDelete('cascade');
+            $table->foreignId('budget_line_id')->constrained()->onDelete('cascade');
             $table->integer('quantity');
             $table->string('unit_of_measure');
             $table->decimal('unit_price', 10, 2);
             $table->decimal('total_price', 10, 2)->nullable();
 
-            $table->foreign('requisition_id')->references('id')->on('requisitions')->onDelete('cascade');
-            $table->foreign('category_id')->references('id')->on('categories')->onDelete('set null');
             $table->timestamps();
         });
     }

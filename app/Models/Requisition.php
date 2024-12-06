@@ -10,6 +10,18 @@ class Requisition extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'code',
+        'activity_id',
+        'program_id',
+        'concept_note',
+        'staff_id',
+        'description',
+        'amount',
+        'status comment',
+        ''
+        
+    ];
     //relationship between requisitions and staff
     public function staff()
     {
@@ -38,23 +50,23 @@ class Requisition extends Model
 
 
     //boot function to send emails 
-    public static function boot()
-    {
-        parent::boot();
+    // public static function boot()
+    // {
+    //     parent::boot();
 
-        static::created(function ($model) {
-            Notification::send_notification($model, 'Requisition', request()->segment(count(request()->segments())));
-        });
+    //     static::created(function ($model) {
+    //         Notification::send_notification($model, 'Requisition', request()->segment(count(request()->segments())));
+    //     });
 
 
-        static::updated(function ($model) {
-            //send email to the country director
-            error_log($model->status);
-            Notification::update_notification($model, 'Requisition', request()->segment(count(request()->segments())));
-        });
+    //     static::updated(function ($model) {
+    //         //send email to the country director
+    //         error_log($model->status);
+    //         Notification::update_notification($model, 'Requisition', request()->segment(count(request()->segments())));
+    //     });
 
       
-    }
+    // }
 
     
 }

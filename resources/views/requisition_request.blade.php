@@ -120,7 +120,7 @@
             margin: 0 auto;
             border-radius: 50%;
             width: 200px;
-            height: 200px;
+            height: 100px;
             object-fit: cover;
             object-position: center;
             margin-bottom: 20px;
@@ -134,8 +134,8 @@
 </head>
 <body>
     <div class="container">
-        <!-- <img src="{{ asset('login-template/images/logo-removebg-preview.png') }}" alt="Logo" > -->
-        <h1>Requisition Request</h1>
+        <img src="{{ asset('login-template/images/logo.webp') }}" alt="Logo" >
+        <h1>FUNDS REQUISITION FORM</h1>
         <label>Date Created: {{ $requisition->created_at }}</label>
         <!-- make the concept note a downloadable file -->
        
@@ -177,7 +177,7 @@
                     <td>{{ $requisition->staff->staff_number}}</td>
                     <td>{{ $requisition->staff->name }}</td>
                     <td>{{ $requisition->code }}</td>
-                    <td>{{ $requisition->activity->program->name }}</td>
+                    <td>{{ $requisition->activity->output->outcome->program->name }}</td>
                     <td>{{ $requisition->activity->name }}</td>
                 </tr>
             </tbody>
@@ -194,8 +194,7 @@
             <thead>
                 <tr>
                     <th>No.</th>
-                    <th>Category</th>
-                    <th>Item</th>
+                    <th>Name</th>
                     <th>Quantity</th>
                     <th>Unit Price</th>
                     <th>Total Price</th>
@@ -214,8 +213,7 @@
                     ?>
                     <tr>
                         <td>{{ $counter++ }}</td>
-                        <td>{{ $item->category->name }}</td>
-                        <td>{{ $item->item }}</td>
+                        <td>{{ $item->budgetline->name }}</td>
                         <td>{{ $item->quantity }} {{$item->unit_of_measure}}</td>
                         <td>{{ $item->unit_price }}</td>
                         <td>{{ $total_price }}</td>

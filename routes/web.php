@@ -32,6 +32,7 @@ Route::get('/dashboardvs', [App\Http\Controllers\DashboardController::class, 'ge
 Route::get('/dashboardwp', [App\Http\Controllers\DashboardController::class, 'showWeeklyPattern'])->name('weekly-pattern');
 Route::post('/comments', [App\Http\Controllers\CommentController::class, 'store'])->name('comments');
 Route::get('/program-activities/{id}', [App\Admin\Controllers\RequisitionController::class, 'getProgramActivities'])->name('program-activities');
+Route::get('/budgetlines/{id}', [App\Admin\Controllers\RequisitionController::class, 'getActivitiesbudgetlines'])->name('budgetlines');
 Route::get('/requisition/{id}', [App\Admin\Controllers\AccountabilityController::class, 'Requisition'])->name('requisition');
 
 Route::post('/programs/create', [ProgramsController::class, 'store'])->name('programsCreate');

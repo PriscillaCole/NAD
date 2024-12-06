@@ -1,15 +1,24 @@
 <?php return array(
     'root' => array(
         'name' => 'laravel/laravel',
-        'pretty_version' => '1.0.0+no-version-set',
-        'version' => '1.0.0.0',
-        'reference' => null,
+        'pretty_version' => 'dev-main',
+        'version' => 'dev-main',
+        'reference' => '572247db38c1298c623e1eced0f46d3d22b9e763',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
         'dev' => true,
     ),
     'versions' => array(
+        'bennett-treptow/laravel-migration-generator' => array(
+            'pretty_version' => '4.4.1',
+            'version' => '4.4.1.0',
+            'reference' => '00b2a98727dde53464d13b8437011810c83f05a1',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../bennett-treptow/laravel-migration-generator',
+            'aliases' => array(),
+            'dev_requirement' => true,
+        ),
         'brick/math' => array(
             'pretty_version' => '0.11.0',
             'version' => '0.11.0.0',
@@ -452,9 +461,9 @@
             'dev_requirement' => false,
         ),
         'laravel/laravel' => array(
-            'pretty_version' => '1.0.0+no-version-set',
-            'version' => '1.0.0.0',
-            'reference' => null,
+            'pretty_version' => 'dev-main',
+            'version' => 'dev-main',
+            'reference' => '572247db38c1298c623e1eced0f46d3d22b9e763',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -585,6 +594,15 @@
             'install_path' => __DIR__ . '/../maennchen/zipstream-php',
             'aliases' => array(),
             'dev_requirement' => false,
+        ),
+        'marcj/topsort' => array(
+            'pretty_version' => '2.0.0',
+            'version' => '2.0.0.0',
+            'reference' => '972f58e42b5f110a0a1d8433247f65248abcfd5c',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../marcj/topsort',
+            'aliases' => array(),
+            'dev_requirement' => true,
         ),
         'markbaker/complex' => array(
             'pretty_version' => '3.0.2',
