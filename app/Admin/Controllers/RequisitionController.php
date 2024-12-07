@@ -183,84 +183,6 @@ class RequisitionController extends AdminController
             $form->hidden('amount', __('Amount'));
         }
 
-        // if ($user->isRole('manager')) {
-        //     // When saving the form, calculate the total amount of the requisition items
-        //     $form->saving(function (Form $form) {
-        //         $requisition_items = request()->input('requisition_items');
-                
-        //         // Check that the requisition items are not empty
-        //         if (empty($requisition_items)) {  // Changed from $form->requisition_items
-        //             admin_toastr('Please add requisition items', 'error');
-        //             return back()->withInput();
-        //         }
-            
-        //         $total_amount = 0;
-        //         $budget_lines = [];
-        //         $duplicateCategoryFound = false;
-            
-        //         foreach ($requisition_items as $item) {
-        //             if (in_array($item['budget_line_id'], $budget_lines)) {
-        //                 $duplicateCategoryFound = true;
-        //                 break;
-        //             }
-                    
-        //             $budget_lines[] = $item['budget_line_id'];
-        //             $total_amount += floatval($item['quantity']) * floatval($item['unit_price']);
-        //         }
-            
-        //         if ($duplicateCategoryFound) {
-        //             admin_toastr('You have selected the same budget line twice', 'error');
-        //             return back()->withInput();
-        //         }
-            
-        //         $form->amount = $total_amount;
-        //     });
-        
-        //     // When the form is saved, redirect to show view
-        //     $form->saved(function (Form $form) {
-        //         $total_amount = $form->amount;
-        //         $id = $form->getKey(); // Changed from $form->model()->id
-        //         admin_toastr('Requisition worth '. $total_amount. ' has been successfully submitted');
-        //         return redirect('/requisitions/'.$id);
-        //     });
-            
-        //     $form->hidden('staff_id')->default($staff_id);
-        //     $form->text('code')->default('REQ-'.rand(1000, 9999))->readonly();
-            
-        //     // Modified program selection
-        //     $form->select('program_id', __('Program'))
-        //         ->options(Program::pluck('name', 'id'))
-        //         ->required();
-            
-        //     // Modified activity selection
-        //     $form->select('activity_id', __('Activity'))
-        //         ->options(function ($id) {
-        //             return Activity::where('id', $id)->pluck('name', 'id');
-        //         })
-        //         ->required();
-        
-        //     // Requisition items
-        //     $form->hasMany('requisition_items', 'Requisition items', function (Form\NestedForm $form) {
-        //         $form->select('budget_line_id', __('Budget Line'))
-        //             ->options(function ($id) {
-        //                 // Modified to use where and pluck
-        //                 return BudgetLines::where('id', $id)
-        //                     ->pluck('name', 'id')
-        //                     ->toArray();
-        //             })
-        //             ->required();
-                    
-        //         $form->decimal('quantity', __('Quantity'))->required();
-        //         $form->text('unit_of_measure', __('Unit of measure'))->required();
-        //         $form->decimal('unit_price', __('Unit cost'))->required();
-        //     });
-        
-        //     $form->file('concept_note', __('Concept note'));
-        //     $form->textarea('description', __('Description'));
-        //     $form->hidden('amount', __('Amount'));
-        // }
-
-
         // finance comments
         else{
 
@@ -356,6 +278,9 @@ class RequisitionController extends AdminController
                     if($.isEmptyObject(data)) {
                         $("#activity_id").after("<span id=\'no-activities-message\' style=\'color: red;\'>No activities available for this program</span>");
                     } else {
+                        // Add a default option
+                        $("#activity_id").append(new Option(\'Select Activity \', \'\'));
+                                
                         $.each(data, function(key, value){
                             $("#activity_id").append("<option value="+key+">"+value+"</option>");
                         });
