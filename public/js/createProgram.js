@@ -174,18 +174,111 @@
         activitiesContainer.insertAdjacentHTML('beforeend', activityTemplate);
     }
 
+    // function addActivity(outputId, outcomeId) {
+    //     const activitiesContainer = document.getElementById(`activities-${outputId}`);
+    //     const activityCount = activitiesContainer.children.length + 1;
+    //     const activityId = Date.now();
+    
+    //     const activityTemplate = `
+    //         <div class="panel panel-default activity" id="activity-${activityId}">
+    //             <div class="panel-heading">
+    //                 <h6 class="panel-title">
+    //                     <span class="entity-label">Activity ${outcomeCounter}.${activityCount}</span> 
+    //                 </h6>
+    //             </div>
+    //             <div class="panel-body">
+    //                 <!-- Activity Fields -->
+    //                 <div class="form-group">
+    //                     <label class="col-sm-2 control-label">Activity Name</label>
+    //                     <div class="col-sm-8">
+    //                         <div class="input-group">
+    //                             <span class="input-group-addon">
+    //                                 <i class="fa fa-pencil fa-fw"></i>
+    //                             </span>
+    //                             <input type="text" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][name]" class="form-control" placeholder="Enter Activity Name" required>
+    //                         </div>
+    //                     </div>
+    //                 </div>
+    //                 <div class="form-group">
+    //                     <label class="col-sm-2 control-label">Activity Budget</label>
+    //                     <div class="col-sm-8">
+    //                         <div class="input-group">
+    //                             <span class="input-group-addon">
+    //                                 <i class="fa fa-pencil fa-fw"></i>
+    //                             </span>
+    //                             <input type="number" id="activity-budget-${activityId}" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][budget]" class="form-control activity-budget" placeholder="Activity Budget" readonly required>
+    //                         </div>
+    //                     </div>
+    //                 </div>
+    
+    //                 <!-- Budget Lines Section -->
+    //                 <div id="budget-lines-${activityId}"></div>
+    //                 <div class="form-group">
+    //                     <div class="col-sm-8 col-sm-offset-2" style="display: flex; justify-content: space-between; align-items: center;">
+    //                         <button type="button" class="btn btn-secondary btn-add" onclick="addBudgetLine(${activityId}, ${outputId}, ${outcomeId})">Add Budget Line</button>
+    
+    //                         <!-- Delete Button with Bin Icon -->
+    //                         <button type="button" class="btn btn-danger btn-delete" onclick="deleteActivity(${activityId})">
+    //                             <i class="fa fa-trash"></i> Delete
+    //                         </button>
+    //                     </div>
+    //                 </div>
+    //             </div>
+    //         </div>
+    //     `;
+    
+    //     activitiesContainer.insertAdjacentHTML('beforeend', activityTemplate);
+    
+    //     // Function to recalculate the Activity Budget
+    //     function recalculateActivityBudget() {
+    //         const budgetLinesContainer = document.getElementById(`budget-lines-${activityId}`);
+    //         const budgetInputs = budgetLinesContainer.querySelectorAll('.budget');
+    //         let totalBudget = 0;
+    
+    //         budgetInputs.forEach((input) => {
+    //             totalBudget += parseFloat(input.value) || 0;
+    //         });
+    
+    //         const activityBudgetInput = document.getElementById(`activity-budget-${activityId}`);
+    //         activityBudgetInput.value = totalBudget;
+    //     }
+    
+    //     // Create a MutationObserver for the budget-lines container
+    //     const budgetLinesContainer = document.getElementById(`budget-lines-${activityId}`);
+    //     const observer = new MutationObserver(() => recalculateActivityBudget());
+    //     observer.observe(budgetLinesContainer, { childList: true, subtree: true });
+    
+    //     // Add initial budget lines
+    //     addBudgetLine(activityId, outputId, outcomeId, recalculateActivityBudget);
+    // }
+    
+
+    // // Function to recalculate the Activity Budget
+    // function recalculateActivityBudget() {
+    //     const budgetLinesContainer = document.getElementById(`budget-lines-${activityId}`);
+    //     const budgetInputs = budgetLinesContainer.querySelectorAll('.budget');
+    //     let totalBudget = 0;
+
+    //     budgetInputs.forEach((input) => {
+    //         totalBudget += parseFloat(input.value) || 0;
+    //     });
+
+    //     const activityBudgetInput = document.getElementById(`activity-budget-${activityId}`);
+    //     activityBudgetInput.value = totalBudget;
+    // }
+    
+
     // Function to add a new Budget Line under an Activity
-    function addBudgetLine(activityId, outputId, outcomeId) {
+    function addBudgetLine(activityId, outputId, outcomeId, recalculateActivityBudget) {
         const budgetLinesContainer = document.getElementById(`budget-lines-${activityId}`);
         const budgetLineCount = budgetLinesContainer.children.length + 1;
         const budgetLineId = Date.now();
-
+    
         const budgetLineTemplate = `
             <div class="panel panel-default budget-line" id="budget-line-${budgetLineId}">
                 <div class="panel-heading">
                     <h6 class="panel-title">
-                        <span class="entity-label">Budget Line ${outcomeCounter}.${budgetLineCount}</span> 
-                       
+                        <span class="entity-label">Budget Line ${outcomeCounter}.${budgetLineCount}</span>
                     </h6>
                 </div>
                 <div class="panel-body">
@@ -193,60 +286,59 @@
                     <div class="form-group">
                         <label class="col-sm-2 control-label">Budget Line Name</label>
                         <div class="col-sm-8">
-                         <div class="input-group">
-                            <span class="input-group-addon">
-                                <i class="fa fa-pencil fa-fw"></i>
-                            </span>
-                            <input type="text" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][budget_lines][${budgetLineId}][name]" class="form-control" placeholder="Enter Budget Line Name" required>
-                    </div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label">Budget Line Amount</label>
-                        <div class="col-sm-8">
-                         <div class="input-group">
-                            <span class="input-group-addon">
-                                <i class="fa fa-pencil fa-fw"></i>
-                            </span>
-                            <input type="number" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][budget_lines][${budgetLineId}][budget]" class="form-control" placeholder="Enter Budget Line Amount" required>
-                        </div>
+                            <div class="input-group">
+                                <span class="input-group-addon">
+                                    <i class="fa fa-pencil fa-fw"></i>
+                                </span>
+                                <input type="text" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][budget_lines][${budgetLineId}][name]" class="form-control" placeholder="Enter Budget Line Name" required>
+                            </div>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="col-sm-2 control-label">Unit Cost</label>
                         <div class="col-sm-8">
-                         <div class="input-group">
-                            <span class="input-group-addon">
-                                <i class="fa fa-pencil fa-fw"></i>
-                            </span>
-                            <input type="number" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][budget_lines][${budgetLineId}][unitcost]" class="form-control" placeholder="Unit Cost" required>
-                        </div>
+                            <div class="input-group">
+                                <span class="input-group-addon">
+                                    <i class="fa fa-pencil fa-fw"></i>
+                                </span>
+                                <input type="number" id="unit-cost-${budgetLineId}" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][budget_lines][${budgetLineId}][unitcost]"  class="form-control unit-cost" placeholder="Unit Cost" required>
+                            </div>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="col-sm-2 control-label">Quantity</label>
                         <div class="col-sm-8">
-                         <div class="input-group">
-                            <span class="input-group-addon">
-                                <i class="fa fa-pencil fa-fw"></i>
-                            </span>
-                            <input type="number" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][budget_lines][${budgetLineId}][quantity]" class="form-control" placeholder="Quantity" required>
-                        </div>
+                            <div class="input-group">
+                                <span class="input-group-addon">
+                                    <i class="fa fa-pencil fa-fw"></i>
+                                </span>
+                                <input type="number" id="quantity-${budgetLineId}" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][budget_lines][${budgetLineId}][quantity]"  class="form-control quantity" placeholder="Quantity" required>
+                            </div>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="col-sm-2 control-label">Frequency</label>
                         <div class="col-sm-8">
-                         <div class="input-group">
-                            <span class="input-group-addon">
-                                <i class="fa fa-pencil fa-fw"></i>
-                            </span>
-                            <input type="number" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][budget_lines][${budgetLineId}][frequency]" class="form-control" placeholder="Frequency" required>
+                            <div class="input-group">
+                                <span class="input-group-addon">
+                                    <i class="fa fa-pencil fa-fw"></i>
+                                </span>
+                                <input type="number" id="frequency-${budgetLineId}" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][budget_lines][${budgetLineId}][frequency]" class="form-control frequency" placeholder="Frequency" required>
                             </div>
                         </div>
                     </div>
-
-                      <div class="form-group">
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">Budget Line Amount</label>
+                        <div class="col-sm-8">
+                            <div class="input-group">
+                                <span class="input-group-addon">
+                                    <i class="fa fa-pencil fa-fw"></i>
+                                </span>
+                                <input type="number" id="budget-${budgetLineId}" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][budget_lines][${budgetLineId}][budget]" class="form-control budget" placeholder="Enter Budget Line Amount" readonly required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
                         <div class="col-sm-8 col-sm-offset-2" style="display: flex; justify-content: flex-end; align-items: center;">
                             <!-- Delete Button with Bin Icon -->
                             <button type="button" class="btn btn-danger btn-delete" onclick="deleteBudgetLine(${budgetLineId})">
@@ -254,13 +346,32 @@
                             </button>
                         </div>
                     </div>
-
                 </div>
             </div>
         `;
-
+    
         budgetLinesContainer.insertAdjacentHTML('beforeend', budgetLineTemplate);
+    
+        // Attach event listeners to recalculate budget
+        const unitCostInput = document.getElementById(`unit-cost-${budgetLineId}`);
+        const quantityInput = document.getElementById(`quantity-${budgetLineId}`);
+        const frequencyInput = document.getElementById(`frequency-${budgetLineId}`);
+        const budgetInput = document.getElementById(`budget-${budgetLineId}`);
+    
+        function recalculateBudget() {
+            const unitCost = parseFloat(unitCostInput.value) || 0;
+            const quantity = parseFloat(quantityInput.value) || 0;
+            const frequency = parseFloat(frequencyInput.value) || 0;
+            budgetInput.value = unitCost * quantity * frequency;
+        }
+    
+        unitCostInput.addEventListener('input', recalculateBudget);
+        quantityInput.addEventListener('input', recalculateBudget);
+        frequencyInput.addEventListener('input', recalculateBudget);
+        // Attach event listener to recalculate budget
+        budgetInput.addEventListener('input', recalculateActivityBudget);
     }
+    
 
     // Delete Functions
     function deleteOutcome(outcomeId) {

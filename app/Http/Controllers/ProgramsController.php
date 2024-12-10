@@ -85,7 +85,7 @@ class ProgramsController extends Controller
                                     // Loop through budget lines
                                     if (!empty($activityData['budget_lines'])) {
                                         foreach ($activityData['budget_lines'] as $budgetLineData) {
-                                            $activity->budgetLines()->create([
+                                            $activity->budget_lines()->create([
                                                 'name' => $budgetLineData['name'],
                                                 'budget' => $budgetLineData['budget'],
                                                 'unitcost' => $budgetLineData['unitcost'] ,
@@ -106,7 +106,7 @@ class ProgramsController extends Controller
     
             // Redirect with success message
             admin_toastr('Program created successfully!', 'success');
-            return redirect()->route('programs');
+            return redirect()->route('programsCreate');
         } catch (\Exception $e) {
             // Rollback transaction if anything goes wrong
             \DB::rollBack();

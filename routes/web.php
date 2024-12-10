@@ -37,4 +37,4 @@ Route::get('/requisition/{id}', [App\Admin\Controllers\AccountabilityController:
 
 Route::post('/programs/create', [ProgramsController::class, 'store'])->name('programsCreate');
 Route::put('/programs/{program}/edit', [ProgramsController::class, 'update'])->name('programsEdit');
-// Route::get('programs/', [ProgramController::class, 'grid'])->name('programs');
+Route::get('/adminprogram-budgetlines/{id}', [App\Admin\Controllers\RequisitionController::class, 'getAdminbudgetlines'])->name('adminbudgetlines');

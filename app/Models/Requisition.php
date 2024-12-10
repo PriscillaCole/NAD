@@ -46,9 +46,13 @@ class Requisition extends Model
         return $this->belongsTo(Activity::class);
     }
 
+    // Relationship between requisitions and admin_ programs
+    public function admin_program()
+    {
+        return $this->belongsTo(AdminProgram::class, 'admin_program_id');
+    }
+
   
-
-
     //boot function to send emails 
     // public static function boot()
     // {

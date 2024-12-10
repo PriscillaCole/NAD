@@ -11,7 +11,7 @@ class RequisitionItem extends Model
 
     protected $fillable = [
         'requisition_id',
-        'budget_line_id',
+        // 'budget_line_id',
         'quantity',
         'unit_price',
         'unit_of_measure',
@@ -27,4 +27,10 @@ class RequisitionItem extends Model
     {
         return $this->belongsTo(BudgetLines::class, 'budget_line_id');
     }
+
+    public function adminbudgetline()
+    {
+        return $this->belongsTo(AdminBudget_lines::class, 'admin_budget_line_id');
+    }
+
 }

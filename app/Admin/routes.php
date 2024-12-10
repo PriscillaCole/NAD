@@ -16,7 +16,9 @@ Route::group([
     $router->resource('accountabilities', AccountabilityController::class);
     $router->resource('budgets', BudgetController::class);
     $router->resource('requisitions', RequisitionController::class);
+    $router->resource('adminRequisitions', AdminRequisitionController::class);
     $router->resource('programs', ProgramController::class);
+    $router->resource('adminBudget', AdminProgramsController::class);
     $router->resource('activities', ActivityController::class);
     $router->resource('categories', CategoryController::class);
 

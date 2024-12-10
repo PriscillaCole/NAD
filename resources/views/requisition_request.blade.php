@@ -177,8 +177,14 @@
                     <td>{{ $requisition->staff->staff_number}}</td>
                     <td>{{ $requisition->staff->name }}</td>
                     <td>{{ $requisition->code }}</td>
-                    <td>{{ $requisition->activity->output->outcome->program->name }}</td>
-                    <td>{{ $requisition->activity->name }}</td>
+                    @if(auth()->user()->roles->contains('slug', 'staff'))
+                        <td>{{ $requisition->admin_program->name }}</td>
+                    @else
+                        <td>{{ $requisition->activity->output->outcome->program->name }}</td>
+                        <td>{{ $requisition->activity->name }}</td>
+                    @endif
+                    
+                    
                 </tr>
             </tbody>
         </table>
@@ -213,7 +219,11 @@
                     ?>
                     <tr>
                         <td>{{ $counter++ }}</td>
-                        <td>{{ $item->budgetline->name }}</td>
+                        @if(auth()->user()->roles->contains('slug', 'staff'))
+                            <td>{{ $item->adminbudgetline->name }}</td>
+                        @else
+                            <td>{{ $item->budgetline->name }}</td>
+                        @endif
                         <td>{{ $item->quantity }} {{$item->unit_of_measure}}</td>
                         <td>{{ $item->unit_price }}</td>
                         <td>{{ $total_price }}</td>

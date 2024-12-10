@@ -11,10 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('requisition_items', function (Blueprint $table) {
+        
+        Schema::create('admin_requisition_items', function (Blueprint $table) {
             $table->id();
             $table->foreignId('requisition_id')->constrained()->onDelete('cascade');
-            $table->foreignId('budget_line_id')->constrained()->onDelete('cascade');
+            $table->foreignId('admin_budget_line_id')->constrained()->onDelete('cascade');
             $table->integer('quantity');
             $table->string('unit_of_measure');
             $table->decimal('unit_price', 10, 2);
@@ -29,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('requisition_items');
+        Schema::dropIfExists('admin_requisition_items');
     }
 };

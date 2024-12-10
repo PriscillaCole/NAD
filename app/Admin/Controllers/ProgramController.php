@@ -31,6 +31,9 @@ class ProgramController extends AdminController
     {
         $grid = new Grid(new Program());
 
+        $grid->model()->where('user_id', auth()->id());
+
+
         //filter by name 
         $grid->filter(function($filter){
             $filter->disableIdFilter();
