@@ -165,8 +165,14 @@
                         <tr>
                             <td>{{$accountability->requisition->staff->name}}</td>
                             <td>{{$accountability->requisition->code}}</td>
-                            <td>{{$accountability->requisition->activity->program->name}}</td>
-                            <td>{{$accountability->requisition->activity->name}}</td>
+                            @if($accountability->requisition->admin_program_id)
+                                <td>{{ $accountability->requisition->admin_program->name }}</td>
+                            @else
+                                <td>{{ $accountability->requisition->activity->output->outcome->program->name }}</td>
+                                <td>{{ $accountability->requisition->activity->name }}</td>
+                            @endif
+                            {{-- <td>{{$accountability->requisition->activity->output->outcome->program->name}}</td>
+                            <td>{{$accountability->requisition->activity->name}}</td> --}}
                         </tr>
                         <tr>
                             <td colspan="4">

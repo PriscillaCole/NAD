@@ -100,12 +100,15 @@ class Notification extends Model
         $name = $user ? $user->name : null;
         $receiver = Notification::get_users_by_role(5);
         
+        
+        // Log::info('Requisition ID: ' . $model);
        
         // Check if $entity is a string
         if (is_string($entity)) {
+            foreach ($receiver as $user) {
                 $notification = new Notification();
                 $notification->role_id = 5;
-                $notification->receiverid = $receiver->id;
+                $notification->receiver_id = $user->id;
                 $notification->message = "New {$entity} has been submitted by" . $name .' ';
                 $notification->link = admin_url("auth/login");
                 $notification->form_link = admin_url("{$entity}/{$model->id}");
@@ -114,6 +117,7 @@ class Notification extends Model
                 $notification->save();
             
                 self::sendMail($notification);
+            }
             }
     }
     

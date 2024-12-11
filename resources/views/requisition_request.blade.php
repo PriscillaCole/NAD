@@ -177,7 +177,7 @@
                     <td>{{ $requisition->staff->staff_number}}</td>
                     <td>{{ $requisition->staff->name }}</td>
                     <td>{{ $requisition->code }}</td>
-                    @if(auth()->user()->roles->contains('slug', 'staff'))
+                    @if($requisition->admin_program_id)
                         <td>{{ $requisition->admin_program->name }}</td>
                     @else
                         <td>{{ $requisition->activity->output->outcome->program->name }}</td>
@@ -219,7 +219,8 @@
                     ?>
                     <tr>
                         <td>{{ $counter++ }}</td>
-                        @if(auth()->user()->roles->contains('slug', 'staff'))
+                        
+                        @if($item->admin_budget_line_id)
                             <td>{{ $item->adminbudgetline->name }}</td>
                         @else
                             <td>{{ $item->budgetline->name }}</td>

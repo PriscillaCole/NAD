@@ -52,8 +52,9 @@ class DashboardController extends Controller
         // Format data for the chart (labels and values)
         $chartData = $data->map(function ($item) {
             return [
-                'label' => $item->activity->name, // Assuming 'activity' has a 'name' field
-                'value' => $item->total_amount,
+                // 'label' => $item->activity->name, // Assuming 'activity' has a 'name' field
+                // 'value' => $item->total_amount,
+                
             ];
         });
     
