@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Admin\Controllers\RequisitionController;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -33,4 +34,10 @@ class RequisitionItem extends Model
         return $this->belongsTo(AdminBudget_lines::class, 'admin_budget_line_id');
     }
 
+      //relationship with activity receipts
+      public function requisitionItemReceipts()
+      {
+          return $this->hasMany(RequisitionItemReceipt::class);
+      }
+ 
 }

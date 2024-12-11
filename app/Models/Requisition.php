@@ -46,6 +46,12 @@ class Requisition extends Model
         return $this->belongsTo(Activity::class);
     }
 
+    // A requisition can have many accountabilities
+    public function accountabilities()
+    {
+        return $this->hasMany(Accountability::class);
+    }
+
     // Relationship between requisitions and admin_ programs
     public function admin_program()
     {
@@ -53,24 +59,24 @@ class Requisition extends Model
     }
 
   
-    //boot function to send emails 
-    // public static function boot()
-    // {
-    //     parent::boot();
+    // boot function to send emails 
+    public static function boot()
+    {
+        parent::boot();
 
-    //     static::created(function ($model) {
-    //         Notification::send_notification($model, 'Requisition', request()->segment(count(request()->segments())));
-    //     });
+        static::created(function ($model) {
+            Notification::send_notification($model, 'Requisition', request()->segment(count(request()->segments())));
+        });
 
 
-    //     static::updated(function ($model) {
-    //         //send email to the country director
-    //         error_log($model->status);
-    //         Notification::update_notification($model, 'Requisition', request()->segment(count(request()->segments())));
-    //     });
+        static::updated(function ($model) {
+            //send email to the country director
+            error_log($model->status);
+            Notification::update_notification($model, 'Requisition', request()->segment(count(request()->segments())));
+        });
 
       
-    // }
+    }
 
     
 }

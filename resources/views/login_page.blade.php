@@ -68,6 +68,7 @@
                             <div class="text-box-cont mt-3">
                             <form action="{{ admin_url('auth/login') }}" method="POST" class="login-form">
                               {{ csrf_field() }}
+                              <input type="hidden" name="redirect_to" value="{{ request('redirect_to') }}">
                                 <div class="input-group mb-3">
                                     <div class="input-group-prepend">
                                         <span class="input-group-text" id="basic-addon1"><i class="fas fa-user"></i></span>

@@ -203,8 +203,6 @@ class AccountabilityController extends AdminController
                     $("#amount_to_be_returned").val(amount_to_be_returned.toFixed(2));
                 });
             });
-
-            
         ');
     
         return $form;

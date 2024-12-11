@@ -30,6 +30,9 @@ class BudgetController extends AdminController
     {
         $grid = new Grid(new Budget());
 
+        $programs = Program::all();
+        return view('budget_report', compact('programs'));
+
         //disable creation, editing and deleting and viewing
         $grid->disableCreateButton();
         $grid->disableActions();

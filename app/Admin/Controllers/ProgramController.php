@@ -37,7 +37,7 @@ class ProgramController extends AdminController
         //filter by name 
         $grid->filter(function($filter){
             $filter->disableIdFilter();
-            $filter->like('name', 'Name')->placeholder('Search Name');
+            $filter->equal('id', 'Program')->select(Program::all()->pluck('name', 'id'));
         });
 
         // change function for edit action

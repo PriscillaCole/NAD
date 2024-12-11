@@ -229,8 +229,47 @@
         </div>
 
         <div class="section">
-            <h2>Receipt Files</h2>
-            <p>Total Amount Used: {{$accountability->requisition->amount}} Ugx</p> 
+    <h2>Requisition Item Receipts</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Item Name</th>
+                    <th>Quantity</th>
+                    <th>Unit Price</th>
+                    <th>Total Amount</th>
+                    <th>Receipts</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($accountability->requisition->requisition_items as $item)
+                    <tr>
+                        <td>{{ $item->item }}</td>
+                        <td>{{ $item->quantity }}</td>
+                        <td>{{ number_format($item->unit_price, 2) }} Ugx</td>
+                        <td>{{ number_format($item->quantity * $item->unit_price, 2) }} Ugx</td>
+                        <td>
+                            @if($item->requisitionItemReceipts->isNotEmpty())
+                                <ul class="file-list">
+                                    @foreach($item->requisitionItemReceipts as $receipt)
+                                        <li>
+                                            <a href="{{ asset('storage/'.$receipt->receipt_file) }}" target="_blank">Receipt {{ $loop->iteration }}</a>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            @else
+                                <p>No receipts available for this item.</p>
+                            @endif
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+
+
+        <div class="section">
+            <h2>Other Receipt Files</h2>
+            <p>Total Amount Used: {{$accountability->amount_used}} Ugx</p> 
 
             @if($accountability->receiptFiles->isNotEmpty())
                 <ul class="file-list" id="receipt_files">
@@ -260,14 +299,62 @@
                         No review yet
                     @endif
                 </p>
-                                <!-- add signature -->
+                <!-- add signature -->
+                @if ($accountability->staff)
                 <label for="signature">Signature</label>
                 <img src="{{ asset('storage/'.$accountability->signature) }}" alt="signature" style="width: 200px; height: 100px;">
+                @endif
+                
             </div>
         </div>
         <!-- button to redirect to the edit page -->
+
+        <div class="section">
+        @php
+            $redirectUrl = route('accountabilities.show', $accountability->id);
+            $loginUrl = url('/') . '?redirect_to=' . urlencode($redirectUrl);
+        @endphp  
+
+        <div class="field">
+            <label for="accountability_link">Link to accountability Form:</label>
+            <!-- Hidden input field for the link -->
+            <input type="hidden" id="accountability_link" value="{{ $loginUrl }}" />
+            <button onclick="copyLink()">Copy Link</button>
+        </div>
+
+        <script>
+            function copyLink() {
+                // Get the hidden input field
+                var copyText = document.getElementById("accountability_link");
+                
+                // Create a temporary input to copy from
+                var tempInput = document.createElement("input");
+                tempInput.value = copyText.value; // Set the value to the hidden link
+                document.body.appendChild(tempInput); // Append it to the body
+
+                // Select the temporary input
+                tempInput.select();
+                tempInput.setSelectionRange(0, 99999); // For mobile devices
+
+                // Copy the text inside the temporary input
+                document.execCommand("copy");
+
+                // Remove the temporary input from the body
+                document.body.removeChild(tempInput);
+
+                toastr.success('Link copied to clipboard!');
+            }
+        </script>
+
+
        
         <div class="section">
+            <!-- get the role of the logged in user -->
+            @php
+                $user = Admin::user();
+            @endphp
+            <!-- check if the role is finance officer -->
+            @if ($user->isRole('finance'))
             @if ($accountability->status != 'closed')
                 <a href="{{ admin_url('accountabilities/'.$accountability->id.'/edit') }}" class="btn btn-primary">
                     Close Requisition
@@ -276,6 +363,7 @@
                 <button class="btn btn-primary btn-disabled" disabled>
                     Closed Requisition
                 </button>
+            @endif
             @endif
         </div>
 

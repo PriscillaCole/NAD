@@ -26,4 +26,10 @@ class Activity extends Model
     {
         return $this->hasMany(BudgetLines::class);
     }
+
+    public function requisitions()
+    {
+        return $this->hasMany(Requisition::class);
+    }
+
 }

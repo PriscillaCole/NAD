@@ -53,6 +53,31 @@ class RequisitionController extends AdminController
         }
 
 
+        // order by latest requisition
+        $grid->model()->orderBy('created_at', 'desc');
+
+        //show staff only requisitions made by them if they are not admin
+        $user = auth()->user();
+        if ($user->isRole('staff')) {
+            $staff_id = Staff::where('user_id', $user->id)->first()->id;
+            $grid->model()->where('staff_id', $staff_id);
+        }
+        
+         //filter by program and activity
+         $grid->filter(function($filter){
+            $filter->disableIdFilter();
+            $filter->equal('id', 'Requisition ID')->select(Requisition::all()->pluck('code', 'id'));
+            $filter->equal('program_id', 'Program')->select(Program::all()->pluck('name', 'id'));
+            $filter->equal('activity_id', 'Activity')->select(Activity::all()->pluck('name', 'id'));
+            //status filter
+            $filter->equal('status', 'Status')->select([
+                'pending' => 'Pending',
+                'approved' => 'Approved',
+                'rejected' => 'Rejected',
+                'amended' => 'Amended'
+            ]);
+        });
+       
         $grid->column('staff_id', __('Requested by'))->display(function($staff_id){
             return Staff::find($staff_id)->name;
         });

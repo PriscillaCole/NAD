@@ -38,3 +38,13 @@ Route::get('/requisition/{id}', [App\Admin\Controllers\AccountabilityController:
 Route::post('/programs/create', [ProgramsController::class, 'store'])->name('programsCreate');
 Route::put('/programs/{program}/edit', [ProgramsController::class, 'update'])->name('programsEdit');
 Route::get('/adminprogram-budgetlines/{id}', [App\Admin\Controllers\RequisitionController::class, 'getAdminbudgetlines'])->name('adminbudgetlines');
+Route::get('/requisition/{id}', [App\Admin\Controllers\AccountabilityController::class, 'getRequisitionItems'])->name('requisition');
+
+// In routes/web.php
+Route::get('/get-activities/{projectId}', [App\Http\Controllers\ReportController::class, 'getActivities']);
+Route::get('/get-staff/{activityId}',  [App\Http\Controllers\ReportController::class, 'getStaff']);
+Route::get('/get-requisitions/{activityId}/{staffId?}',  [App\Http\Controllers\ReportController::class, 'getRequisitions']);
+Route::get('/generate-report', [App\Http\Controllers\ReportController::class, 'generateReport'])->name('generateReport');
+Route::get('accountabilities/{id}', [App\Admin\Controllers\AccountabilityController::class, 'detail'])->name('accountabilities.show');
+Route::get('/fetch-activities/{id}', [App\Http\Controllers\BudgetController::class, 'fetchActivities'])->name('fetch.activities');
+Route::get('/download-activities/{id}', [App\Http\Controllers\BudgetController::class, 'downloadExcel'])->name('download.activities');

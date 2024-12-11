@@ -21,6 +21,7 @@ Route::group([
     $router->resource('adminBudget', AdminProgramsController::class);
     $router->resource('activities', ActivityController::class);
     $router->resource('categories', CategoryController::class);
+    $router->resource('reports', ReportController::class);
 
    
 

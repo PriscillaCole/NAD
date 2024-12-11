@@ -28,11 +28,11 @@ class CreateAdminTables extends Migration
             $table->string('name');
             $table->string('avatar')->nullable();
             $table->string('email')->unique();
-            $table->unsignedBigInteger('staff_id')->nullable();
+            $table->string('staff_id')->nullable();
             $table->string('remember_token', 100)->nullable();
             $table->timestamps();
 
-            $table->foreign('staff_id')->references('id')->on('staff')->onDelete('cascade');
+      
         });
 
         Schema::create(config('admin.database.roles_table'), function (Blueprint $table) {

@@ -1,9 +1,9 @@
 <style>
     .chart-container {
-    width: 100%; /* Ensure container uses full width of its parent */
-    max-width: 400px; /* Set a max width to control size */
-    margin: 0 auto; /* Center the container */
-}
+        width: 100%; /* Ensure container uses full width of its parent */
+        max-width: 400px; /* Set a max width to control size */
+        margin: 0 auto; /* Center the container */
+    }
 
     .card {
         border: 1px solid #e0e0e0;
@@ -73,6 +73,12 @@
     .me-2 {
         margin-right: 0.5rem !important;
     }
+    .totals{
+        /* center content */
+        display: flex; 
+        justify-content: center;  
+
+    }
 
     /* Responsive adjustments */
     @media (max-width: 768px) {
@@ -90,11 +96,11 @@
     <div class="col-lg-3 col-md-6 col-sm-6">
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">{{__('Requisitions Submitted')}}</h3>
+                <h3 class="card-title totals">{{__('Requisitions Submitted')}}</h3>
             </div>
             <div class="card-body">
-                <h4 class="mb-2">{{ $data['total_requisitions'] }}</h4>
-                <p class="text-muted mb-0">
+                <h4 class="totals">{{ $data['total_requisitions'] }}</h4>
+                <p class="text-muted mb-0 totals">
                     <span class="text-danger fw-bold font-size-12 me-2">
                         <i class="glyphicon glyphicon-pencil icon"></i>
                     </span>
@@ -107,11 +113,11 @@
     <div class="col-lg-3 col-md-6 col-sm-6">
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">{{__('Accepted Requisitions')}}</h3>
+                <h3 class="card-title totals">{{__('Accepted Requisitions')}}</h3>
             </div>
             <div class="card-body">
-                <h4 class="mb-2">{{ $data['approved_requisitions'] }}</h4>
-                <p class="text-muted mb-0">
+                <h4 class="totals">{{ $data['approved_requisitions'] }}</h4>
+                <p class="text-muted mb-0 totals">
                     <span class="text-success fw-bold font-size-12 me-2">
                         <i class="glyphicon glyphicon-check icon"></i>
                     </span>
@@ -124,11 +130,11 @@
     <div class="col-lg-3 col-md-6 col-sm-6">
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">{{__('Rejected Requisitions')}}</h3>
+                <h3 class="card-title totals">{{__('Rejected Requisitions')}}</h3>
             </div>
             <div class="card-body">
-                <h4 class="mb-2">{{ $data['rejected_requisitions'] }}</h4>
-                <p class="text-muted mb-0">
+                <h4 class="totals">{{ $data['rejected_requisitions'] }}</h4>
+                <p class="text-muted mb-0 totals">
                     <span class="text-danger fw-bold font-size-12 me-2">
                         <i class="glyphicon glyphicon-remove-circle icon"></i>
                     </span>
@@ -141,11 +147,11 @@
     <div class="col-lg-3 col-md-6 col-sm-6">
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">{{__('Total Amount from Requisitions')}}</h3>
+                <h3 class="card-title totals">{{__('Total Amount from Requisitions')}}</h3>
             </div>
             <div class="card-body">
-                <h4 class="mb-2">{{ $data['total_amount_requested'] }} Ugx</h4>
-                <p class="text-muted mb-0">
+                <h4 class="totals">{{ $data['total_amount_requested'] }} Ugx</h4>
+                <p class="text-muted mb-0 totals">
                     <span class="text-success fw-bold font-size-12 me-2">
                         <i class="glyphicon glyphicon-pushpin icon"></i>
                     </span>

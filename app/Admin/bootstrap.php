@@ -37,3 +37,4 @@ Admin::navbar(function (\Encore\Admin\Widgets\Navbar $navbar) {
    
     
 });
+
