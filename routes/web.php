@@ -33,7 +33,7 @@ Route::get('/dashboardwp', [App\Http\Controllers\DashboardController::class, 'sh
 Route::post('/comments', [App\Http\Controllers\CommentController::class, 'store'])->name('comments');
 Route::get('/program-activities/{id}', [App\Admin\Controllers\RequisitionController::class, 'getProgramActivities'])->name('program-activities');
 Route::get('/budgetlines/{id}', [App\Admin\Controllers\RequisitionController::class, 'getActivitiesbudgetlines'])->name('budgetlines');
-Route::get('/requisition/{id}', [App\Admin\Controllers\AccountabilityController::class, 'Requisition'])->name('requisition');
+Route::get('/requisition/{id}', [App\Admin\Controllers\AccountabilityController::class, 'getRequisitionItems'])->name('requisition');
 
 Route::post('/programs/create', [ProgramsController::class, 'store'])->name('programsCreate');
 Route::put('/programs/{program}/edit', [ProgramsController::class, 'update'])->name('programsEdit');
