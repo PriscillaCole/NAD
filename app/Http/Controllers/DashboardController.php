@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Facades\Admin;
 use App\Models\Program;
+use App\Models\Staff;
 use App\Models\Requisition;
 
 
@@ -35,10 +36,14 @@ class DashboardController extends Controller
     //function to group the accepted requisitions by project and activity
     public static function getActivityRequisitionData($programId = null)
     {
+        $user = auth()->user()->id;
+        $staff_id = Staff::where('user_id', $user);
+
         // Fetch all programs to populate the dropdown
         $programs = Program::all(); // Assuming you have a Program model
     
         $query = Requisition::select('activity_id', DB::raw('SUM(amount) as total_amount'))
+            // ->where('staff_id', $staff_id)
             ->groupBy('activity_id')
             ->with('activity'); // Assuming you have a relationship with 'activities'
     
@@ -52,8 +57,8 @@ class DashboardController extends Controller
         // Format data for the chart (labels and values)
         $chartData = $data->map(function ($item) {
             return [
-                // 'label' => $item->activity->name, // Assuming 'activity' has a 'name' field
-                // 'value' => $item->total_amount,
+                'label' => $item->activity->name, // Assuming 'activity' has a 'name' field
+                'value' => $item->total_amount,
                 
             ];
         });
@@ -70,8 +75,9 @@ class DashboardController extends Controller
     public static function showProgramsWithActivities()
     {
         // Fetch all programs with their associated activities
-        $programs = Program::with('outcomes.outputs.activities')->get(); // Assuming 'activities' relationship exists in the Program model
+        // $programs = Program::with('outcomes.outputs.activities')->get(); // Assuming 'activities' relationship exists in the Program model
 
+        $programs = Program::all();
         return view('dashboard.programs_activities', compact('programs'));
     }
 

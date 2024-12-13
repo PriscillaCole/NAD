@@ -24,7 +24,7 @@
                 <div class="panel-heading bg-primary" style="background-color: transparent; display: flex; justify-content: space-between; align-items: center; border-top: 4px solid #87cefa;">
                     <h3 class="panel-title" style="margin: 0;">Edit Program</h3>
                     <div class="btn-group">
-                        <a href="http://127.0.0.1:8000/programs" class="btn btn-sm btn-default" title="List">
+                        <a href="http://127.0.0.1:8000/budgets" class="btn btn-sm btn-default" title="List">
                             <i class="fa fa-list"></i> List
                         </a>
                     </div>
@@ -43,7 +43,7 @@
                                     <span class="input-group-addon">
                                         <i class="fa fa-pencil fa-fw"></i>
                                     </span>
-                                    <input type="text" name="name" class="form-control" value="{{ $program->name }}" required />
+                                    <input type="text" name="name" class="form-control" readonly value="{{ $program->name }}" required />
                                 </div>
                             </div>
                         </div>
@@ -52,7 +52,7 @@
                         <div class="form-group">
                             <label for="description" class="col-sm-2 control-label">Program Description</label>
                             <div class="col-sm-8">
-                                <textarea name="description" class="form-control" required>{{ $program->description }}</textarea>
+                                <textarea name="description" class="form-control" readonly required>{{ $program->description }}</textarea>
                             </div>
                         </div>
 

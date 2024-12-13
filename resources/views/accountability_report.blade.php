@@ -243,7 +243,11 @@
             <tbody>
                 @foreach($accountability->requisition->requisition_items as $item)
                     <tr>
-                        <td>{{ $item->item }}</td>
+                        @if($accountability->requisition->admin_program_id)
+                            <td>{{ $item->adminbudgetline->name }}</td> 
+                        @else
+                            <td>{{ $item->budgetline->name }}</td> 
+                        @endif
                         <td>{{ $item->quantity }}</td>
                         <td>{{ number_format($item->unit_price, 2) }} Ugx</td>
                         <td>{{ number_format($item->quantity * $item->unit_price, 2) }} Ugx</td>

@@ -21,7 +21,7 @@ class RequisitionItemReceipt extends Model
     // A receipt belongs to a requisition item
     public function requisitionItem()
     {
-        return $this->belongsTo(RequisitionItem::class);
+        return $this->belongsTo(RequisitionItem::class, 'requisition_item_id');
     }
 
     // A receipt belongs to an accountability

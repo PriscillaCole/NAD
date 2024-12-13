@@ -29,6 +29,14 @@ class AccountabilityController extends AdminController
     protected function grid()
     {
         $grid = new Grid(new Accountability());
+        $grid->disableBatchActions();
+
+
+        $user = auth()->user();
+        if ($user->isRole('staff')) {
+            $staff_id = Staff::where('user_id', $user->id)->first()->id;
+            $grid->model()->where('staff_id', $staff_id);
+        }
 
         //filter by program and activity
         $grid->filter(function($filter){
@@ -47,6 +55,7 @@ class AccountabilityController extends AdminController
         $grid->column('requisition_id', __('Requisition id'))->display(function($requisition_id){
             return Requisition::find($requisition_id)->code;
         });
+        
         $grid->column('', __('Amount dispensed'))->display(function(){
             return Requisition::find($this->requisition_id)->amount;
         });
@@ -103,11 +112,11 @@ class AccountabilityController extends AdminController
         $staff_id = Staff::where('user_id', $user->id)->first()->id;
     
         if($form->isCreating()){ 
-            // Select Requisition
+            // Select Requisition that was approved
             $form->select('requisition_id', __('Requisition ID'))
-                ->options(Requisition::where('staff_id', $staff_id)->pluck('code', 'id'))
+                ->options(Requisition::where('staff_id', $staff_id)->where('status', 'approved')->pluck('code', 'id'))
                 ->attribute('id', 'requisition_id');
-    
+                
             // Display Amount Dispensed (read-only)
             $form->text('', __('Amount dispensed'))
                 ->attribute('id', 'amount_dispensed')
@@ -137,6 +146,7 @@ class AccountabilityController extends AdminController
         $form->file('proof_of_funds_to_be_returned', __('Receipt for funds returned to staff'));
         }else{
             $form->file('proof_of_funds_returned', __('Receipt for funds returned to finance'));
+            $form->hidden('staff_id')->default($staff_id);
         }
 
         $form->file('narrative_report', __('Narrative Report'));
@@ -152,175 +162,57 @@ class AccountabilityController extends AdminController
     
         // JavaScript for handling AJAX calls and dynamic form updates
         Admin::script('
-            // $(document).ready(function() {
-            //     // Fetch amount dispensed and requisition items when requisition_id changes
-            //     $("#requisition_id").change(function() {
-            //         var requisition_id = $(this).val();
-            //         if (requisition_id) {
-            //             $.ajax({
-            //                 url: "/requisition/" + requisition_id ,
-            //                 type: "GET",
-            //                 dataType: "json",
-            //                 success: function(data) {
-            //                     console.log("AJAX Response:", data); // Debugging output
-            //                     if (data.total_amount) {
-            //                         $("#amount_dispensed").val(data.total_amount);
-            //                         $("#amount_used").val("");
-            //                         $("#returned_amount").val("");
-            //                         $("#amount_to_be_returned").val("");
+            $(document).ready(function() {
+                // Fetch amount dispensed and requisition items when requisition_id changes
+                $("#requisition_id").change(function() {
+                    var requisition_id = $(this).val();
+                    if (requisition_id) {
+                        $.ajax({
+                            url: "/requisition/" + requisition_id ,
+                            type: "GET",
+                            dataType: "json",
+                            success: function(data) {
+                                console.log("AJAX Response:", data); // Debugging output
+                                if (data.total_amount) {
+                                    $("#amount_dispensed").val(data.total_amount);
+                                    $("#amount_used").val("");
+                                    $("#returned_amount").val("");
+                                    $("#amount_to_be_returned").val("");
     
-            //                         // Populate the requisition items section with inputs for each item
-            //                         var itemsHtml = "";
-            //                         data.items.forEach(function(item, index) {
-            //                             // itemsHtml += "<div class=\'item-section\'>" +
-            //                             //     "<h5>Item: " + item.item + " (Quantity: " + item.quantity + ", Unit Price: " + item.unit_price + ")</h5>" +
-            //                             //     "<input type=\'hidden\' name=\'requisition_item_ids[]\' value=\'" + item.id + "\' />" +
-            //                             //     "<label>Upload Receipt for this item  (you can upload multiple):</label>" +
-            //                             //     "<input type=\'file\' name=\'receipt_files[" + item.id + "][]\' class=\'form-control\' placeholder=\'Select file\' multiple />" +
-            //                             //     "</div>"
-                                            
-            //                             //     "<hr>";
-
-            //                             itemsHtml += `
-            //                                 <div class="item-section">
-            //                                     <div class="panel panel-default">
-            //                                         <div class="panel-heading">
-            //                                             <h5 class="panel-title">
-            //                                                 Item: ${item.item} 
-            //                                                 <span class="label label-info">Quantity: ${item.quantity}</span> 
-            //                                                 <span class="label label-primary">Unit Price: ${item.unit_price}</span>
-            //                                             </h5>
-            //                                         </div>
-            //                                         <div class="panel-body">
-            //                                             <input type="hidden" name="requisition_item_ids[]" value="${item.id}" />
-            //                                             <div class="form-group">
-            //                                                 <label for="receipt_files_${item.id}">Upload Receipt for this item (you can upload multiple):</label>
-            //                                                 <input 
-            //                                                     type="file" 
-            //                                                     id="receipt_files_${item.id}" 
-            //                                                     name="receipt_files[${item.id}][]" 
-            //                                                     class="form-control" 
-            //                                                     multiple 
-            //                                                 />
-            //                                             </div>
-            //                                         </div>
-            //                                     </div>
-            //                                 </div>
-            //                                 <hr>
-            //                             `;
-
-            //                         });
-            //                         $("#requisition-items").html(itemsHtml); // Insert items into the form
-            //                     } else {
-            //                         console.log("Total amount not found in response.");
-            //                     }
-            //                 },
-            //                 error: function(jqXHR, textStatus, errorThrown) {
-            //                     console.error("AJAX Error:", textStatus, errorThrown); // Debugging output
-            //                 }
-            //             });
-            //         }
-            //     });
-    
-            //     // Calculate returned amount and amount to be returned on amount_used change
-            //     $("#amount_used").on("input", function() {
-            //         var amount_used = parseFloat($(this).val()) || 0;
-            //         var amount_dispensed = parseFloat($("#amount_dispensed").val()) || 0;
-    
-            //         var returned_amount = amount_dispensed > amount_used ? (amount_dispensed - amount_used) : 0;
-            //         var amount_to_be_returned = amount_used > amount_dispensed ? (amount_used - amount_dispensed) : 0;
-    
-            //         $("#returned_amount").val(returned_amount.toFixed(2));
-            //         $("#amount_to_be_returned").val(amount_to_be_returned.toFixed(2));
-            //     });
-            // });
-
-            $(document).ready(function () {
-            // Fetch amount dispensed and requisition items when requisition_id changes
-            $("#requisition_id").change(function () {
-                var requisition_id = $(this).val();
-                if (requisition_id) {
-                    $.ajax({
-                        url: "/requisition/" + requisition_id,
-                        type: "GET",
-                        dataType: "json",
-                        success: function (data) {
-                            console.log("AJAX Response:", data); // Debugging output
-                            if (data.total_amount) {
-                                $("#amount_dispensed").val(data.total_amount);
-                                $("#amount_used").val("");
-                                $("#returned_amount").val("");
-                                $("#amount_to_be_returned").val("");
-
-                                // Populate the requisition items section with inputs for each item
-                                var itemsHtml = "";
-                                data.items.forEach(function (item, index) {
-                                    itemsHtml += `
-                                        <div class="item-section">
-                                            <h5>Item: ${item.item} (Quantity: ${item.quantity}, Unit Price: ${item.unit_price})</h5>
-                                            <input type="hidden" name="requisition_item_ids[]" value="${item.id}" />
-                                            <label>Upload Receipt for this item (you can upload multiple):</label>
-                                            <div class="col-sm-8">
-                                                <div class="file-input file-input-new">
-                                                    <div class="file-preview">
-                                                        <button type="button" class="close fileinput-remove" aria-label="Close">
-                                                            <span aria-hidden="true">×</span>
-                                                        </button>
-                                                        <div class="file-drop-disabled">
-                                                            <div class="file-preview-thumbnails"></div>
-                                                            <div class="clearfix"></div>
-                                                            <div class="file-preview-status text-center text-success"></div>
-                                                            <div class="kv-fileinput-error file-error-message" style="display: none;"></div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="kv-upload-progress kv-hidden" style="display: none;">
-                                                        <div class="progress">
-                                                            <div class="progress-bar bg-success progress-bar-success progress-bar-striped active" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%;">0%</div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="clearfix"></div>
-                                                    <div class="input-group file-caption-main">
-                                                        
-                                                        <div class="input-group-btn input-group-append">
-                                                            <div tabindex="500" class="btn btn-primary btn-file">
-                                                                <i class="glyphicon glyphicon-folder-open"></i>&nbsp;
-                                                                <span class="hidden-xs">Browse</span>
-                                                                <input type="file" class="receiptFiles" name="receiptFiles[${item.id}][]" multiple />
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <hr>`;
-                                });
-                                $("#requisition-items").html(itemsHtml); // Insert items into the form
-                            } else {
-                                console.log("Total amount not found in response.");
+                                    // Populate the requisition items section with inputs for each item
+                                    var itemsHtml = "";
+                                    data.items.forEach(function(item, index) {
+                                        itemsHtml += "<div class=\'item-section\'>" +
+                                            "<h5>Item: " + item.item + " (Quantity: " + item.quantity + ", Unit Price: " + item.unit_price + ")</h5>" +
+                                            "<input type=\'hidden\' name=\'requisition_item_ids[]\' value=\'" + item.id + "\' />" +
+                                            "<label>Upload Receipt for this item  (you can upload multiple):</label>" +
+                                            "<input type=\'file\' name=\'receipt_files[" + item.id + "][]\' class=\'form-control\' multiple />" +
+                                            "</div><hr>";
+                                    });
+                                    $("#requisition-items").html(itemsHtml); // Insert items into the form
+                                } else {
+                                    console.log("Total amount not found in response.");
+                                }
+                            },
+                            error: function(jqXHR, textStatus, errorThrown) {
+                                console.error("AJAX Error:", textStatus, errorThrown); // Debugging output
                             }
-                        },
-                        error: function (jqXHR, textStatus, errorThrown) {
-                            console.error("AJAX Error:", textStatus, errorThrown); // Debugging output
-                        },
-                    });
-                }
+                        });
+                    }
+                });
+    
+                // Calculate returned amount and amount to be returned on amount_used change
+                $("#amount_used").on("input", function() {
+                    var amount_used = parseFloat($(this).val()) || 0;
+                    var amount_dispensed = parseFloat($("#amount_dispensed").val()) || 0;
+    
+                    var returned_amount = amount_dispensed > amount_used ? (amount_dispensed - amount_used) : 0;
+                    var amount_to_be_returned = amount_used > amount_dispensed ? (amount_used - amount_dispensed) : 0;
+    
+                    $("#returned_amount").val(returned_amount.toFixed(2));
+                    $("#amount_to_be_returned").val(amount_to_be_returned.toFixed(2));
+                });
             });
-
-            // Calculate returned amount and amount to be returned on amount_used change
-            $("#amount_used").on("input", function () {
-                var amount_used = parseFloat($(this).val()) || 0;
-                var amount_dispensed = parseFloat($("#amount_dispensed").val()) || 0;
-
-                var returned_amount = amount_dispensed > amount_used ? amount_dispensed - amount_used : 0;
-                var amount_to_be_returned = amount_used > amount_dispensed ? amount_used - amount_dispensed : 0;
-
-                $("#returned_amount").val(returned_amount.toFixed(2));
-                $("#amount_to_be_returned").val(amount_to_be_returned.toFixed(2));
-            });
-            });
-
-
-            
         ');
     
         return $form;
@@ -338,8 +230,5 @@ class AccountabilityController extends AdminController
         }
         return response()->json(['error' => 'Requisition not found'], 404);
     }
-
-
-    
 
 }

@@ -25,9 +25,7 @@ class ProgramsController extends Controller
         try {
             // Validate the incoming data
             $validated = $request->validate([
-                'name' => 'required|string|max:255',
-                'user_id' => 'required',
-                'description' => 'nullable|string',
+                'program_id' => 'required|',
                 'outcomes' => 'nullable|array',
                 'outcomes.*.name' => 'required_with:outcomes|string|max:255',
                 'outcomes.*.budget' => 'nullable|numeric|min:0', // Validate outcome budget
@@ -51,12 +49,7 @@ class ProgramsController extends Controller
             \DB::beginTransaction();
     
           
-            // Create the program
-            $program = Program::create([
-                'name' => $validated['name'],
-                'description' => $validated['description'] ?? null,
-                'user_id' => $validated['user_id'],
-            ]);
+            $program = Program::findOrFail($validated['program_id']);
     
             // Loop through outcomes
             if (!empty($validated['outcomes'])) {

@@ -5,6 +5,7 @@ namespace App\Admin\Controllers;
 use App\Http\Controllers\ProgramsController;
 use App\Models\Outcome;
 use App\Models\Program;
+use App\Models\User;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
@@ -31,8 +32,13 @@ class ProgramController extends AdminController
     {
         $grid = new Grid(new Program());
 
-        $grid->model()->where('user_id', auth()->id());
+        $grid->disableBatchActions();
 
+        // show the user their programs only
+        $user= auth()->user();
+        if($user->isRole('staff')){
+            $grid->model()->where('user_id', auth()->id());
+        }
 
         //filter by name 
         $grid->filter(function($filter){
@@ -70,10 +76,16 @@ class ProgramController extends AdminController
     protected function detail($id)
     {
         $show = new Show(Program::findOrFail($id));
-        $program = Program::findOrFail($id);
+        // $program = Program::findOrFail($id);
 
-        return view('programs.show', compact('program'));
+        $show->field('name', __('Name'));
+        $show->field('description', __('Description'));
+        $show->field('user_id', __('Program manager'))->as(function ($userId) {
+            $user = User::find($userId); // Fetch the user by their ID
+            return $user ? $user->name : 'N/A'; // Return the user's name or 'N/A' if the user doesn't exist
+        });
 
+        return $show;
     }
 
     /**
@@ -85,26 +97,16 @@ class ProgramController extends AdminController
     {
         $form = new Form(new Program());
        
-        // redirect to the create view
-        if ($form->isCreating()){
-            $user = auth()->user()->id;
-            
-            return view('programs.create', compact('user'));
-        }
-        
+        $form->text('name', __('Name'));
+        $form->textarea('description', __('Description'));
+        $form->select('user_id', __('Choose a Program manager'))
+            ->options(User::whereHas('roles', function ($query) {
+                $query->where('name', 'staff'); // Adjust 'name' to the correct column if needed
+            })->pluck('name', 'id')) // Replace 'name' with the field representing the user's name
+            ->attribute('id', 'adminprogram_id')
+            ->required();
 
         return $form;
-    }
-
-    public function edit($id, Content $content)
-    {
-        // Fetch the program using the provided ID
-        $program = Program::findOrFail($id);
-
-        return $content
-            ->title('Edit Program') // Page title
-            ->description('Edit the program details') // Page description
-            ->body(view('programs.edit', compact('program'))); // Custom view for editing
     }
 
 }

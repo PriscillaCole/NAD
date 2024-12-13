@@ -27,41 +27,43 @@
             <div class="panel-heading bg-primary" style="background-color: transparent; display: flex; justify-content: space-between; align-items: center; border-top: 4px solid #87cefa;">
                 <h3 class="panel-title" style="margin: 0;">Create Program</h3>
                 <div class="btn-group">
-                    <a href="http://127.0.0.1:8000/programs" class="btn btn-sm btn-default" title="List">
+                    <a href="http://127.0.0.1:8000/budgets" class="btn btn-sm btn-default" title="List">
                         <i class="fa fa-list"></i> List
                     </a>
                 </div>
             </div>
 
-
-
-
                 <!-- Form Body -->
                 <div class="panel-body">
                     <form action="{{ url('programs/create') }}" method="POST" id="programForm" class="form-horizontal" enctype="multipart/form-data">
                         @csrf
-                        <input type="hidden" value="{{ $user }}" name="user_id">
-
                         <!-- Program Name -->
                         <div class="form-group">
                             <label for="name" class="col-sm-2 control-label">Program Name</label>
                             <div class="col-sm-8">
                             <div class="input-group">
                                     <span class="input-group-addon">
-                                        <i class="fa fa-pencil fa-fw"></i>
+                                        {{-- <i class="fa fa-pencil fa-fw"></i> --}}
                                     </span>
-                                    <input type="text" name="name" class="form-control" placeholder="Enter Program Name" required />
+                                    <select id="adminprogram_id" name="program_id" class="form-control custom-select" required>
+                                        <option value="" disabled selected>Select a program</option>
+                                        @foreach($programs as $program)
+                                            <option value="{{ $program->id }}">{{ $program->name }}</option>
+                                        @endforeach
+                                    </select>
+                                    {{-- <input type="select" name="name" class="form-control" placeholder="Enter Program Name" required /> --}}
                                 </div>
                             </div>
                         </div>
+                
 
                         <!-- Program Description -->
-                        <div class="form-group">
+                        {{-- <div class="form-group">
                             <label for="description" class="col-sm-2 control-label">Program Description</label>
                             <div class="col-sm-8">
                                 <textarea name="description" class="form-control" placeholder="Enter Program Description" required></textarea>
                             </div>
-                        </div>
+                        </div> --}}
 
                         <!-- Outcome Section -->
                         <div id="outcomes">

@@ -22,7 +22,7 @@ class AdminProgramsController extends AdminController
      *
      * @var string
      */
-    protected $title = 'Program';
+    protected $title = 'Admin Program';
 
     /**
      * Make a grid builder.
@@ -32,6 +32,8 @@ class AdminProgramsController extends AdminController
     protected function grid()
     {
         $grid = new Grid(new AdminProgram());
+        $grid->disableBatchActions();
+
         $user = auth()->user();
 
         //filter by name 
@@ -45,9 +47,10 @@ class AdminProgramsController extends AdminController
         
             $grid->model()->where('staff_id', $staff_id);
             $grid->column('id', __('Id'));
+        }
         $grid->column('name', __('Name'));
         
-        }
+        
 
         // change function for edit action
         $grid->actions(function ($actions) {
@@ -113,7 +116,7 @@ class AdminProgramsController extends AdminController
     protected function form()
     {
         $form= new Form(new AdminProgram());
-
+       
         $user = auth()->user();
 
         $staff_id = Staff::where('user_id', $user->id)->first()->id;

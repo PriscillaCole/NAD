@@ -10,47 +10,49 @@
         <div class="table-responsive"> <!-- This makes the table responsive -->
             @foreach($programs as $program)
                 <h4>{{ $program->name }}</h4>
-                {{-- <table class="table table-striped">
-    <div class="panel-group" id="accordion">
-    @foreach($programs as $program)
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            <h4 class="panel-title">
-                <a data-toggle="collapse" data-parent="#accordion" href="#collapse-{{ $program->id }}">
-                    {{ $program->name }}
-                </a>
-            </h4>
-        </div>
-        <div id="collapse-{{ $program->id }}" class="panel-collapse collapse">
-            <div class="panel-body">
                 <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>{{ __('Activity Name') }}</th>
-                            <th>{{ __('Budget (UGX)') }}</th>
-                            <th>{{ __('Action') }}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($program->outcomes->outputs->activities as $activity)
-                            <tr>
-                                <td>{{ $activity->name }}</td>
-                                <td>{{ number_format($activity->budget, 2) }}</td>
-                                <td>
-                                    <a href="{{ url('/requisitions/create') }}" class="btn btn-primary">
-                                        {{ __('Apply for Requisition') }}
-                                    </a>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table> --}}
-            @endforeach
+                <div class="panel-group" id="accordion">
+                @foreach($programs as $program)
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" data-parent="#accordion" href="#collapse-{{ $program->id }}">
+                                {{ $program->name }}
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="collapse-{{ $program->id }}" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>{{ __('Activity Name') }}</th>
+                                        <th>{{ __('Budget (UGX)') }}</th>
+                                        <th>{{ __('Action') }}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($program->outcomes->outputs->activities as $activity)
+                                        <tr>
+                                            <td>{{ $activity->name }}</td>
+                                            <td>{{ number_format($activity->budget, 2) }}</td>
+                                            <td>
+                                                <a href="{{ url('/requisitions/create') }}" class="btn btn-primary">
+                                                    {{ __('Apply for Requisition') }}
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table> 
+                        
+                        </div>
+                    </div>
+                </div>
+                @endforeach
+                </div>
                 </table>
-            </div>
-        </div>
-    </div>
-    @endforeach
+            @endforeach
 </div>
 
     </div>

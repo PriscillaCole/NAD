@@ -18,6 +18,7 @@ use Encore\Admin\Auth\Database\Administrator;
 use Encore\Admin\Facades\Admin;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\MessageBag;
 
 class RequisitionController extends AdminController
 {
@@ -36,29 +37,22 @@ class RequisitionController extends AdminController
     protected function grid()
     {
         $grid = new Grid(new Requisition());
+        $grid->disableBatchActions();
+
         $user = auth()->user();
         // disable create button for finance and CD
-        // if ($user->isRole('finance')){
-        //     $grid->disableCreateButton();
-        //     $grid->actions(function ($actions) {
-        //         $actions->disableEdit();
-        //     });
-        // }
-
-        // view their requisitions only
-        if($user->isRole('manager', 'staff')){
-            $staff_id = Staff::where('user_id', $user->id)->first()->id;
-        
-            $grid->model()->where('staff_id', $staff_id);
+        if ($user->isRole('finance')){
+            $grid->disableCreateButton();
+            $grid->actions(function ($actions) {
+                $actions->disableEdit();
+            });
         }
-
 
         // order by latest requisition
         $grid->model()->orderBy('created_at', 'desc');
 
         //show staff only requisitions made by them if they are not admin
-        $user = auth()->user();
-        if ($user->isRole('staff')) {
+        if ($user->inRoles(['staff', 'admin'])) {
             $staff_id = Staff::where('user_id', $user->id)->first()->id;
             $grid->model()->where('staff_id', $staff_id);
         }
@@ -78,10 +72,10 @@ class RequisitionController extends AdminController
             ]);
         });
        
+        $grid->column('code', __('Code'));
         $grid->column('staff_id', __('Requested by'))->display(function($staff_id){
             return Staff::find($staff_id)->name;
         });
-        $grid->column('code', __('Code'));
         $grid->column('amount', __('Amount'));
         $grid->column('status', __('Status'))->display(
             function ($status) {
@@ -130,7 +124,27 @@ class RequisitionController extends AdminController
         $form = new Form(new Requisition());
         //get the logged in users's staff id
         $user = auth()->user();
+        if ($form->isCreating()) {
+            // Check if the user has any pending accountabilities
+            $user = auth()->user();
+            $staff_id = Staff::where('user_id', $user->id)->first()->id;
 
+            $pendingRequisition = Requisition::where('staff_id', $staff_id)
+                ->where('status', 'approved')
+                ->whereDoesntHave('accountabilities') // Check if there's no accountability
+                ->first();
+
+            if ($pendingRequisition) {
+                // Prevent new requisition creation
+                $error = new MessageBag([
+                    'title'   => 'Warning',
+                    'message' => 'You cannot create a new requisition until you submit accountability for your  requisition '.$pendingRequisition->code,
+                ]);
+
+                return back()->with(compact('error'));
+            }
+        };
+        
         $staff_id = Staff::where('user_id', $user->id)->first()->id;
         // \Log::info('Saving form requisition_items:', $staff_id);
         
@@ -152,7 +166,7 @@ class RequisitionController extends AdminController
                 
                 $user = auth()->user();
 
-                if($user->isRole('staff')){
+                if($user->isRole('admin')){
                     foreach ($requisition_items as $item) {
                         // Check if the category_id is already in the $categories array
                         if (in_array($item['admin_budget_line_id'], $budget_lines)) {
@@ -213,7 +227,7 @@ class RequisitionController extends AdminController
             
             $form->hidden('staff_id', __('Staff'))->default( $staff_id );
         
-            if($user->isRole('staff')){
+            if($user->isRole('admin')){
                 $form->text('code', __('RequisitionID'))->default('Admin-'.rand(1000, 9999))->readonly();
                 $form->select('admin_program_id', __('Program'))->options(AdminProgram::all()->pluck('name', 'id'))->attribute('id', 'adminprogram_id')->required();
             

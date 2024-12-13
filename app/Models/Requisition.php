@@ -49,7 +49,7 @@ class Requisition extends Model
     // A requisition can have many accountabilities
     public function accountabilities()
     {
-        return $this->hasMany(Accountability::class);
+        return $this->hasOne(Accountability::class);
     }
 
     // Relationship between requisitions and admin_ programs
