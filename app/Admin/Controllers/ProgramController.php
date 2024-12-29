@@ -38,6 +38,7 @@ class ProgramController extends AdminController
         $user= auth()->user();
         if($user->isRole('staff')){
             $grid->model()->where('user_id', auth()->id());
+            $grid->disableCreateButton();
         }
 
         //filter by name 
@@ -99,6 +100,7 @@ class ProgramController extends AdminController
        
         $form->text('name', __('Name'));
         $form->textarea('description', __('Description'));
+        $form->text('budget', __('Budget'));
         $form->select('user_id', __('Choose a Program manager'))
             ->options(User::whereHas('roles', function ($query) {
                 $query->where('name', 'staff'); // Adjust 'name' to the correct column if needed

@@ -43,7 +43,7 @@
             const ctx = chartElement.getContext('2d');
             const chartData = @json($chartData); // Pass data from the backend
 
-            const labels = chartData.map(item => item.name);
+            const labels = chartData.map(item => item.activity_name);
             const budgetData = chartData.map(item => item.budget);
             const amountUsedData = chartData.map(item => item.amount_used);
 

@@ -28,23 +28,26 @@ class HomeController extends Controller
                     $column->append(DashboardController::getRequisitionStatus());
                 });
             })
-            ->row(function (Row $row) use ($programId) {
+            ->row(function (Row $row) use ($programId, $data, $chartData) {
                 $row->column(6, function (Column $column) use ($programId) {
                     // Pass the programId to the getActivityRequisitionData function
                     $column->append(DashboardController::getActivityRequisitionData($programId));
                 });
-                $row->column(6, function (Column $column) {
-                    $column->append(DashboardController::showProgramsWithActivities());
-                });
-            })
-            ->row(function (Row $row) use ($data, $chartData) {
                 $row->column(6, function (Column $column) use ($data) {
                     $column->append(view('dashboard.budget_comparison_chart', $data));
                 });
-                $row->column(6, function (Column $column) use ($chartData) {
-                    $column->append(view('dashboard.average_approval_time', $chartData));
-                });
+                // $row->column(6, function (Column $column) {
+                //     $column->append(DashboardController::showProgramsWithActivities());
+                // });
             });
+            // ->row(function (Row $row) use ($data, $chartData) {
+            //     $row->column(6, function (Column $column) use ($data) {
+            //         $column->append(view('dashboard.budget_comparison_chart', $data));
+            //     });
+            //     $row->column(6, function (Column $column) use ($chartData) {
+            //         $column->append(view('dashboard.average_approval_time', $chartData));
+            //     });
+            // });
     }
     
 }

@@ -104,119 +104,255 @@ class AccountabilityController extends AdminController
      *
      * @return Form
      */
-    protected function form()
-    {
-        $form = new Form(new Accountability());
+    // protected function form()
+    // {
+    //     $form = new Form(new Accountability());
     
-        $user = Admin::user();
-        $staff_id = Staff::where('user_id', $user->id)->first()->id;
+    //     $user = Admin::user();
+    //     $staff_id = Staff::where('user_id', $user->id)->first()->id;
     
-        if($form->isCreating()){ 
-            // Select Requisition that was approved
-            $form->select('requisition_id', __('Requisition ID'))
-                ->options(Requisition::where('staff_id', $staff_id)->where('status', 'approved')->pluck('code', 'id'))
-                ->attribute('id', 'requisition_id');
+    //     if($form->isCreating()){ 
+    //         // Select Requisition that was approved
+    //         $form->select('requisition_id', __('Requisition ID'))
+    //             ->options(Requisition::where('staff_id', $staff_id)->where('status', 'approved')->pluck('code', 'id'))
+    //             ->attribute('id', 'requisition_id');
                 
-            // Display Amount Dispensed (read-only)
-            $form->text('', __('Amount dispensed'))
-                ->attribute('id', 'amount_dispensed')
-                ->readonly();
+    //         // Display Amount Dispensed (read-only)
+    //         $form->text('', __('Amount dispensed'))
+    //             ->attribute('id', 'amount_dispensed')
+    //             ->readonly();
     
-            // Requisition items and receipts (This section will be dynamically populated via JavaScript)
-            $form->html('<div id="requisition-items"></div>'); // Placeholder for requisition items and receipt fields
+    //         // Requisition items and receipts (This section will be dynamically populated via JavaScript)
+    //         $form->html('<div id="requisition-items"></div>'); // Placeholder for requisition items and receipt fields
 
-            $form->multipleFile('receiptFiles', __('Any other relevant receipts'))->pathColumn('receipt_path')->removable();
+    //         $form->multipleFile('receiptFiles', __('Any other relevant receipts'))->pathColumn('receipt_path')->removable();
 
-            $form->decimal('amount_used', __('Total amount used'))
-            ->attribute('id', 'amount_used');
-        }
+    //         $form->decimal('amount_used', __('Total amount used'))
+    //         ->attribute('id', 'amount_used');
+    //     }
     
-        $form->decimal('returned_amount', __('Amount returned to finance'))
-            ->attribute('id', 'returned_amount')
-            ->readonly();
+    //     $form->decimal('returned_amount', __('Amount returned to finance'))
+    //         ->attribute('id', 'returned_amount')
+    //         ->readonly();
     
-        $form->decimal('amount_to_be_returned', __('Amount returned to staff'))
-            ->attribute('id', 'amount_to_be_returned')
-            ->readonly();
+    //     $form->decimal('amount_to_be_returned', __('Amount returned to staff'))
+    //         ->attribute('id', 'amount_to_be_returned')
+    //         ->readonly();
     
-        // File fields for proof of funds and narrative report
+    //     // File fields for proof of funds and narrative report
        
 
-        if($user->isRole('finance')) {
+    //     if($user->isRole('finance')) {
+    //     $form->file('proof_of_funds_to_be_returned', __('Receipt for funds returned to staff'));
+    //     }else{
+    //         $form->file('proof_of_funds_returned', __('Receipt for funds returned to finance'));
+    //         $form->hidden('staff_id')->default($staff_id);
+    //     }
+
+    //     $form->file('narrative_report', __('Narrative Report'));
+    
+    //     if($form->isEditing()) {
+    //         if($user->isRole('finance')) {
+    //             $form->textarea('remarks', __('Additional remarks'))->required();
+    //             $form->radioButton('status', __('Status'))->options(['closed' => 'Closed', 'rejected' => 'Rejected', 'halted' => 'Halted'])->required();
+    //             $form->file('signature', __('Signature'))->required();
+    //             $form->hidden('staff_id')->default($staff_id);
+    //         }
+    //     }
+    
+    //     // JavaScript for handling AJAX calls and dynamic form updates
+    //     Admin::script('
+    //         $(document).ready(function() {
+    //             // Fetch amount dispensed and requisition items when requisition_id changes
+    //             $("#requisition_id").change(function() {
+    //                 var requisition_id = $(this).val();
+    //                 if (requisition_id) {
+    //                     $.ajax({
+    //                         url: "/requisition/" + requisition_id ,
+    //                         type: "GET",
+    //                         dataType: "json",
+    //                         success: function(data) {
+    //                             console.log("AJAX Response:", data); // Debugging output
+    //                             if (data.total_amount) {
+    //                                 $("#amount_dispensed").val(data.total_amount);
+    //                                 $("#amount_used").val("");
+    //                                 $("#returned_amount").val("");
+    //                                 $("#amount_to_be_returned").val("");
+    
+    //                                 // Populate the requisition items section with inputs for each item
+    //                                 var itemsHtml = "";
+    //                                 data.items.forEach(function(item, index) {
+    //                                     itemsHtml += "<div class=\'item-section\'>" +
+    //                                         "<h5>Item: " + item.item + " (Quantity: " + item.quantity + ", Unit Price: " + item.unit_price + ")</h5>" +
+    //                                         "<input type=\'hidden\' name=\'requisition_item_ids[]\' value=\'" + item.id + "\' />" +
+    //                                         "<label>Upload Invoice for this item  (you can upload multiple):</label>" +
+    //                                         "<input type=\'file\' name=\'receipt_files[" + item.id + "][]\' class=\'form-control\' multiple />" +
+    //                                         // "<label>Upload proof of payment   (you can upload multiple):</label>" +
+    //                                         // "<input type=\'file\' name=\'receipt_files[" + item.id + "][]\' class=\'form-control\' multiple />" +
+    //                                         // "<label>Upload Receipt for this item  (you can upload multiple):</label>" +
+    //                                         // "<input type=\'file\' name=\'receipt_files[" + item.id + "][]\' class=\'form-control\' multiple />" +
+                                            
+    //                                         "</div><hr>";
+    //                                 });
+    //                                 $("#requisition-items").html(itemsHtml); // Insert items into the form
+    //                             } else {
+    //                                 console.log("Total amount not found in response.");
+    //                             }
+    //                         },
+    //                         error: function(jqXHR, textStatus, errorThrown) {
+    //                             console.error("AJAX Error:", textStatus, errorThrown); // Debugging output
+    //                         }
+    //                     });
+    //                 }
+    //             });
+    
+    //             // Calculate returned amount and amount to be returned on amount_used change
+    //             $("#amount_used").on("input", function() {
+    //                 var amount_used = parseFloat($(this).val()) || 0;
+    //                 var amount_dispensed = parseFloat($("#amount_dispensed").val()) || 0;
+    
+    //                 var returned_amount = amount_dispensed > amount_used ? (amount_dispensed - amount_used) : 0;
+    //                 var amount_to_be_returned = amount_used > amount_dispensed ? (amount_used - amount_dispensed) : 0;
+    
+    //                 $("#returned_amount").val(returned_amount.toFixed(2));
+    //                 $("#amount_to_be_returned").val(amount_to_be_returned.toFixed(2));
+    //             });
+    //         });
+    //     ');
+    
+    //     return $form;
+    // }
+
+    protected function form()
+{
+    $form = new Form(new Accountability());
+
+    $user = Admin::user();
+    $staff_id = Staff::where('user_id', $user->id)->first()->id;
+
+    
+        // Select Requisition that was approved
+        $form->select('requisition_id', __('Requisition ID'))
+            ->options(Requisition::where('staff_id', $staff_id)->where('status', 'approved')->pluck('code', 'id'))
+            ->attribute('id', 'requisition_id');
+            
+        $form->text('', __('Amount dispensed'))
+            ->attribute('id', 'amount_dispensed')
+            ->readonly();
+
+        if($form->isCreating()){ 
+        $form->hasMany('requisitionItemReceipts', 'Requisition items', function (Form\NestedForm $form) {
+            $form->multipleFile('', __('Receipts'));
+
+        });
+        $form->multipleFile('', __('Receipts'));
+
+        // Requisition items section
+        $form->html('<div id="requisition-items"></div>');
+
+        // Change this to handle multiple files properly
+        $form->multipleFile('additional_receipts', __('Any other relevant receipts'))
+            ->pathColumn('receipt_path')
+            ->removable()
+            ->options(['maxFileSize' => 5]); // Optional: add file size limit
+
+        $form->decimal('amount_used', __('Total amount used'))
+            ->attribute('id', 'amount_used');
+    }
+    $form->display('requisition_id', __('Requisition ID'))
+            ->options(Requisition::where('staff_id', $staff_id)->pluck('code', 'id'))
+            ->attribute('id', 'requisition_id');
+         
+
+    $form->decimal('returned_amount', __('Amount returned to finance'))
+        ->attribute('id', 'returned_amount')
+        ->readonly();
+
+    $form->decimal('amount_to_be_returned', __('Amount returned to staff'))
+        ->attribute('id', 'amount_to_be_returned')
+        ->readonly();
+
+    if($user->isRole('finance')) {
         $form->file('proof_of_funds_to_be_returned', __('Receipt for funds returned to staff'));
-        }else{
-            $form->file('proof_of_funds_returned', __('Receipt for funds returned to finance'));
+    } else {
+        $form->file('proof_of_funds_returned', __('Receipt for funds returned to finance'));
+        $form->hidden('staff_id')->default($staff_id);
+    }
+
+    $form->file('narrative_report', __('Narrative Report'));
+
+    if($form->isEditing()) {
+        if($user->isRole('finance')) {
+            $form->textarea('remarks', __('Additional remarks'))->required();
+            $form->radioButton('status', __('Status'))
+                 ->options(['closed' => 'Closed', 'rejected' => 'Rejected', 'halted' => 'Halted'])
+                 ->required();
+            $form->file('signature', __('Signature'))->required();
             $form->hidden('staff_id')->default($staff_id);
         }
-
-        $form->file('narrative_report', __('Narrative Report'));
-    
-        if($form->isEditing()) {
-            if($user->isRole('finance')) {
-                $form->textarea('remarks', __('Additional remarks'))->required();
-                $form->radioButton('status', __('Status'))->options(['closed' => 'Closed', 'rejected' => 'Rejected', 'halted' => 'Halted'])->required();
-                $form->file('signature', __('Signature'))->required();
-                $form->hidden('staff_id')->default($staff_id);
-            }
-        }
-    
-        // JavaScript for handling AJAX calls and dynamic form updates
-        Admin::script('
-            $(document).ready(function() {
-                // Fetch amount dispensed and requisition items when requisition_id changes
-                $("#requisition_id").change(function() {
-                    var requisition_id = $(this).val();
-                    if (requisition_id) {
-                        $.ajax({
-                            url: "/requisition/" + requisition_id ,
-                            type: "GET",
-                            dataType: "json",
-                            success: function(data) {
-                                console.log("AJAX Response:", data); // Debugging output
-                                if (data.total_amount) {
-                                    $("#amount_dispensed").val(data.total_amount);
-                                    $("#amount_used").val("");
-                                    $("#returned_amount").val("");
-                                    $("#amount_to_be_returned").val("");
-    
-                                    // Populate the requisition items section with inputs for each item
-                                    var itemsHtml = "";
-                                    data.items.forEach(function(item, index) {
-                                        itemsHtml += "<div class=\'item-section\'>" +
-                                            "<h5>Item: " + item.item + " (Quantity: " + item.quantity + ", Unit Price: " + item.unit_price + ")</h5>" +
-                                            "<input type=\'hidden\' name=\'requisition_item_ids[]\' value=\'" + item.id + "\' />" +
-                                            "<label>Upload Receipt for this item  (you can upload multiple):</label>" +
-                                            "<input type=\'file\' name=\'receipt_files[" + item.id + "][]\' class=\'form-control\' multiple />" +
-                                            "</div><hr>";
-                                    });
-                                    $("#requisition-items").html(itemsHtml); // Insert items into the form
-                                } else {
-                                    console.log("Total amount not found in response.");
-                                }
-                            },
-                            error: function(jqXHR, textStatus, errorThrown) {
-                                console.error("AJAX Error:", textStatus, errorThrown); // Debugging output
-                            }
-                        });
-                    }
-                });
-    
-                // Calculate returned amount and amount to be returned on amount_used change
-                $("#amount_used").on("input", function() {
-                    var amount_used = parseFloat($(this).val()) || 0;
-                    var amount_dispensed = parseFloat($("#amount_dispensed").val()) || 0;
-    
-                    var returned_amount = amount_dispensed > amount_used ? (amount_dispensed - amount_used) : 0;
-                    var amount_to_be_returned = amount_used > amount_dispensed ? (amount_used - amount_dispensed) : 0;
-    
-                    $("#returned_amount").val(returned_amount.toFixed(2));
-                    $("#amount_to_be_returned").val(amount_to_be_returned.toFixed(2));
-                });
-            });
-        ');
-    
-        return $form;
     }
+
+    // Modified JavaScript for handling file uploads
+    Admin::script('
+        $(document).ready(function() {
+            $("#requisition_id").change(function() {
+                var requisition_id = $(this).val();
+                if (requisition_id) {
+                    $.ajax({
+                        url: "/requisition/" + requisition_id,
+                        type: "GET",
+                        dataType: "json",
+                        success: function(data) {
+                            if (data.total_amount) {
+                                $("#amount_dispensed").val(data.total_amount);
+                                $("#amount_used").val("");
+                                $("#returned_amount").val("");
+                                $("#amount_to_be_returned").val("");
+
+                                // Modified file input structure
+                                var itemsHtml = "";
+                                data.items.forEach(function(item, index) {
+                                    itemsHtml += `
+                                        <div class="item-section">
+                                            <h5>Item: ${item.item} (Quantity: ${item.quantity}, Unit Price: ${item.unit_price})</h5>
+                                            <input type="hidden" name="item_ids[]" value="${item.id}" />
+                                            <div class="form-group">
+                                                <label>Upload Invoice for this item:</label>
+                                                <input type="file" 
+                                                       name="item_receipts_${item.id}[]" 
+                                                       class="form-control" 
+                                                       multiple 
+                                                       accept=".pdf,.jpg,.jpeg,.png" />
+                                            </div>
+                                        </div>
+                                        <hr>
+                                    `;
+                                });
+                                $("#requisition-items").html(itemsHtml);
+                            }
+                        },
+                        error: function(jqXHR, textStatus, errorThrown) {
+                            console.error("AJAX Error:", textStatus, errorThrown);
+                        }
+                    });
+                }
+            });
+
+            $("#amount_used").on("input", function() {
+                var amount_used = parseFloat($(this).val()) || 0;
+                var amount_dispensed = parseFloat($("#amount_dispensed").val()) || 0;
+
+                var returned_amount = amount_dispensed > amount_used ? (amount_dispensed - amount_used) : 0;
+                var amount_to_be_returned = amount_used > amount_dispensed ? (amount_used - amount_dispensed) : 0;
+
+                $("#returned_amount").val(returned_amount.toFixed(2));
+                $("#amount_to_be_returned").val(amount_to_be_returned.toFixed(2));
+            });
+        });
+    ');
+
+    return $form;
+}
     
     public function getRequisitionItems($id)
     {

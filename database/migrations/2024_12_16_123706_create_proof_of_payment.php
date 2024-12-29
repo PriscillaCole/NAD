@@ -11,12 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('requisition_item_receipts', function (Blueprint $table) {
+
+        Schema::create('proof_of_payment', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('requisition_item_id');
             $table->unsignedBigInteger('accountability_id');
-            $table->string('receipt_file');
-            $table->decimal('amount', 15, 2);
+            $table->string('proof_of_payment');
+            // $table->decimal('amount', 15, 2);
             $table->date('date');
             $table->timestamps();
 
@@ -30,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('requisition_item_receipts');
+        Schema::dropIfExists('proof_of_payment');
     }
 };

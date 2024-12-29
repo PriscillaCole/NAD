@@ -3,7 +3,7 @@
 use App\Admin\Controllers\ProgramController;
 use App\Http\Controllers\customProgram;
 use App\Http\Controllers\ProgramsController;
-
+// use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Route;
 
 
@@ -48,3 +48,7 @@ Route::get('/generate-report', [App\Http\Controllers\ReportController::class, 'g
 Route::get('accountabilities/{id}', [App\Admin\Controllers\AccountabilityController::class, 'detail'])->name('accountabilities.show');
 Route::get('/fetch-activities/{id}', [App\Http\Controllers\BudgetController::class, 'fetchActivities'])->name('fetch.activities');
 Route::get('/download-activities/{id}', [App\Http\Controllers\BudgetController::class, 'downloadExcel'])->name('download.activities');
+
+
+// download all the requisitions related documants
+Route::get('requisition/download/{id}', [App\Admin\Controllers\RequisitionController::class, 'downloadDocuments'])->name('requisition.download');

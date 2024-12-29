@@ -11,6 +11,7 @@ class Program extends Model
 
     protected $fillable = [
         'name',
+        'budget',
         'description',
         'user_id',
         

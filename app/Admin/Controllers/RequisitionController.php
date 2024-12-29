@@ -41,7 +41,7 @@ class RequisitionController extends AdminController
 
         $user = auth()->user();
         // disable create button for finance and CD
-        if ($user->isRole('finance')){
+        if ($user->inRoles(['finance', 'director'])){
             $grid->disableCreateButton();
             $grid->actions(function ($actions) {
                 $actions->disableEdit();
@@ -79,7 +79,7 @@ class RequisitionController extends AdminController
         $grid->column('amount', __('Amount'));
         $grid->column('status', __('Status'))->display(
             function ($status) {
-                if ($status == null) {
+                if ($status == 'pending') {
                     return "<span class='label label-warning'>pending</span>";
                 } elseif ($status == 'approved') {
                     return "<span class='label label-success'>approved</span>";
@@ -90,6 +90,20 @@ class RequisitionController extends AdminController
                 }
             }
         );
+        $grid->column('id', __('Inspection Report'))->display(function ($id)
+        {
+            $requisition = Requisition::find($id);
+        
+            if ($requisition && $requisition->status == 'approved') 
+            {
+                $downloadLink = route('requisition.download', ['id' => $id]);
+                return "<b><a href='{$downloadLink}' target='_blank'>Download Reports</a></b>";
+                // return '<b><a target="_blank" href="' . $downloadLink . '">Requisition reports</a></b>';
+            } else
+            {          
+                return '<b> No accountability</b>';
+            }
+        });
         $grid->column('created_at', __('Created at'))->display(function ($created_at) {
             //return human readable format
             return (Carbon::parse($created_at)->diffForHumans());
@@ -146,7 +160,6 @@ class RequisitionController extends AdminController
         };
         
         $staff_id = Staff::where('user_id', $user->id)->first()->id;
-        // \Log::info('Saving form requisition_items:', $staff_id);
         
             //when saving the form, calculate the total amount of the requisition items and save it in the amount field
             $form->saving(function (Form $form) {
@@ -168,6 +181,7 @@ class RequisitionController extends AdminController
 
                 if($user->isRole('admin')){
                     foreach ($requisition_items as $item) {
+                        dd($requisition_items);
                         // Check if the category_id is already in the $categories array
                         if (in_array($item['admin_budget_line_id'], $budget_lines)) {
                             $duplicateCategoryFound = true;
@@ -176,7 +190,7 @@ class RequisitionController extends AdminController
                         
                         // Add the category_id to the $categories array
                         $budget_lines[] = $item['admin_budget_line_id'];
-                        
+
                         // Calculate the total amount of the requisition
                         $total_amount += $item['quantity'] * $item['unit_price']; // Fixed unit_price to unit_cost to match the form field
                     }
@@ -229,7 +243,8 @@ class RequisitionController extends AdminController
         
             if($user->isRole('admin')){
                 $form->text('code', __('RequisitionID'))->default('Admin-'.rand(1000, 9999))->readonly();
-                $form->select('admin_program_id', __('Program'))->options(AdminProgram::all()->pluck('name', 'id'))->attribute('id', 'adminprogram_id')->required();
+                // dd($user->id);
+                $form->select('admin_program_id', __('Program'))->options(AdminProgram::where('user_id', $staff_id)->pluck('name', 'id'))->attribute('id', 'adminprogram_id')->required();
             
                 $form->hasMany('requisition_items', 'Requisition items', function (Form\NestedForm $form) {
                     $form->select('admin_budget_line_id', __('Budget Line'))
@@ -298,53 +313,93 @@ class RequisitionController extends AdminController
                 });
             });
 
-            // Handle both activity changes and direct budget line dropdown clicks
-            $(document).on("change", "#activity_id", function() {
-                var activity_id = $(this).val();
-                updateAllBudgetLineDropdowns(activity_id);
-            });
+            // // Handle both activity changes and direct budget line dropdown clicks
+            // $(document).on("change", "#activity_id", function() {
+            //     var activity_id = $(this).val();
+            //     updateAllBudgetLineDropdowns(activity_id);
+            // });
 
-            // Function to update all budget line dropdowns
-            function updateAllBudgetLineDropdowns(activity_id) {
-                if (!activity_id) return;
+            // // Function to update all budget line dropdowns
+            // function updateAllBudgetLineDropdowns(activity_id) {
+            //     if (!activity_id) return;
 
-                $("[id^=budget_line_id]").each(function() {
-                    var currentDropdown = $(this);
-                    var messageSpan = currentDropdown.next("#no-activities-message");
+            //     $("[id^=budget_line_id]").each(function() {
+            //         var currentDropdown = $(this);
+            //         var messageSpan = currentDropdown.next("#no-activities-message");
 
-                    // Clear previous options and messages
-                    currentDropdown.empty();
-                    if (messageSpan.length) messageSpan.remove();
+            //         // Clear previous options and messages
+            //         currentDropdown.empty();
+            //         if (messageSpan.length) messageSpan.remove();
 
-                    $.get("/budgetlines/" + activity_id)
-                        .done(function(data) {
-                            if ($.isEmptyObject(data)) {
-                                currentDropdown.after("<span id=\'no-activities-message\' style=\'color: red;\'>No budget lines available for this activity</span>");
-                            } else {
-                                // Add a default option
-                                currentDropdown.append(new Option(\'Select Budget Line\', \'\'));
+            //         $.get("/budgetlines/" + activity_id)
+            //             .done(function(data) {
+            //                 if ($.isEmptyObject(data)) {
+            //                     currentDropdown.after("<span id=\'no-activities-message\' style=\'color: red;\'>No budget lines available for this activity</span>");
+            //                 } else {
+            //                     // Add a default option
+            //                     currentDropdown.append(new Option(\'Select Budget Line\', \'\'));
                                 
-                                // Add all budget lines
-                                $.each(data, function(key, value) {
-                                    currentDropdown.append(new Option(value, key));
-                                });
-                            }
-                        })
-                        .fail(function() {
-                            alert("Error fetching budget lines. Please try again.");
-                        });
-                });
-            }
+            //                     // Add all budget lines
+            //                     $.each(data, function(key, value) {
+            //                         currentDropdown.append(new Option(value, key));
+            //                     });
+            //                 }
+            //             })
+            //             .fail(function() {
+            //                 alert("Error fetching budget lines. Please try again.");
+            //             });
+            //     });
+            // }
 
-            // Handle new items being added
-            $(".add").click(function(){
-                setTimeout(function(){
-                    var activity_id = $("#activity_id").val();
-                    if (activity_id) {
-                        updateAllBudgetLineDropdowns(activity_id);
+            // // Handle new items being added
+            // $(".add").click(function(){
+            //     setTimeout(function(){
+            //         var activity_id = $("#activity_id").val();
+            //         if (activity_id) {
+            //             updateAllBudgetLineDropdowns(activity_id);
+            //         }
+            //     }, 100);
+            // });
+
+            
+           
+            $("#activity_id").change(function() {
+                var activity_id = $(this).val();
+                if (!activity_id) {
+                    alert("Please select an activity");
+                    return;
+                }
+
+                 $.get("/budgetlines/" + activity_id)
+                    .done(function(data) {
+                    if ($.isEmptyObject(data)) {
+                        alert("No budget lines available for the selected activity");
+                        return;
                     }
-                }, 100);
+
+                    // Clear existing requisition items
+                    $("#has-many-requisition_items").find(".has-many-forms").empty();
+
+                    // Dynamically add requisition items for each budget line
+                    $.each(data, function(key, value) {
+                        $(".add").click(); // Simulate clicking the "Add" button to add a new requisition item
+                        
+                        // Wait for the new form to be added, then populate its fields
+                        setTimeout(function() {
+                            var lastForm = $("#has-many-requisition_items").find(".has-many-requisition_items-forms").children().last();
+                            var budgetLineField = $("[id^=budget_line_id]");
+                            
+                                budgetLineField.append(new Option(value, key, true, true)); // Add and select the option
+                                budgetLineField.trigger("change"); // Trigger change for any dependencies
+                            
+                            // Optionally, set other default values here (e.g., quantity, unit_of_measure)
+                        }, 100); // Add a small delay to ensure the form is rendered
+                    });
+                });
             });
+
+
+
 
 
             $("#adminprogram_id").change(function(){
@@ -390,9 +445,11 @@ class RequisitionController extends AdminController
     // function to fetch budget lines under a chosen activity
     public function getActivitiesbudgetlines($id)
     {
-        $activities = Activity::find($id);
-        $budgetlines = $activities->budget_lines // Get all outcomes for the program
-            ->pluck('name', 'id'); // Extract 'name' and 'id' from the activities
+        // $activities = Activity::find($id);
+        // $budgetlines = $activities->budget_lines // Get all outcomes for the program
+        //     ->pluck('name', 'id'); // Extract 'name' and 'id' from the activities
+        $budgetlines = BudgetLines::where('activity_id', $id)->pluck('name', 'id'); // Returns {id: name}
+        
 
         return $budgetlines;
     }
@@ -405,5 +462,72 @@ class RequisitionController extends AdminController
             ->pluck('name', 'id'); // Extract 'name' and 'id' from the activities
 
         return $budgetlines;
+    }
+
+    public function downloadDocuments($id)
+    {
+        $requisition = Requisition::findOrFail($id);
+        
+        // Create a temporary directory
+        $tempDir = storage_path('app/temp/' . uniqid());
+        mkdir($tempDir, 0755, true);
+        
+        try {
+            // Generate and save requisition form PDF
+            $requisitionPdf = PDF::loadView('pdfs.requisition-form', ['requisition' => $requisition]);
+            $requisitionPath = $tempDir . '/requisition_form.pdf';
+            $requisitionPdf->save($requisitionPath);
+            
+            // Generate and save accountability form PDF
+            $accountabilityPdf = PDF::loadView('pdfs.accountability-form', ['requisition' => $requisition]);
+            $accountabilityPath = $tempDir . '/accountability_form.pdf';
+            $accountabilityPdf->save($accountabilityPath);
+            
+            // Create ZIP archive
+            $zipFileName = 'requisition_' . $id . '_documents.zip';
+            $zipPath = storage_path('app/temp/' . $zipFileName);
+            
+            $zip = new ZipArchive();
+            $zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE);
+            
+            // Add requisition form to ZIP
+            $zip->addFile($requisitionPath, 'requisition_form.pdf');
+            
+            // Add accountability form to ZIP
+            $zip->addFile($accountabilityPath, 'accountability_form.pdf');
+            
+            // Add all attached receipts to ZIP
+            foreach ($requisition->receipts as $receipt) {
+                $receiptPath = storage_path('app/' . $receipt->file_path);
+                if (file_exists($receiptPath)) {
+                    $zip->addFile($receiptPath, 'receipts/' . basename($receipt->file_path));
+                }
+            }
+            
+            $zip->close();
+            
+            // Download ZIP file
+            $headers = [
+                'Content-Type' => 'application/zip',
+                'Content-Disposition' => 'attachment; filename="' . $zipFileName . '"',
+            ];
+            
+            // Clean up temporary files after sending the response
+            $response = response()->download($zipPath, $zipFileName, $headers)->deleteFileAfterSend(true);
+            
+            // Clean up the temp directory
+            File::deleteDirectory($tempDir);
+            
+            return $response;
+            
+        } catch (\Exception $e) {
+            // Clean up on error
+            File::deleteDirectory($tempDir);
+            if (file_exists($zipPath)) {
+                unlink($zipPath);
+            }
+            
+            throw $e;
+        }
     }
 }

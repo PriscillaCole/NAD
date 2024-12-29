@@ -12,7 +12,8 @@ class RequisitionItem extends Model
 
     protected $fillable = [
         'requisition_id',
-        // 'budget_line_id',
+        'budget_line_id',
+        'admin_budget_line_id',
         'quantity',
         'unit_price',
         'unit_of_measure',

@@ -47,7 +47,7 @@ class Requisition extends Model
     }
 
     // A requisition can have many accountabilities
-    public function accountabilities()
+    public function accountability()
     {
         return $this->hasOne(Accountability::class);
     }

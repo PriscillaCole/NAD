@@ -27,16 +27,16 @@
     }
 
     .card-title {
-        font-size: 1.2rem;
+        font-size: 1.8rem;
         font-weight: 600;
         color: #333;
     }
 
-    .card-body h4 {
+    /* .card-body h4 {
         font-size: 1.5rem;
         font-weight: 700;
         color: #007bff;
-    }
+    } */
 
     .text-muted {
         color: #6c757d !important;
@@ -93,7 +93,7 @@
 <!-- Start right Content here -->
 <!-- ============================================================== -->
 <div class="row">
-    <div class="col-lg-3 col-md-6 col-sm-6">
+    <div class="col-lg-4 col-md-6 col-sm-6">
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title totals">{{__('Requisitions Submitted')}}</h3>
@@ -110,7 +110,7 @@
         </div>
     </div>
 
-    <div class="col-lg-3 col-md-6 col-sm-6">
+    <div class="col-lg-4 col-md-6 col-sm-6">
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title totals">{{__('Accepted Requisitions')}}</h3>
@@ -127,7 +127,7 @@
         </div>
     </div>
 
-    <div class="col-lg-3 col-md-6 col-sm-6">
+    <div class="col-lg-4 col-md-6 col-sm-6">
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title totals">{{__('Rejected Requisitions')}}</h3>
@@ -144,7 +144,7 @@
         </div>
     </div>
 
-    <div class="col-lg-3 col-md-6 col-sm-6">
+    {{-- <div class="col-lg-3 col-md-6 col-sm-6">
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title totals">{{__('Total Amount from Requisitions')}}</h3>
@@ -159,5 +159,5 @@
                 </p>
             </div>
         </div>
-    </div>
+    </div> --}}
 </div>

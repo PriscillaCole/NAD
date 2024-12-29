@@ -45,13 +45,14 @@ class DashboardController extends Controller
         $query = Requisition::select('activity_id', DB::raw('SUM(amount) as total_amount'))
             // ->where('staff_id', $staff_id)
             ->groupBy('activity_id')
+            ->whereNotNull('program_id')
             ->with('activity'); // Assuming you have a relationship with 'activities'
     
         // Filter by program/project if provided
         if ($programId) {
             $query->where('program_id', $programId);
         }
-    
+        
         $data = $query->get();
     
         // Format data for the chart (labels and values)
@@ -76,54 +77,84 @@ class DashboardController extends Controller
     {
         // Fetch all programs with their associated activities
         // $programs = Program::with('outcomes.outputs.activities')->get(); // Assuming 'activities' relationship exists in the Program model
+        // $program = Program::findOrFail('33');
 
-        $programs = Program::all();
+        $programs = Program::with('outcomes')->get();
+        // dd($program->outcomes->outputs);
         return view('dashboard.programs_activities', compact('programs'));
     }
 
     public static function getBudgetComparisonData($programId2 = null)
     {
-        // Get initial budgets from activities
-        $activitiesQuery = DB::table('activities')->select('name', 'budget');
-    
+        // Get initial budgets from activities with their hierarchy
+        $activitiesQuery = DB::table('activities')
+            ->join('outputs', 'activities.output_id', '=', 'outputs.id')
+            ->join('outcomes', 'outputs.outcome_id', '=', 'outcomes.id')
+            ->join('programs', 'outcomes.program_id', '=', 'programs.id')
+            ->select(
+                'activities.id as activity_id',
+                'activities.name as activity_name',
+                'activities.budget',
+                'outputs.name as output_name',
+                'outcomes.name as outcome_name'
+            );
+
         // Filter by program if provided
         if ($programId2) {
-            $activitiesQuery->where('program_id', $programId2);
-        }
-    
+            $activitiesQuery->where('programs.id', $programId2);
+        
+
         $activities = $activitiesQuery->get();
-    
-        // Get actual amounts used from budgets
-        $budgetsQuery = DB::table('budgets')
-            ->join('requisitions', 'budgets.requisition_id', '=', 'requisitions.id')
+
+        // Get actual amounts used from accountabilities through requisitions
+        $accountabilityQuery = DB::table('accountabilities')
+            ->join('requisitions', 'accountabilities.requisition_id', '=', 'requisitions.id')
             ->join('activities', 'requisitions.activity_id', '=', 'activities.id')
-            ->select('activities.name', DB::raw('SUM(budgets.total_amount_used) as total_amount_used'));
-    
-        // Filter by program if provided
+            ->select(
+                'activities.id as activity_id',
+                DB::raw('SUM(accountabilities.amount_used) as total_amount_used')
+            )
+            ->groupBy('activities.id');
+
         if ($programId2) {
-            $budgetsQuery->join('programs', 'activities.program_id', '=', 'programs.id')
+            $accountabilityQuery->join('outputs', 'activities.output_id', '=', 'outputs.id')
+                ->join('outcomes', 'outputs.outcome_id', '=', 'outcomes.id')
+                ->join('programs', 'outcomes.program_id', '=', 'programs.id')
                 ->where('programs.id', $programId2);
         }
-    
-        $budgets = $budgetsQuery->groupBy('activities.name')->get();
-    
+
+        $accountabilities = $accountabilityQuery->get();
+
         // Get all programs
         $programs = Program::all();
-    
+
         // Combine data for the chart
-        $chartData = $activities->map(function($activity) use ($budgets) {
-            $actualAmount = $budgets->firstWhere('name', $activity->name);
+        $chartData = $activities->map(function($activity) use ($accountabilities) {
+            $actualAmount = $accountabilities->firstWhere('activity_id', $activity->activity_id);
             return [
-                'name' => $activity->name,
+                'activity_name' => $activity->activity_name,
+                'output_name' => $activity->output_name,
+                'outcome_name' => $activity->outcome_name,
                 'budget' => $activity->budget,
                 'amount_used' => $actualAmount ? $actualAmount->total_amount_used : 0
             ];
         });
-    
+
+        // dd($chartData);
+
         return [
             'chartData' => $chartData,
             'programs' => $programs
-        ];
+        ];}
+        else{
+            // Get all programs
+            $programs = Program::all();
+
+            return [
+                'chartData' => [],
+                'programs' => $programs
+            ];
+        }
     }
 
 

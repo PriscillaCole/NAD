@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Program</title>
+    <title>Show Program</title>
     <style>
         .ml-4 { margin-left: 1.5rem; }
         .ml-5 { margin-left: 3rem; }
@@ -55,6 +55,42 @@
                                 <textarea name="description" class="form-control" readonly>{{ $program->description }}</textarea>
                             </div>
                         </div>
+                        <?php
+                        $totalUsed = $program->outcomes()
+                        ->with(['outputs.activities.requisitions.accountability'])
+                        ->get()
+                        ->flatMap(function ($outcome) {
+                            return $outcome->outputs;
+                        })
+                        ->flatMap(function ($output) {
+                            return $output->activities;
+                        })
+                        ->flatMap(function ($activity) {
+                            return $activity->requisitions;
+                        })
+                        ->map(function ($requisition) {         
+                            return $requisition->accountability; 
+                        })
+                        ->filter()                              
+                        ->sum('amount_used');
+                    
+                        // Calculate remaining budget
+                        $remainingBudget = $program->budget - $totalUsed;
+                        $color = $remainingBudget < 0 ? 'red' : 'green';
+                        
+                        // Format the number as currency
+                        // return "<span style='color: {$color};'>" . number_format($remainingBudget, 2) . "</span>";
+                    ?>
+                        <div class="form-group">
+                            <label for="description" class="col-sm-2 control-label">Program Budget</label>
+                            <div class="col-sm-4">
+                                <input type="text" name="budget" class="form-control" value="{{ $program->budget }}" readonly />
+                            </div>
+                            <label for="description" class="col-sm-2 control-label">Remaining amount</label>
+                            <div class="col-sm-4">
+                                <input type="text" name="budget" class="form-control" value="{{ $remainingBudget }}" readonly />
+                            </div>
+                        </div>
 
                         <!-- Outcome Section -->
                         <div id="outcomes">
@@ -79,14 +115,44 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        <?php
+                                            $totalUsed = $outcome->outputs()
+                                            ->with(['activities.requisitions.accountability'])
+                                            ->get()
+                                            ->flatMap(function ($output) {
+                                                return $output->activities;
+                                            })
+                                            ->flatMap(function ($activity) {
+                                                return $activity->requisitions;
+                                            })
+                                            ->map(function ($requisition) {         
+                                                return $requisition->accountability; 
+                                            })
+                                            ->filter()                              
+                                            ->sum('amount_used');
+                                        
+                                            // Calculate remaining budget
+                                            $outcomeremainingBudget = $outcome->budget - $totalUsed;
+                                            $color = $remainingBudget < 0 ? 'red' : 'green';
+                                        ?>
+
                                         <div class="form-group">
                                             <label class="col-sm-2 control-label">Outcome Budget</label>
-                                            <div class="col-sm-8">
+                                            <div class="col-sm-4">
                                                 <div class="input-group">
                                                     <span class="input-group-addon">
                                                         <i class="fa fa-pencil fa-fw"></i>
                                                     </span>
                                                     <input type="number" name="outcomes[{{ $outcome->id }}][budget]" class="form-control" value="{{ $outcome->budget }}" readonly>
+                                                </div>
+                                            </div>
+                                            <label class="col-sm-2 control-label">Remaining Budget</label>
+                                            <div class="col-sm-4">
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa fa-pencil fa-fw"></i>
+                                                    </span>
+                                                    <input type="number" name="outcomes[{{ $outcome->id }}][budget]" class="form-control" value="{{ $outcomeremainingBudget }}" readonly>
                                                 </div>
                                             </div>
                                         </div>
@@ -113,14 +179,41 @@
                                                                 </div>
                                                             </div>
                                                         </div>
+                                                        <?php
+                                                            $totalUsed = $output->activities()
+                                                            ->with(['requisitions.accountability'])
+                                                            ->get()
+                                                            ->flatMap(function ($activity) {
+                                                                return $activity->requisitions;
+                                                            })
+                                                            ->map(function ($requisition) {         
+                                                                return $requisition->accountability; 
+                                                            })
+                                                            ->filter()                              
+                                                            ->sum('amount_used');
+                                                        
+                                                            // Calculate remaining budget
+                                                            $outputremainingBudget = $output->budget - $totalUsed;
+                                                            $color = $remainingBudget < 0 ? 'red' : 'green';
+                                                        ?>
+
                                                         <div class="form-group">
                                                             <label class="col-sm-2 control-label">Output Budget</label>
-                                                            <div class="col-sm-8">
+                                                            <div class="col-sm-4">
                                                                 <div class="input-group">
                                                                     <span class="input-group-addon">
                                                                         <i class="fa fa-pencil fa-fw"></i>
                                                                     </span>
                                                                     <input type="number" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][budget]" class="form-control" value="{{ $output->budget }}" readonly>
+                                                                </div>
+                                                            </div>
+                                                            <label class="col-sm-2 control-label">Remaining Budget</label>
+                                                            <div class="col-sm-4">
+                                                                <div class="input-group">
+                                                                    <span class="input-group-addon">
+                                                                        <i class="fa fa-pencil fa-fw"></i>
+                                                                    </span>
+                                                                    <input type="number" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][budget]" class="form-control" value="{{ $outputremainingBudget }}" readonly>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -147,14 +240,37 @@
                                                                                 </div>
                                                                             </div>
                                                                         </div>
+                                                                        <?php
+                                                                            $totalUsed = $activity->requisitions()
+                                                                            ->with(['accountability'])
+                                                                            ->get()
+                                                                            ->map(function ($requisition) {         
+                                                                                return $requisition->accountability; 
+                                                                            })
+                                                                            ->filter()                              
+                                                                            ->sum('amount_used');
+                                                                        
+                                                                            // Calculate remaining budget
+                                                                            $activityremainingBudget = $activity->budget - $totalUsed;
+                                                                            $color = $remainingBudget < 0 ? 'red' : 'green';
+                                                                        ?>
                                                                         <div class="form-group">
                                                                             <label class="col-sm-2 control-label">Activity Budget</label>
-                                                                            <div class="col-sm-8">
+                                                                            <div class="col-sm-4">
                                                                                 <div class="input-group">
                                                                                     <span class="input-group-addon">
                                                                                         <i class="fa fa-pencil fa-fw"></i>
                                                                                     </span>
                                                                                     <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][budget]" class="form-control" value="{{ $activity->budget }}" readonly>
+                                                                                </div>
+                                                                            </div>
+                                                                            <label class="col-sm-2 control-label">Remaining Budget</label>
+                                                                            <div class="col-sm-4">
+                                                                                <div class="input-group">
+                                                                                    <span class="input-group-addon">
+                                                                                        <i class="fa fa-pencil fa-fw"></i>
+                                                                                    </span>
+                                                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][budget]" class="form-control" value="{{ $activityremainingBudget }}" readonly>
                                                                                 </div>
                                                                             </div>
                                                                         </div>

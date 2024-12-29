@@ -99,7 +99,8 @@ class ProgramsController extends Controller
     
             // Redirect with success message
             admin_toastr('Program created successfully!', 'success');
-            return redirect()->route('programsCreate');
+            return redirect('/requisitions');
+            // return redirect()->route('programsCreate');
         } catch (\Exception $e) {
             // Rollback transaction if anything goes wrong
             \DB::rollBack();

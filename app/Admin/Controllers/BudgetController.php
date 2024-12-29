@@ -27,39 +27,129 @@ class BudgetController extends AdminController
      *
      * @return Grid
      */
+    // protected function grid()
+    // {
+    //     $grid = new Grid(new Program());
+
+    //     $grid->disableBatchActions();
+
+    //     $user = auth()->user();
+    //     // disable create button for finance and CD
+    //     if ($user->inRoles(['finance', 'director'])){
+    //         $grid->disableCreateButton();
+    //         $grid->actions(function ($actions) {
+    //             $actions->disableEdit();
+    //         });
+    //     }else{
+    //         $grid->model()->where('user_id', auth()->id());
+
+    //     }
+
+    //     //filter by name 
+    //     $grid->filter(function($filter){
+    //         $filter->disableIdFilter();
+    //         $filter->equal('id', 'Program')->select(Program::all()->pluck('name', 'id'));
+    //     });
+
+    //     // change function for edit action
+    //     $grid->actions(function ($actions) {
+    //         // Disable delete button
+    //         $actions->disableDelete();
+    //     });
+
+    //     $grid->column('id', __('Id'));
+    //     $grid->column('name', __('Name'));
+    //     $grid->column('user_id', __('Project Manager'))->display(function ($user_id) {
+    //         // Use the relationship to fetch the user's name
+    //         return $this->user ? $this->user->name : 'No Project Manager';
+    //     });
+    //     // $grid->column('description', __('Description'));
+
+    //     $grid->column('created_at', __('Created at'))->display(function ($created_at) {
+    //         //return human readable format
+    //         return (Carbon::parse($created_at)->diffForHumans());
+    //     });
+
+    //     return $grid;
+    // }
+
     protected function grid()
-    {
-        $grid = new Grid(new Program());
+{
+    $grid = new Grid(new Program());
 
-        $grid->model()->where('user_id', auth()->id());
+    $grid->disableBatchActions();
 
-
-        //filter by name 
-        $grid->filter(function($filter){
-            $filter->disableIdFilter();
-            $filter->equal('id', 'Program')->select(Program::all()->pluck('name', 'id'));
-        });
-
-        // change function for edit action
+    $user = auth()->user();
+    // disable create button for finance and CD
+    if ($user->inRoles(['finance', 'director', 'adminstrator'])) {
+        $grid->disableCreateButton();
         $grid->actions(function ($actions) {
-            // Disable delete button
-            $actions->disableDelete();
+            $actions->disableEdit();
         });
-
-        $grid->column('id', __('Id'));
-        $grid->column('name', __('Name'));
-        $grid->column('user_id', __('Project Manager'))->display(function ($user_id) {
-            // Use the relationship to fetch the user's name
-            return $this->user ? $this->user->name : 'No Project Manager';
-        });
-        $grid->column('description', __('Description'));
-        $grid->column('created_at', __('Created at'))->display(function ($created_at) {
-            //return human readable format
-            return (Carbon::parse($created_at)->diffForHumans());
-        });
-
-        return $grid;
+    } else {
+        $grid->model()->where('user_id', auth()->id());
     }
+
+    //filter by name 
+    $grid->filter(function($filter) {
+        $filter->disableIdFilter();
+        $filter->equal('id', 'Program')->select(Program::all()->pluck('name', 'id'));
+    });
+
+    // change function for edit action
+    $grid->actions(function ($actions) {
+        // Disable delete button
+        $actions->disableDelete();
+    });
+
+    $grid->column('id', __('Id'));
+    $grid->column('name', __('Name'));
+    $grid->column('user_id', __('Project Manager'))->display(function ($user_id) {
+        // Use the relationship to fetch the user's name
+        return $this->user ? $this->user->name : 'No Project Manager';
+    });
+    $grid->column('budget', __('Budget'));
+    
+    // Add the remaining budget column with corrected relationship chain
+    $grid->column('remaining_budget', __('Remaining Budget'))->display(function () {
+        // Get the program's initial budget
+        $totalBudget = $this->budget;
+        
+        // Calculate total amount used following the relationship chain
+        $totalUsed = $this->outcomes()
+            ->with(['outputs.activities.requisitions.accountability'])
+            ->get()
+            ->flatMap(function ($outcome) {
+                return $outcome->outputs;
+            })
+            ->flatMap(function ($output) {
+                return $output->activities;
+            })
+            ->flatMap(function ($activity) {
+                return $activity->requisitions;
+            })
+            ->map(function ($requisition) {         
+                return $requisition->accountability; 
+            })
+            ->filter()                              
+            ->sum('amount_used');
+        
+        // Calculate remaining budget
+        $remainingBudget = $totalBudget - $totalUsed;
+        $color = $remainingBudget < 0 ? 'red' : 'green';
+        
+        // Format the number as currency
+        return "<span style='color: {$color};'>" . number_format($remainingBudget, 2) . "</span>";
+        
+    });
+    
+    $grid->column('created_at', __('Created at'))->display(function ($created_at) {
+        //return human readable format
+        return (Carbon::parse($created_at)->diffForHumans());
+    });
+
+    return $grid;
+}
 
     /**
      * Make a show builder.

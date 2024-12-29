@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 use App\Models\Activity;
+use App\Models\Program;
 use App\Models\Staff;
 use App\Models\Requisition;
-
+use Illuminate\Container\Attributes\Log;
 use Illuminate\Http\Request;
 
 class ReportController extends Controller
@@ -12,12 +13,22 @@ class ReportController extends Controller
    // In ReportController.php
 
    public function getActivities($projectId) {
-    $activities = Activity::where('program_id', $projectId)->get();
+    $program = Program::find($projectId);
+        $activities = $program->outcomes // Get all outcomes for the program
+            ->flatMap(function ($outcome) {
+                return $outcome->outputs; // Get all outputs for each outcome
+            })
+            ->flatMap(function ($output) {
+                return $output->activities; // Get all activities for each output
+            })
+            ->get();
+    // $activities = Activity::where('program_id', $projectId)->get();
 
     if ($activities->isEmpty()) {
         return response()->json(['activities' => [], 'message' => 'No activities found for the selected project.']);
     }
 
+    // \Log::class($activities);
     return response()->json(['activities' => $activities]);
 }
 
@@ -56,7 +67,7 @@ public function generateReport(Request $request)
 
     // Apply project filter if selected
     if ($projectId) {
-        $query->whereHas('activity.program', function ($q) use ($projectId) {
+        $query->whereHas('activity.output.outcome.program', function ($q) use ($projectId) {
             $q->where('id', $projectId);
         });
     }

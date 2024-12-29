@@ -1,18 +1,24 @@
 <!-- Display programs and their activities in a table -->
  <!-- Bootstrap 5 CSS -->
+ <style>
+    .scrollable-div {
+        height: 450px; /* Adjust height as needed */
+        overflow-y: auto;
+    }
+ </style>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.4/dist/css/bootstrap.min.css" rel="stylesheet">
            <!-- Responsive table for activities -->
-           <div class="card">
+<div class="card scrollable-div">
     <div class="card-header">
         <h3 class="card-title">{{ __('Programs and Activities') }}</h3>
     </div>
-    <div class="card-body">
+    <div class="card-body ">
         <div class="table-responsive"> <!-- This makes the table responsive -->
             @foreach($programs as $program)
-                <h4>{{ $program->name }}</h4>
-                <table class="table table-striped">
+                {{-- <h4>{{ $program->name }}</h4> --}}
+                {{-- <table class="table table-striped"> --}}
                 <div class="panel-group" id="accordion">
-                @foreach($programs as $program)
+                {{-- @foreach($programs as $program) --}}
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <h4 class="panel-title">
@@ -32,16 +38,20 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach($program->outcomes->outputs->activities as $activity)
-                                        <tr>
-                                            <td>{{ $activity->name }}</td>
-                                            <td>{{ number_format($activity->budget, 2) }}</td>
-                                            <td>
-                                                <a href="{{ url('/requisitions/create') }}" class="btn btn-primary">
-                                                    {{ __('Apply for Requisition') }}
-                                                </a>
-                                            </td>
-                                        </tr>
+                                    @foreach($program->outcomes as $outcome)
+                                        @foreach($outcome->outputs as $output)
+                                            @foreach($output->activities as $activity)
+                                                <tr>
+                                                    <td>{{ $activity->name }}</td>
+                                                    <td>{{ number_format($activity->budget, 2) }}</td>
+                                                    <td>
+                                                        <a href="{{ url('/requisitions/create') }}" class="btn btn-primary">
+                                                            {{ __('Apply for Requisition') }}
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        @endforeach
                                     @endforeach
                                 </tbody>
                             </table> 
@@ -49,11 +59,11 @@
                         </div>
                     </div>
                 </div>
-                @endforeach
+                {{-- @endforeach --}}
                 </div>
-                </table>
+                {{-- </table> --}}
             @endforeach
-</div>
+        </div>
 
     </div>
 </div>

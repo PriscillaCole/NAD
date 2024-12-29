@@ -9,8 +9,8 @@
         @else
             <!-- @foreach($requisitions as $requisition)
             <p>Project Description</p>
-            <p>Project Name: {{ $requisition->activity->program->name }}</p>
-            <p>Project Description: {{ $requisition->activity->program->description }}</p>
+            <p>Project Name: {{ $requisition->activity->output->outcome->program->name }}</p>
+            <p>Project Description: {{ $requisition->activity->output->outcome->program->description }}</p>
 
             @endforeach -->
             <table class="table table-bordered">
