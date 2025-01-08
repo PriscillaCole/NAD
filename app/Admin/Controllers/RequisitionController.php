@@ -19,6 +19,8 @@ use Encore\Admin\Facades\Admin;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\File;
 
 class RequisitionController extends AdminController
 {
@@ -36,6 +38,7 @@ class RequisitionController extends AdminController
      */
     protected function grid()
     {
+        
         $grid = new Grid(new Requisition());
         $grid->disableBatchActions();
 
@@ -94,11 +97,24 @@ class RequisitionController extends AdminController
         {
             $requisition = Requisition::find($id);
         
-            if ($requisition && $requisition->status == 'approved') 
-            {
-                $downloadLink = route('requisition.download', ['id' => $id]);
-                return "<b><a href='{$downloadLink}' target='_blank'>Download Reports</a></b>";
-                // return '<b><a target="_blank" href="' . $downloadLink . '">Requisition reports</a></b>';
+            if ($requisition && $requisition->status == 'approved') {
+                $token = csrf_token();
+                $downloadLink = admin_url('/requisitions/download/'. $id);
+                return "<b><a href='{$downloadLink}' 
+                          onclick='event.preventDefault(); 
+                                  let form = document.createElement(\"form\"); 
+                                  form.method = \"POST\";
+                                  form.action = \"{$downloadLink}\";
+                                  form.target = \"_blank\";
+                                  let tokenInput = document.createElement(\"input\");
+                                  tokenInput.type = \"hidden\";
+                                  tokenInput.name = \"_token\";
+                                  tokenInput.value = \"{$token}\";
+                                  form.appendChild(tokenInput);
+                                  document.body.appendChild(form);
+                                  form.submit();
+                                  document.body.removeChild(form);'>
+                          Download Reports</a></b>";
             } else
             {          
                 return '<b> No accountability</b>';
@@ -145,7 +161,7 @@ class RequisitionController extends AdminController
 
             $pendingRequisition = Requisition::where('staff_id', $staff_id)
                 ->where('status', 'approved')
-                ->whereDoesntHave('accountabilities') // Check if there's no accountability
+                ->whereDoesntHave('accountability') // Check if there's no accountability
                 ->first();
 
             if ($pendingRequisition) {
@@ -429,6 +445,9 @@ class RequisitionController extends AdminController
     // function to fetch activities under a program
     public function getProgramActivities($id)
     {
+        $user = auth()->user()->id;
+        dd($user);
+
         $program = Program::find($id);
         $activities = $program->outcomes // Get all outcomes for the program
             ->flatMap(function ($outcome) {
@@ -466,15 +485,22 @@ class RequisitionController extends AdminController
 
     public function downloadDocuments($id)
     {
+        // $route = Route::current(); 
+        // dd($route->middleware());
+        if (!auth()->check()) {
+            abort(403, 'Unauthorized');
+        }
         $requisition = Requisition::findOrFail($id);
         
         // Create a temporary directory
         $tempDir = storage_path('app/temp/' . uniqid());
         mkdir($tempDir, 0755, true);
+        $zipPath = null;
         
         try {
+            dd(auth()->check()); 
             // Generate and save requisition form PDF
-            $requisitionPdf = PDF::loadView('pdfs.requisition-form', ['requisition' => $requisition]);
+            $requisitionPdf = PDF::loadView('requisition_request', ['requisition' => $requisition]);
             $requisitionPath = $tempDir . '/requisition_form.pdf';
             $requisitionPdf->save($requisitionPath);
             
@@ -483,8 +509,9 @@ class RequisitionController extends AdminController
             $accountabilityPath = $tempDir . '/accountability_form.pdf';
             $accountabilityPdf->save($accountabilityPath);
             
+            $code= $requisition->code;
             // Create ZIP archive
-            $zipFileName = 'requisition_' . $id . '_documents.zip';
+            $zipFileName = 'requisition_' . $code . '_documents.zip';
             $zipPath = storage_path('app/temp/' . $zipFileName);
             
             $zip = new ZipArchive();
@@ -530,4 +557,6 @@ class RequisitionController extends AdminController
             throw $e;
         }
     }
+
+    
 }

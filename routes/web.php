@@ -1,8 +1,10 @@
 <?php
 
 use App\Admin\Controllers\ProgramController;
+use App\Admin\Controllers\RequisitionController as ControllersRequisitionController;
 use App\Http\Controllers\customProgram;
 use App\Http\Controllers\ProgramsController;
+use App\Http\Controllers\RequisitionController;
 // use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Route;
 
@@ -20,11 +22,15 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('login_page');
-});
+})->name('signin');
 
 
 
 Auth::routes();
+// download all the requisitions related documents
+Route::post('/requisitions/download/{id}', [RequisitionController::class, 'downloadDocuments'])
+// ->middleware(['web', 'auth'])
+->name('requisition.download');
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 Route::post('/upload-staff', [App\Http\Controllers\UploadStaff::class, 'uploadStaff']);
@@ -37,8 +43,7 @@ Route::get('/requisition/{id}', [App\Admin\Controllers\AccountabilityController:
 
 Route::post('/programs/create', [ProgramsController::class, 'store'])->name('programsCreate');
 Route::put('/programs/{program}/edit', [ProgramsController::class, 'update'])->name('programsEdit');
-Route::get('/adminprogram-budgetlines/{id}', [App\Admin\Controllers\RequisitionController::class, 'getAdminbudgetlines'])->name('adminbudgetlines');
-Route::get('/requisition/{id}', [App\Admin\Controllers\AccountabilityController::class, 'getRequisitionItems'])->name('requisition');
+// Route::get('/adminprogram-budgetlines/{id}', [App\Admin\Controllers\RequisitionController::class, 'getAdminbudgetlines'])->name('adminbudgetlines');
 
 // In routes/web.php
 Route::get('/get-activities/{projectId}', [App\Http\Controllers\ReportController::class, 'getActivities']);
@@ -50,5 +55,7 @@ Route::get('/fetch-activities/{id}', [App\Http\Controllers\BudgetController::cla
 Route::get('/download-activities/{id}', [App\Http\Controllers\BudgetController::class, 'downloadExcel'])->name('download.activities');
 
 
-// download all the requisitions related documants
-Route::get('requisition/download/{id}', [App\Admin\Controllers\RequisitionController::class, 'downloadDocuments'])->name('requisition.download');
+// download all the requisitions related documents
+// Route::get('requisitions/download/{id}', [RequisitionController::class, 'downloadDocuments'])
+// ->middleware(['web', 'auth'])
+// ->name('requisition.download');

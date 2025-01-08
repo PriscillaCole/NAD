@@ -356,16 +356,17 @@
         
 
         <!-- check the role of the logged in user -->
-         
-        @if(auth()->user()->roles->isNotEmpty())
-            @foreach(auth()->user()->roles as $role)
-                @if($role->slug == 'finance' || $role->slug == 'director')
-                    <a href="#" id="approveBtn" class="btn btn-approve no-print">Approve</a>
-                    <a href="#" id="rejectBtn" class="btn btn-reject no-print">Reject</a>
-                    <a href="#" id="haltBtn" class="btn btn-halt no-print">Halt</a>
-                    <a href="/requisitions/{{$requisition->id}}/edit" id="amendBtn" class="btn btn-amend no-print">Amend</a>
-                @endif
-            @endforeach
+        @if(auth()->user()!=null)
+            @if(auth()->user()->roles->isNotEmpty())
+                @foreach(auth()->user()->roles as $role)
+                    @if($role->slug == 'finance' || $role->slug == 'director')
+                        <a href="#" id="approveBtn" class="btn btn-approve no-print">Approve</a>
+                        <a href="#" id="rejectBtn" class="btn btn-reject no-print">Reject</a>
+                        <a href="#" id="haltBtn" class="btn btn-halt no-print">Halt</a>
+                        <a href="/requisitions/{{$requisition->id}}/edit" id="amendBtn" class="btn btn-amend no-print">Amend</a>
+                    @endif
+                @endforeach
+            @endif
         @endif
         </div>
 
