@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Accountability;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Encore\Admin\Controllers\AdminController;
@@ -9,8 +10,7 @@ use Encore\Admin\Facades\Admin;
 use App\Models\Program;
 use App\Models\Staff;
 use App\Models\Requisition;
-
-
+use Illuminate\Support\Facades\Log;
 
 class DashboardController extends Controller
 {
@@ -25,11 +25,25 @@ class DashboardController extends Controller
             'halted_requisitions' => Requisition::where('status', 'halted')->count(),
             //get the total amount of money requested in all requisitions
             'total_amount_requested' => Requisition::sum('amount'),
+            'accountabilities' => Accountability::count()
            
         ];
 
         return view('dashboard.requisition_status_cards', ['data' => $data]);
        
+    }
+
+    public static function RequisitionStatuschart()
+    {
+        $total = Requisition::all()->count();
+        $pendingCount = Requisition::where('status', 'pending')->count();
+        $approvedCount = Requisition::where('status', 'approved')->count();
+        $rejectedCount = Requisition::where('status', 'rejected')->count();
+        $ammendedCount = Requisition::where('status', 'amended')->count();
+        $acceptedCount = Requisition::where('status', 'accepted')->count();
+
+        return compact('pendingCount', 'total', 'approvedCount', 'rejectedCount', 'ammendedCount', 'acceptedCount');
+
     }
 
 
@@ -75,16 +89,105 @@ class DashboardController extends Controller
     //function to group the activities by project 
     public static function showProgramsWithActivities()
     {
-        // Fetch all programs with their associated activities
-        // $programs = Program::with('outcomes.outputs.activities')->get(); // Assuming 'activities' relationship exists in the Program model
-        // $program = Program::findOrFail('33');
+        $requisition = Requisition::all()->count();
+        $accountabilities = Accountability::all()->count();
 
-        $programs = Program::with('outcomes')->get();
-        // dd($program->outcomes->outputs);
-        return view('dashboard.programs_activities', compact('programs'));
+        $submitted = ($accountabilities / $requisition) * 100;
+
+        $pending = 100 - $submitted;
+
+        // Accountability status
+        $pendingCount = Accountability::where('status', null)->count();
+        $haltedCount = Accountability::where('status', 'halted')->count();
+        $acceptedCount = Accountability::where('status', 'closed')->count();
+
+        return view('dashboard.Accountability_Submission_Progress', compact('submitted', 'pending', 'pendingCount', 'haltedCount', 'acceptedCount'));
+    }
+    public static function programBudget($programId2 = null){
+        $user = auth()->user();
+            if ($user->isRole('staff')){
+                $programs = Program::where('user_id', $user->id)->get();
+                
+            }else {
+                $programs = Program::all();
+
+            }
+            
+        if ($programId2){
+            $program = Program::findOrFail($programId2);
+            $totalUsed = $program->outcomes()
+                            ->with(['outputs.activities.requisitions.accountability'])
+                            ->get()
+                            ->flatMap(function ($outcome) {
+                                return $outcome->outputs;
+                            })
+                            ->flatMap(function ($output) {
+                                return $output->activities;
+                            })
+                            ->flatMap(function ($activity) {
+                                return $activity->requisitions;
+                            })
+                            ->map(function ($requisition) {         
+                                return $requisition->accountability; 
+                            })
+                            ->filter()                              
+                            ->sum('amount_used');
+                        
+                            // Calculate remaining budget
+                            $remainingBudget = $program->budget - $totalUsed;
+            // $programs = Program::all();
+            $balance = ($remainingBudget / $program->budget) *100;
+            $used = ($totalUsed /$program->budget) *100;
+
+            Log::info([$remainingBudget, $totalUsed]);
+            Log::info([$used, $balance]);
+            return [
+                'data' => [$used, $balance],
+                'programs' => $programs,
+                'budget' => $program->budget
+            ];
+        }else{
+            
+            // Get all programs
+            // $programs = Program::all();
+
+            return [
+                'data' => [],
+                'programs' => $programs
+            ];
+        }
     }
 
-    public static function getBudgetComparisonData($programId2 = null)
+    public static function yearExpense($year = null){
+        if ($year){
+            // $totalAmount = Requisition::where('status', 'approved')->sum('amount');
+
+            $monthlyTotals = Requisition::select(
+                DB::raw("MONTH(created_at) as month"),
+                DB::raw("SUM(amount) as total_amount")
+            )
+            ->whereYear('created_at', $year)
+            ->groupBy(DB::raw("MONTH(created_at)"))
+            ->orderBy('month')
+            ->get()
+            ->pluck('total_amount', 'month') // Converts to key-value array: [month => total_amount]
+            ->toArray();
+
+            Log:: info(['month:'=> $monthlyTotals]);
+
+            return [
+                'fund' => $monthlyTotals
+            ];
+            
+        }else{
+            
+            return [
+                'fund' => [],
+            ];
+        }
+    }
+
+    public static function getBudgetComparisonData($programId = null)
     {
         // Get initial budgets from activities with their hierarchy
         $activitiesQuery = DB::table('activities')
@@ -99,9 +202,17 @@ class DashboardController extends Controller
                 'outcomes.name as outcome_name'
             );
 
+        $user = auth()->user();
+        if ($user->isRole('staff')){
+            $programs = Program::where('user_id', $user->id)->get();
+            
+        }else {
+            $programs = Program::all();
+
+        }
         // Filter by program if provided
-        if ($programId2) {
-            $activitiesQuery->where('programs.id', $programId2);
+        if ($programId) {
+            $activitiesQuery->where('programs.id', $programId);
         
 
         $activities = $activitiesQuery->get();
@@ -116,17 +227,17 @@ class DashboardController extends Controller
             )
             ->groupBy('activities.id');
 
-        if ($programId2) {
+        if ($programId) {
             $accountabilityQuery->join('outputs', 'activities.output_id', '=', 'outputs.id')
                 ->join('outcomes', 'outputs.outcome_id', '=', 'outcomes.id')
                 ->join('programs', 'outcomes.program_id', '=', 'programs.id')
-                ->where('programs.id', $programId2);
+                ->where('programs.id', $programId);
         }
 
         $accountabilities = $accountabilityQuery->get();
 
         // Get all programs
-        $programs = Program::all();
+        // $programs = Program::all();
 
         // Combine data for the chart
         $chartData = $activities->map(function($activity) use ($accountabilities) {
@@ -142,47 +253,93 @@ class DashboardController extends Controller
 
         // dd($chartData);
 
-        return [
-            'chartData' => $chartData,
-            'programs' => $programs
-        ];}
+        return view('dashboard.average_approval_time', compact(
+            'chartData',
+            'programs'
+        ));
+        }
         else{
             // Get all programs
-            $programs = Program::all();
+            // $programs = Program::all();
+            $chartData = [];
 
-            return [
-                'chartData' => [],
-                'programs' => $programs
-            ];
+            return view('dashboard.average_approval_time', compact('chartData', 'programs'));
         }
     }
 
 
     // In DashboardController.php
-    public static function getAverageApprovalTimeData($period = 'month')
+    public static function getAverageApprovalTimeData()
     {
-        $programs = Program::all();
+        // $programs = Program::all();
 
-        // Fetch requisitions with approval times
-        $query = DB::table('requisitions')
-            ->select(DB::raw('DATE_FORMAT(updated_at, "%Y-%m") as period'), DB::raw('AVG(TIMESTAMPDIFF(DAY, created_at, updated_at)) as avg_days'))
-            ->whereNotNull('updated_at')
-            ->groupBy(DB::raw('DATE_FORMAT(updated_at, "%Y-%m")'))
-            ->orderBy(DB::raw('DATE_FORMAT(updated_at, "%Y-%m")'))
-            ->get();
+        // // Fetch requisitions with approval times
+        // $query = DB::table('requisitions')
+        //     ->select(DB::raw('DATE_FORMAT(updated_at, "%Y-%m") as period'), DB::raw('AVG(TIMESTAMPDIFF(DAY, created_at, updated_at)) as avg_days'))
+        //     ->whereNotNull('updated_at')
+        //     ->groupBy(DB::raw('DATE_FORMAT(updated_at, "%Y-%m")'))
+        //     ->orderBy(DB::raw('DATE_FORMAT(updated_at, "%Y-%m")'))
+        //     ->get();
 
-        // Map results to the required format
-        $chartData = $query->map(function($item) {
-            return [
-                'period' => $item->period,
-                'avg_days' => $item->avg_days,
-            ];
-        });
+        // // Map results to the required format
+        // $chartData = $query->map(function($item) {
+        //     return [
+        //         'period' => $item->period,
+        //         'avg_days' => $item->avg_days,
+        //     ];
+        // });
 
-        return [
-            'chartData' => $chartData,
-            'programs' => $programs,
+        // return [
+        //     'chartData' => $chartData,
+        //     'programs' => $programs,
+        // ];
+
+        $treemapData = [
+            [
+                'category' => 'LLF',
+                'value' => 85
+            ],
+            [
+                'category' => 'VRC',
+                'value' => 65
+            ],
+            [
+                'category' => 'G',
+                'value' => 45
+            ],
+            [
+                'category' => 'DRR',
+                'value' => 75
+            ],
+            [
+                'category' => 'DSR',
+                'value' => 55
+            ],
+            [
+                'category' => 'RKY',
+                'value' => 90
+            ],
+            [
+                'category' => 'PTE',
+                'value' => 70
+            ],
+            [
+                'category' => 'APGR',
+                'value' => 80
+            ]
         ];
+
+        // Sample data for bar chart
+        $barChartLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+        $lerData = [100, 95, 90, 85, 80, 85];
+        $rxrData = [80, 85, 75, 70, 65, 70];
+
+        return view('dashboard.average_approval_time', compact(
+            'treemapData',
+            'barChartLabels',
+            'lerData',
+            'rxrData'
+        ));
     }
 
     

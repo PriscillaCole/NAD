@@ -11,14 +11,11 @@ class AdminBudget_lines extends Model
 
     protected $fillable = [
         'name',
-        'unit_cost',
-        'quantity',
-        'frequency',
         'total_cost'
         
     ];
 
-    public function adminPrograms()
+    public function adminActivity()
     {
         return $this->belongsTo(AdminProgram::class);
     }

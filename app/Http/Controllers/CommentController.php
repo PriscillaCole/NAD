@@ -18,14 +18,14 @@ class CommentController extends Controller
         $commented_by = Staff::where('user_id', $logged_in_user->id)->first()->id;
         $validated = $request->validate([
             'action' => 'required|string',
-            'reason' => 'required|string',
+            'reason' => 'string',
             'requisition_id' => 'required|integer'
         ]);
     
         // Store the data
         Comments::create([
             'status' => $validated['action'],
-            'comment' => $validated['reason'],
+            'comment' => $validated['reason']?? null,
             'requisition_id' => $validated['requisition_id'],
             'commented_by' => $commented_by
         ]);

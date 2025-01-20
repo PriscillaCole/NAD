@@ -1,163 +1,118 @@
-<style>
-    .chart-container {
-        width: 100%; /* Ensure container uses full width of its parent */
-        max-width: 400px; /* Set a max width to control size */
-        margin: 0 auto; /* Center the container */
-    }
-
-    .card {
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-        margin-bottom: 30px;
-        padding: 20px;
-        transition: all 0.3s ease-in-out;
-        background-color: #fff;
-    }
-
-    .card:hover {
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-        transform: translateY(-5px);
-    }
-
-    .card-header {
-        border-bottom: 1px solid #e0e0e0;
-        padding-bottom: 10px;
-        margin-bottom: 10px;
-    }
-
-    .card-title {
-        font-size: 1.8rem;
-        font-weight: 600;
-        color: #333;
-    }
-
-    /* .card-body h4 {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: #007bff;
-    } */
-
-    .text-muted {
-        color: #6c757d !important;
-    }
-
-    .text-danger {
-        color: #dc3545 !important;
-    }
-
-    .text-success {
-        color: #28a745 !important;
-    }
-
-    .card p a {
-        color: #007bff;
-        font-weight: 500;
-        text-decoration: none;
-    }
-
-    .card p a:hover {
-        text-decoration: underline;
-    }
-
-    .icon {
-        font-size: 1.5rem;
-        vertical-align: middle;
-        margin-right: 8px;
-    }
-
-    .me-1 {
-        margin-right: 0.25rem !important;
-    }
-
-    .me-2 {
-        margin-right: 0.5rem !important;
-    }
-    .totals{
-        /* center content */
-        display: flex; 
-        justify-content: center;  
-
-    }
-
-    /* Responsive adjustments */
-    @media (max-width: 768px) {
-        .col-lg-3 {
-            width: 100%;
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .kpi-card {
+            padding: 15px;
+            border-radius: 8px;
             margin-bottom: 20px;
         }
-    }
-</style>
+        
+        .kpi-value {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .kpi-label {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .kpi-icon {
+            float: right;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .pink-bg {
+            background-color: #FFE6E6;
+        }
+        
+        .orange-bg {
+            background-color: #FFF3E0;
+        }
+        
+        .green-bg {
+            background-color: #E8F5E9;
+        }
+        
+        .purple-bg {
+            background-color: #F3E5F5;
+        }
 
-<!-- ============================================================== -->
-<!-- Start right Content here -->
-<!-- ============================================================== -->
-<div class="row">
-    <div class="col-lg-4 col-md-6 col-sm-6">
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title totals">{{__('Requisitions Submitted')}}</h3>
+        .dropdown {
+            margin-bottom: 20px;
+        }
+
+        .panel {
+            border: none;
+            box-shadow: none;
+        }
+
+        .panel-heading {
+            background-color: white !important;
+            border-bottom: none;
+            padding-left: 2px 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title bold">Key Performance Indicators</h3>
+                
             </div>
-            <div class="card-body">
-                <h4 class="totals">{{ $data['total_requisitions'] }}</h4>
-                <p class="text-muted mb-0 totals">
-                    <span class="text-danger fw-bold font-size-12 me-2">
-                        <i class="glyphicon glyphicon-pencil icon"></i>
-                    </span>
-                    <a href="{{ admin_url('/requisitions')}}">{{__('View Details')}}</a>
-                </p>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="kpi-card pink-bg">
+                            <div class="kpi-icon">
+                                <i class="glyphicon glyphicon-list-alt"></i>
+                            </div>
+                            <div class="kpi-value">{{ $data['total_requisitions'] }}</div>
+                            <div class="kpi-label">Requisitions</div>
+                        </div>
+                    </div>
+                    <div class=" col-lg-3 col-md-3">
+                        <div class="kpi-card orange-bg">
+                            <div class="kpi-icon">
+                                <i class="glyphicon glyphicon-usd"></i>
+                            </div>
+                            <div class="kpi-value">${{ $data['total_amount_requested'] }}</div>
+                            <div class="kpi-label">Total Funds Disbursed</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="kpi-card green-bg">
+                            <div class="kpi-icon">
+                                <i class="glyphicon glyphicon-ok"></i>
+                            </div>
+                            <div class="kpi-value">{{ $data['approved_requisitions'] }}</div>
+                            <div class="kpi-label">Requisitions Approved</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="kpi-card purple-bg">
+                            <div class="kpi-icon">
+                                <i class="glyphicon glyphicon-file"></i>
+                            </div>
+                            <div class="kpi-value">{{ $data['accountabilities'] }}</div>
+                            <div class="kpi-label">Accountabilities</div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-
-    <div class="col-lg-4 col-md-6 col-sm-6">
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title totals">{{__('Accepted Requisitions')}}</h3>
-            </div>
-            <div class="card-body">
-                <h4 class="totals">{{ $data['approved_requisitions'] }}</h4>
-                <p class="text-muted mb-0 totals">
-                    <span class="text-success fw-bold font-size-12 me-2">
-                        <i class="glyphicon glyphicon-check icon"></i>
-                    </span>
-                    <a href="{{ admin_url('/requisitions')}}">{{__('View Details')}}</a>
-                </p>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-lg-4 col-md-6 col-sm-6">
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title totals">{{__('Rejected Requisitions')}}</h3>
-            </div>
-            <div class="card-body">
-                <h4 class="totals">{{ $data['rejected_requisitions'] }}</h4>
-                <p class="text-muted mb-0 totals">
-                    <span class="text-danger fw-bold font-size-12 me-2">
-                        <i class="glyphicon glyphicon-remove-circle icon"></i>
-                    </span>
-                    <a href="{{ admin_url('/requisitions')}}">{{__('View Details')}}</a>
-                </p>
-            </div>
-        </div>
-    </div>
-
-    {{-- <div class="col-lg-3 col-md-6 col-sm-6">
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title totals">{{__('Total Amount from Requisitions')}}</h3>
-            </div>
-            <div class="card-body">
-                <h4 class="totals">{{ $data['total_amount_requested'] }} Ugx</h4>
-                <p class="text-muted mb-0 totals">
-                    <span class="text-success fw-bold font-size-12 me-2">
-                        <i class="glyphicon glyphicon-pushpin icon"></i>
-                    </span>
-                    <a href="{{ admin_url('/requisitions')}}">{{__('View Details')}}</a>
-                </p>
-            </div>
-        </div>
-    </div> --}}
-</div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</body>
+</html>

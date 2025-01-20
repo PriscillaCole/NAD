@@ -184,7 +184,6 @@ class BudgetController extends AdminController
             return view('budgets.create', compact('programs'));
         }
         
-
         return $form;
     }
 

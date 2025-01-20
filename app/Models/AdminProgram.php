@@ -17,9 +17,9 @@ class AdminProgram extends Model
         
     ];
 
-    public function adminBudgetlines()
+    public function adminActivities()
     {
-        return $this->hasMany(AdminBudget_lines::class);
+        return $this->hasMany(AdminActivity::class);
     }
 
 

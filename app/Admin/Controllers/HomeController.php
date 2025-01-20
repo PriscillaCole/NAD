@@ -16,8 +16,11 @@ class HomeController extends Controller
         // Fetch the programId from the request (this assumes you're passing it via query string, i.e., ?programId=1)
         $programId = request()->query('programId');
         // Fetch data for the chart
+        $year = request()->query('year');
         $programId2 = request()->query('programId2');
-        $data = DashboardController::getBudgetComparisonData($programId2);
+        $data = DashboardController::programBudget($programId2);
+        $fund = DashboardController::yearExpense($year);
+        $status = DashboardController::RequisitionStatuschart();
 
         $period = request()->query('period', 'month'); // Default to 'month' if not specified
         $chartData = DashboardController::getAverageApprovalTimeData($period);
@@ -28,26 +31,48 @@ class HomeController extends Controller
                     $column->append(DashboardController::getRequisitionStatus());
                 });
             })
-            ->row(function (Row $row) use ($programId, $data, $chartData) {
-                $row->column(6, function (Column $column) use ($programId) {
+            ->row(function (Row $row) use ($data, $status) {
+                $row->column(12, function (Column $column) use ($status) {
                     // Pass the programId to the getActivityRequisitionData function
-                    $column->append(DashboardController::getActivityRequisitionData($programId));
+                    $column->append(view('dashboard.fund_request_status_overview', $status));
                 });
-                $row->column(6, function (Column $column) use ($data) {
-                    $column->append(view('dashboard.budget_comparison_chart', $data));
+                
+               
+            })
+            ->row(function (Row $row) use ($programId, $data, $fund) {
+                $row->column(6, function (Column $column) use ($data, $fund) {
+                        $column->append(view('dashboard.fund_disbursement_summary', $data, $fund));
+                    });
+                // $row->column(6, function (Column $column) use ($fund) {
+                //     $column->append(view('dashboard.funds_over_time', $fund));
+                // });
+                
+                
+            })
+            ->row(function (Row $row) use ($data, $chartData) {
+                $row->column(12, function (Column $column) {
+                    $column->append(DashboardController::showProgramsWithActivities());
                 });
-                // $row->column(6, function (Column $column) {
-                //     $column->append(DashboardController::showProgramsWithActivities());
+                
+            })
+            ->row(function (Row $row) use ($data, $programId2) {
+                $row->column(12, function (Column $column) use ($programId2) {
+                    $column->append(DashboardController::getBudgetComparisonData($programId2));
+                });
+        
+                // $row->column(6, function (Column $column) use ($data) {
+                //     $column->append(view('dashboard.budget_comparison_chart', $data));
+                // });
+                // $row->column(6, function (Column $column) use ($chartData) {
+                //     $column->append(view('dashboard.average_approval_time', $chartData));
                 // });
             });
-            // ->row(function (Row $row) use ($data, $chartData) {
-            //     $row->column(6, function (Column $column) use ($data) {
-            //         $column->append(view('dashboard.budget_comparison_chart', $data));
-            //     });
-            //     $row->column(6, function (Column $column) use ($chartData) {
-            //         $column->append(view('dashboard.average_approval_time', $chartData));
-            //     });
-            // });
+    }
+
+    private function getHeatmapColor($value) {
+        // Convert value to a color on a scale from yellow to green
+        $hue = 60 + ($value * 60); // 60 is yellow, 120 is green
+        return "hsl($hue, 75%, 60%)";
     }
     
 }

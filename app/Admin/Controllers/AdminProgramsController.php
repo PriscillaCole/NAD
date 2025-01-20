@@ -42,16 +42,8 @@ class AdminProgramsController extends AdminController
             $filter->like('name', 'Name')->placeholder('Search Name');
         });
 
-        if($user->isRole('finance', 'staff')){
-            $staff_id = Staff::where('user_id', $user->id)->first()->id;
-        
-            $grid->model()->where('staff_id', $staff_id);
-            $grid->column('id', __('Id'));
-        }
         $grid->column('name', __('Name'));
         
-        
-
         // change function for edit action
         $grid->actions(function ($actions) {
             // Disable delete button
@@ -63,6 +55,7 @@ class AdminProgramsController extends AdminController
             return Staff::find($user_id)->name;
         });
         $grid->column('description', __('Description'));
+        $grid->column('budget', __('Budget'));
         $grid->column('created_at', __('Created at'))->display(function ($created_at) {
             //return human readable format
             return (Carbon::parse($created_at)->diffForHumans());
@@ -78,35 +71,13 @@ class AdminProgramsController extends AdminController
      * @return Show
      */
     protected function detail($id)
-{
-    $show = new Show(AdminProgram::findOrFail($id));
+    {
+        $show = new Show(AdminProgram::findOrFail($id));
+        $program = AdminProgram::findOrFail($id);
 
-    // Display the Admin Program details
-    // $show->field('id', __('ID'));
-    $show->field('name', __('Name'));
-    $show->field('description', __('Description'));
-    $show->field('budget', __('Budget'));
-    $show->field('user_id', __('Created by'))->as(function ($userId) {
-        $staff = Staff::find($userId);
-        return $staff ? $staff->name : 'N/A'; // Assuming `Staff` has a `name` attribute
-    });
-
-    // Display related budget lines
-    $show->adminBudgetlines('Budget Lines', function ($budgetLine) {
-        $budgetLine->resource('/admin-budgetlines');
+        return view('adminbudgets.show', compact('program'));
         
-        $budgetLine->name('Item Name');
-        $budgetLine->unit_cost(__('Unit Cost'));
-        $budgetLine->quantity( __('Quantity'));
-        $budgetLine->frequency( __('Frequency'));
-        $budgetLine->total_cost( __('Total Cost'));
-
-        $budgetLine->disableActions();
-    });
-
-    return $show;
-}
-
+    }
 
     /**
      * Make a form builder.
@@ -115,29 +86,29 @@ class AdminProgramsController extends AdminController
      */
     protected function form()
     {
-        $form= new Form(new AdminProgram());
+        $form = new Form(new Program());
        
-        $user = auth()->user();
-
-        $staff_id = Staff::where('user_id', $user->id)->first()->id;
+        // redirect to the create view
+        if ($form->isCreating()){
+            $user = auth()->user()->id;
+            $programs = AdminProgram::get();
+            
+            return view('adminbudgets.create', compact('programs', 'user'));
+        }
         
 
-        $form->text('name', __('Name'));
-        $form->textarea('description');
-        $form->text('budget');
-        $form->hidden('user_id')->default($staff_id);
-
-
-        $form->hasMany('adminBudgetlines', 'Items', function (Form\NestedForm $form) {
-            $form->text('name');
-            $form->text('unit_cost');
-            $form->text('quantity');
-            $form->text('frequency');
-            $form->text('total_cost');
-           
-        });
-
         return $form;
+    }
+
+    public function edit($id, Content $content)
+    {
+        // Fetch the program using the provided ID
+        $adminprogram = AdminProgram::findOrFail($id);
+
+        return $content
+            ->title('Edit Budget') // Page title
+            ->description('Edit the Admin program details') // Page description
+            ->body(view('adminbudgets.edit', compact('adminprogram'))); // Custom view for editing
     }
 
 }

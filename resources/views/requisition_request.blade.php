@@ -143,10 +143,12 @@
         <label >Concept note : <a href="{{ asset('storage/'.$requisition->concept_note) }}" download onclick="forceDownload(event, '{{ asset('storage/' . $requisition->concept_note) }}')">Download Concept Note</a></label>
                 <div class="field">
                     <label for="status">Status</label>
-                    @if ($requisition->status == null)
+                    @if ($requisition->status == 'pending')
                         <span class="label label-warning">Pending</span>
                     @elseif ($requisition->status == 'approved')
                         <span class="label label-success">Approved</span>
+                    @elseif ($requisition->status == 'accepted')
+                        <span class="label label-primary">Accepted</span>
                     @elseif ($requisition->status == 'rejected')
                         <span class="label label-danger">Rejected</span>
                     @elseif ($requisition->status == 'amended')
@@ -359,12 +361,18 @@
         @if(auth()->user()!=null)
             @if(auth()->user()->roles->isNotEmpty())
                 @foreach(auth()->user()->roles as $role)
-                    @if($role->slug == 'finance' || $role->slug == 'director')
+                    @if($role->slug == 'finance' )
+                        <a href="#" id="acceptBtn" class="btn btn-accept no-print">Accept</a>
+                        <a href="#" id="rejectBtn" class="btn btn-reject no-print">Reject</a>
+                        <a href="#" id="haltBtn" class="btn btn-halt no-print">Halt</a>
+                        <a href="/requisitions/{{$requisition->id}}/edit" id="amendBtn" class="btn btn-amend no-print">Amend</a>
+                    @elseif($role->slug == 'director' && $requisition->status == 'accepted')
                         <a href="#" id="approveBtn" class="btn btn-approve no-print">Approve</a>
                         <a href="#" id="rejectBtn" class="btn btn-reject no-print">Reject</a>
                         <a href="#" id="haltBtn" class="btn btn-halt no-print">Halt</a>
                         <a href="/requisitions/{{$requisition->id}}/edit" id="amendBtn" class="btn btn-amend no-print">Amend</a>
                     @endif
+                        
                 @endforeach
             @endif
         @endif
@@ -374,39 +382,47 @@
         <div id="reasonModal" class="modal">
             <div class="modal-content">
                 <span class="close">&times;</span>
-                <h3>Enter Reason</h3>
+                <h3>Enter Comment</h3>
                 <form id="reasonForm">
                     <textarea id="reason" rows="4" style="width: 100%;" placeholder="Enter reason here..."></textarea>
                     <br><br>
                     <button type="button" id="submitReason" class="btn btn-approve">
-    <span id="spinner" class="spinner" style="display: none;">
-        <i class="fas fa-spinner fa-spin"></i> <!-- Font Awesome Spinner Icon -->
-            </span>
-            Submit
-        </button>
+                        <span id="spinner" class="spinner" style="display: none;">
+                            <i class="fas fa-spinner fa-spin"></i> <!-- Font Awesome Spinner Icon -->
+                        </span>
+                        Submit
+                    </button>
                 </form>
             </div>
         </div>
-
-      
     </div>
 
     <script>
         // Modal functionality
         var modal = document.getElementById("reasonModal");
+        // var modal = document.getElementByClassName("modal");
         var closeBtn = document.getElementsByClassName("close")[0];
+        
         var approveBtn = document.getElementById("approveBtn");
+        var acceptBtn = document.getElementById("acceptBtn");
         var rejectBtn = document.getElementById("rejectBtn");
         var haltBtn = document.getElementById("haltBtn");
         var submitReason = document.getElementById("submitReason");
         var reasonInput = document.getElementById("reason");
 
-        approveBtn.onclick = function() {
-            modal.style.display = "block";
-            submitReason.onclick = function() {
-                sendReason('approved');
+        if (approveBtn) {
+            approveBtn.onclick = function() {
+                saveAccept('approved');
+            }
+        } else {
+            acceptBtn.onclick = function() {
+                //modal.style.display = "block";
+                //submitReason.onclick = function() {
+                    saveAccept('accepted');
+                // }
             }
         }
+        
 
         rejectBtn.onclick = function() {
             modal.style.display = "block";
@@ -461,69 +477,102 @@
         }
 
         function sendReason(action) {
-    var reason = reasonInput.value;
-    var submitButton = document.getElementById('submitReason'); // Select the submit button
-    var spinner = document.getElementById('spinner'); // Select the spinner
+            var reason = reasonInput.value;
+            var submitButton = document.getElementById('submitReason'); // Select the submit button
+            var spinner = document.getElementById('spinner'); // Select the spinner
 
-    if (reason.trim() === '') {
-        toastr.error('Please enter a reason.', 'Error'); // Use Toastr for error message
-        return;
-    }
+            if (reason.trim() === '') {
+                toastr.error('Please enter a reason.', 'Error'); // Use Toastr for error message
+                return;
+            }
 
-    // Disable the submit button and show the spinner
-    submitButton.disabled = true;
-    spinner.style.display = 'inline-block'; // Show spinner
-    submitButton.innerHTML = 'Submitting...'; // Show loading text
+            // Disable the submit button and show the spinner
+            submitButton.disabled = true;
+            spinner.style.display = 'inline-block'; // Show spinner
+            submitButton.innerHTML = 'Submitting...'; // Show loading text
 
-    // Assuming you have the requisition ID available
-    var requisitionId = '{{ $requisition->id }}'; // Ensure this is correctly set
+            // Assuming you have the requisition ID available
+            var requisitionId = '{{ $requisition->id }}'; // Ensure this is correctly set
 
-    // Prepare the data to be sent
-    var data = {
-        action: action,
-        reason: reason,
-        requisition_id: requisitionId
-    };
+            // Prepare the data to be sent
+            var data = {
+                action: action,
+                reason: reason,
+                requisition_id: requisitionId
+            };
 
-    console.log(data);
-    // Perform the AJAX request to send data to the server
-    fetch('/comments', { // Adjust the URL to your server endpoint
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}' // CSRF token for Laravel
-        },
-        body: JSON.stringify(data)
-    })
-    .then(response => {
-        if (!response.ok) {
-            // If the response status is not OK, throw an error
-            return response.text().then(text => { throw new Error(text); });
+            console.log(data);
+            // Perform the AJAX request to send data to the server
+            fetch('/comments', { // Adjust the URL to your server endpoint
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}' // CSRF token for Laravel
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    // If the response status is not OK, throw an error
+                    return response.text().then(text => { throw new Error(text); });
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Success:', data);
+                toastr.success('Your decision has been recorded.', 'Success'); // Show success message
+                modal.style.display = "none"; // Close the modal on success
+
+                // Reset button state
+                submitButton.disabled = false; 
+                spinner.style.display = 'none'; // Hide spinner
+                submitButton.innerHTML = 'Submit'; // Reset the button text
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                toastr.error('There was an error recording your decision.', 'Error'); // Show error message
+
+                // Reset button state on error
+                submitButton.disabled = false;
+                spinner.style.display = 'none'; // Hide spinner
+                submitButton.innerHTML = 'Submit'; // Reset the button text
+            });
         }
-        return response.json();
-    })
-    .then(data => {
-        console.log('Success:', data);
-        toastr.success('Your decision has been recorded.', 'Success'); // Show success message
-        modal.style.display = "none"; // Close the modal on success
 
-        // Reset button state
-        submitButton.disabled = false; 
-        spinner.style.display = 'none'; // Hide spinner
-        submitButton.innerHTML = 'Submit'; // Reset the button text
-    })
-    .catch((error) => {
-        console.error('Error:', error);
-        toastr.error('There was an error recording your decision.', 'Error'); // Show error message
+        function saveAccept(action) {
+            var requisitionId = '{{ $requisition->id }}'; // Ensure it's properly set in Blade
 
-        // Reset button state on error
-        submitButton.disabled = false;
-        spinner.style.display = 'none'; // Hide spinner
-        submitButton.innerHTML = 'Submit'; // Reset the button text
-    });
-}
+            var data = {
+                action: action,
+                requisition_id: requisitionId
+            };
 
+            console.log("Sending data:", data);
+
+            fetch('/comments', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => { throw new Error(text); });
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Success:', data);
+                toastr.success('Your decision has been recorded.', 'Success');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                toastr.error('There was an error recording your decision.', 'Error');
+            });
+        }
 
     </script>
-</body>
-</html>
+    </body>
+    </html>

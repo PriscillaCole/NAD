@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\RegistrationConfirmation;
 
 class Staff extends Model
 {
@@ -65,7 +67,18 @@ class Staff extends Model
         parent::boot();
 
         static::created(function ($model) {
-           
+
+            $email = $model->email;
+            $password = $model->staff_number;
+            $username = $model->username;
+            try {
+                Mail::to($email)->send(new RegistrationConfirmation($email, $password, $username));
+            } catch (\Exception $e) {
+                // Handle the exception (e.g., log the error or send another notification)
+                return "Email sending failed: " . $e->getMessage();
+            }
+    
+            return "Email sent successfully."; 
         });
         
         static::creating(function ($model) {

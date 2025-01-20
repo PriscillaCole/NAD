@@ -362,7 +362,14 @@
             const unitCost = parseFloat(unitCostInput.value) || 0;
             const quantity = parseFloat(quantityInput.value) || 0;
             const frequency = parseFloat(frequencyInput.value) || 0;
-            budgetInput.value = unitCost * quantity * frequency;
+            if (validateBudgetLine(budgetLineId, activityId)) {
+                 budgetInput.value = unitCost * quantity * frequency;
+            }
+            
+            // if (validateBudgetLine(budgetLineId, activityId)) {
+            //     validateActivityBudget(activityId, outputId);
+            //     validateOutputBudget(outputId, outcomeId);
+            // }
         }
     
         unitCostInput.addEventListener('input', recalculateBudget);
@@ -389,3 +396,82 @@
     function deleteBudgetLine(budgetLineId) {
         document.getElementById(`budget-line-${budgetLineId}`).remove();
     }
+
+    function calculateActivityTotal(activityId) {
+        const budgetLinesContainer = document.getElementById(`budget-lines-${activityId}`);
+        const budgetInputs = budgetLinesContainer.querySelectorAll('.budget');
+        let total = 0;
+        budgetInputs.forEach(input => {
+            total += parseFloat(input.value) || 0;
+        });
+        return total;
+    }
+
+    // Function to calculate total budget for activities in an output
+    function calculateOutputTotal(outputId) {
+        const activitiesContainer = document.getElementById(`activities-${outputId}`);
+        const budgetInputs = activitiesContainer.querySelectorAll('input[type="number"][name*="[budget]"]');
+        let total = 0;
+        budgetInputs.forEach(input => {
+            total += parseFloat(input.value) || 0;
+        });
+        return total;
+    }
+
+    // Function to calculate total budget for outputs in an outcome
+    function calculateOutcomeTotal(outcomeId) {
+        const outputsContainer = document.getElementById(`outputs-${outcomeId}`);
+        const budgetInputs = outputsContainer.querySelectorAll('input[type="number"][name*="[budget]"]');
+        let total = 0;
+        budgetInputs.forEach(input => {
+            total += parseFloat(input.value) || 0;
+        });
+        return total;
+    }
+
+    // Validation function for budget line
+function validateBudgetLine(budgetLineId, activityId) {
+    const budgetLineInput = document.getElementById(`budget-${budgetLineId}`);
+    const activityBudgetInput = document.querySelector(`input[name*="[activities][${activityId}][budget]"]`);
+    const budgetLineValue = parseFloat(budgetLineInput.value) || 0;
+    const activityBudgetValue = parseFloat(activityBudgetInput.value) || 0;
+    
+    if (budgetLineValue > activityBudgetValue) {
+        alert('Budget line amount cannot exceed activity budget');
+        budgetLineInput.value = activityBudgetValue;
+        return false;
+    }
+    return true;
+}
+
+// Validation function for activity
+function validateActivityBudget(activityId, outputId) {
+    const activityBudgetInput = document.querySelector(`input[name*="[activities][${activityId}][budget]"]`);
+    const outputBudgetInput = document.querySelector(`input[name*="[outputs][${outputId}][budget]"]`);
+    const activityTotal = calculateActivityTotal(activityId);
+    const outputBudgetValue = parseFloat(outputBudgetInput.value) || 0;
+    
+    if (activityTotal > outputBudgetValue) {
+        alert('Activity budget cannot exceed output budget');
+        activityBudgetInput.value = outputBudgetValue;
+        return false;
+    }
+    activityBudgetInput.value = activityTotal;
+    return true;
+}
+
+// Validation function for output
+function validateOutputBudget(outputId, outcomeId) {
+    const outputBudgetInput = document.querySelector(`input[name*="[outputs][${outputId}][budget]"]`);
+    const outcomeBudgetInput = document.querySelector(`input[name*="outcomes[${outcomeId}][budget]"]`);
+    const outputTotal = calculateOutputTotal(outputId);
+    const outcomeBudgetValue = parseFloat(outcomeBudgetInput.value) || 0;
+    
+    if (outputTotal > outcomeBudgetValue) {
+        alert('Output budget cannot exceed outcome budget');
+        outputBudgetInput.value = outcomeBudgetValue;
+        return false;
+    }
+    outputBudgetInput.value = outputTotal;
+    return true;
+}

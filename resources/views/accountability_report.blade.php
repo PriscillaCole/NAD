@@ -114,6 +114,43 @@
         .print-button:hover {
             background-color: #0056b3;
         }
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 1; 
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto; 
+            background-color: rgb(0,0,0); 
+            background-color: rgba(0,0,0,0.4); 
+            padding-top: 60px;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%; 
+            max-width: 500px;
+        }
+        .btn-approve {
+            background-color: #28a745;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+      
         @media print {
             .print-button {
                 display: none;
@@ -141,8 +178,8 @@
                         <span class="label label-warning">Pending</span>
                     @elseif ($accountability->status == 'closed')
                         <span class="label label-success">Closed</span>
-                    @elseif ($accountability->status == 'rejected')
-                        <span class="label label-danger">Rejected</span>
+                    @elseif ($accountability->status == 'halted')
+                        <span class="label label-danger">Halted</span>
                     @elseif ($accountability->status == 'amended')
                         <span class="label label-info">Amended</span>
                     @else
@@ -229,7 +266,7 @@
         </div>
 
         <div class="section">
-    <h2>Requisition Item Receipts</h2>
+        <h2>Requisition Item Receipts</h2>
         <table>
             <thead>
                 <tr>
@@ -255,9 +292,23 @@
                             @if($item->requisitionItemReceipts->isNotEmpty())
                                 <ul class="file-list">
                                     @foreach($item->requisitionItemReceipts as $receipt)
+                                        @if ($receipt->Invoice)
+                                            <li>
+                                                <a href="{{ asset('storage/'.$receipt->Invoice) }}" target="_blank">Invoice {{ $loop->iteration }}</a>
+                                            </li>
+                                        @endif
+                                        @if ($receipt->payment_proof)
+                                        <li>
+                                            <a href="{{ asset('storage/'.$receipt->payment_proof) }}" target="_blank">Proof of Payment {{ $loop->iteration }}</a>
+                                        </li>
+                                        @endif
+                                        @if ($receipt->receipt_file)
                                         <li>
                                             <a href="{{ asset('storage/'.$receipt->receipt_file) }}" target="_blank">Receipt {{ $loop->iteration }}</a>
+                                       
                                         </li>
+                                        @endif
+                                        
                                     @endforeach
                                 </ul>
                             @else
@@ -295,6 +346,7 @@
             <div class="field">
                 <label for="created_at">Created At</label>
                 <p id="created_at" class="timestamp">{{ $accountability->created_at }}</p>
+                @if ($accountability->status == 'closed');
                 <label for="closed by">Closed by</label>
                 <p id="closed_by" class="timestamp">
                     @if ($accountability->staff)
@@ -303,10 +355,12 @@
                         No review yet
                     @endif
                 </p>
+
                 <!-- add signature -->
                 @if ($accountability->staff)
                 <label for="signature">Signature</label>
                 <img src="{{ asset('storage/'.$accountability->signature) }}" alt="signature" style="width: 200px; height: 100px;">
+                @endif
                 @endif
                 
             </div>
@@ -360,8 +414,12 @@
             <!-- check if the role is finance officer -->
             @if ($user->isRole('finance'))
             @if ($accountability->status != 'closed')
-                <a href="{{ admin_url('accountabilities/'.$accountability->id.'/edit') }}" class="btn btn-primary">
+
+                <a href="#" id="closeBtn" class="btn btn-primary no-print">
                     Close Requisition
+                </a>
+                <a href="#"id="haltBtn" class="btn btn-danger">
+                    Halt Requisition
                 </a>
             @else
                 <button class="btn btn-primary btn-disabled" disabled>
@@ -374,6 +432,154 @@
         <div class="footer">
             <p>Generated by ReQTrack System</p>
         </div>
+        <div id="reasonModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h3>Enter Comment</h3>
+                <form id="reasonForm">
+                    <textarea id="reason" rows="4" style="width: 100%;" placeholder="Enter reason here..."></textarea>
+                    <br><br>
+                    <button type="button" id="submitReason" class="btn btn-approve">
+                        <span id="spinner" class="spinner" style="display: none;">
+                            <i class="fas fa-spinner fa-spin"></i> <!-- Font Awesome Spinner Icon -->
+                        </span>
+                        Submit
+                    </button>
+                </form>
+            </div>
+        </div>
     </div>
+
+    <script>
+        // Modal functionality
+        var modal = document.getElementById("reasonModal");
+        var cross = document.getElementsByClassName("close")[0];
+        var closeBtn = document.getElementById("closeBtn");
+        
+        var haltBtn = document.getElementById("haltBtn");
+        var submitReason = document.getElementById("submitReason");
+        var reasonInput = document.getElementById("reason");
+
+        closeBtn.addEventListener('click', function(e) {
+            saveAccept('closed');
+            
+        });
+
+        cross.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        haltBtn.onclick = function() {
+            modal.style.display = "block";
+            submitReason.onclick = function() {
+                sendReason('halted');
+            }
+        }
+
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        function sendReason(action) {
+            var reason = reasonInput.value;
+            var submitButton = document.getElementById('submitReason'); // Select the submit button
+            var spinner = document.getElementById('spinner'); // Select the spinner
+
+            if (reason.trim() === '') {
+                toastr.error('Please enter a reason.', 'Error'); // Use Toastr for error message
+                return;
+            }
+
+            // Disable the submit button and show the spinner
+            submitButton.disabled = true;
+            spinner.style.display = 'inline-block'; // Show spinner
+            submitButton.innerHTML = 'Submitting...'; // Show loading text
+
+            // Assuming you have the requisition ID available
+            var accountabilityId = '{{ $accountability->id }}'; // Ensure this is correctly set
+
+            // Prepare the data to be sent
+            var data = {
+                status: action,
+                accountability: accountabilityId,
+                remarks: reason
+            };
+
+            console.log(data);
+            // Perform the AJAX request to send data to the server
+            fetch('/approve/edit', { // Adjust the URL to your server endpoint
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}' // CSRF token for Laravel
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    // If the response status is not OK, throw an error
+                    return response.text().then(text => { throw new Error(text); });
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Success:', data);
+                toastr.success('Your decision has been recorded.', 'Success'); // Show success message
+                modal.style.display = "none"; // Close the modal on success
+
+                // Reset button state
+                submitButton.disabled = false; 
+                spinner.style.display = 'none'; // Hide spinner
+                submitButton.innerHTML = 'Submit'; // Reset the button text
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                toastr.error('There was an error recording your decision.', 'Error'); // Show error message
+
+                // Reset button state on error
+                submitButton.disabled = false;
+                spinner.style.display = 'none'; // Hide spinner
+                submitButton.innerHTML = 'Submit'; // Reset the button text
+            });
+        }
+
+        function saveAccept(action) {
+            var accountabilityId = '{{ $accountability->id }}'; // Ensure this is correctly set
+
+            var data = {
+                status: action,
+                accountability: accountabilityId
+                // remarks: requisitionId
+            };
+
+            console.log("Sending data:", data);
+
+            fetch('/approve/edit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => { throw new Error(text); });
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Success:', data);
+                toastr.success('Your decision has been recorded.', 'Success');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                toastr.error('There was an error recording your decision.', 'Error');
+            });
+        }
+
+    </script>
 </body>
 </html>

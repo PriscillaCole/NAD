@@ -25,7 +25,7 @@
       </style>
    </head>
    <body>
-   <div class="container-fluid ">
+    <div class="container-fluid ">
         <div class="container ">
             <div class="row ">
             @if(session('success'))
@@ -106,8 +106,8 @@
             </div>
         </div>
     </div>
-      <script src="{{asset('login-template')}}/js/jquery.min.js"></script>
-      <script src="{{asset('login-template')}}/js/popper.js"></script>
-      <script src="{{asset('login-template')}}/js/bootstrap.min.js"></script>
-      <script src="{{asset('login-template')}}/js/main.js"></script>
+    <script src="{{asset('login-template')}}/js/jquery.min.js"></script>
+    <script src="{{asset('login-template')}}/js/popper.js"></script>
+    <script src="{{asset('login-template')}}/js/bootstrap.min.js"></script>
+    <script src="{{asset('login-template')}}/js/main.js"></script>
    </body>

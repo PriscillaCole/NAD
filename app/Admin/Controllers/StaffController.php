@@ -88,30 +88,28 @@ class StaffController extends AdminController
     {
         $form = new Form(new Staff());
 
-        $form->text('staff_number', __('Staff number'))->attribute('number', 'true');
-        $form->text('nin_number', __('Nin number'));
-        $form->text('name', __('Name'));
-        $form->date('date_of_birth', __('Date of birth'))->default(date('Y-m-d'));
-        $form->text('home_district', __('Home district'));
-        $form->text('title', __('Title'));
-        $form->date('contract_start', __('Contract start date'))->default(date('Y-m-d'));
-        $form->date('contract_end', __('Contract end date'))->default(date('Y-m-d'));
-        $form->text('project', __('Project'));
-        $form->text('region', __('Region'));
-        $form->text('duty_station', __('Duty station'));
-        $form->text('line_manager', __('Line manager'));
-        $form->text('telephone', __('Telephone'));
+        $form->text('staff_number', __('Staff number'))->attribute('number', 'true')->required();
+        $form->text('nin_number', __('Nin number'))->required();
+        $form->text('name', __('Name'))->required();
+        $form->text('telephone', __('Telephone'))->required();
         // make sure that the email address is unique
         $form->email('email', __('Email'))->rules(function ($form) {
             // Check if the form is being created or updated
             return $form->model()->exists ? 'nullable|email' : 'required|email|unique:staff,email';
-        });
-        
-        $form->text('bank', __('Bank'));
-        $form->text('bank_account', __('Bank account'));
+        })->required();
+        $form->date('date_of_birth', __('Date of birth'))->default(date('Y-m-d'))->required();
+        $form->text('home_district', __('Home district'))->required();
+        // $form->text('title', __('Title'));
+        $form->date('contract_start', __('Contract start date'))->default(date('Y-m-d'))->required();
+        $form->date('contract_end', __('Contract end date'))->default(date('Y-m-d'))->required();
+        $form->text('region', __('Region'));
+        $form->text('duty_station', __('Duty station'));
+        $form->text('bank', __('Bank'))->required();
+        $form->text('bank_account', __('Bank account'))->required();
         $form->text('tin', __('Tin'));
         $form->text('nssf', __('Nssf'));
-        $form->text('marital_status', __('Marital status'));
+        $form->select('marital_status', __('Marital status'))
+            ->options(['married', 'single']);
         $form->text('next_of_kin', __('Next of kin'));
         $form->text('contact_of_kin', __('Contact of kin'));
         $form->text('relationship', __('Relationship'));

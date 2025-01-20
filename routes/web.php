@@ -1,7 +1,9 @@
 <?php
 
+use App\Admin\Controllers\AccountabilityController;
 use App\Admin\Controllers\ProgramController;
 use App\Admin\Controllers\RequisitionController as ControllersRequisitionController;
+use App\Http\Controllers\AdminBudgetController;
 use App\Http\Controllers\customProgram;
 use App\Http\Controllers\ProgramsController;
 use App\Http\Controllers\RequisitionController;
@@ -53,9 +55,20 @@ Route::get('/generate-report', [App\Http\Controllers\ReportController::class, 'g
 Route::get('accountabilities/{id}', [App\Admin\Controllers\AccountabilityController::class, 'detail'])->name('accountabilities.show');
 Route::get('/fetch-activities/{id}', [App\Http\Controllers\BudgetController::class, 'fetchActivities'])->name('fetch.activities');
 Route::get('/download-activities/{id}', [App\Http\Controllers\BudgetController::class, 'downloadExcel'])->name('download.activities');
+// Route::get('/requisition-items/{id}', [App\Admin\Controllers\AccountabilityController::class, 'downloadExcel'])->name('download.activities');
 
+// save admin programs
+Route::post('adminBudget/create', [AdminBudgetController::class, 'store']);
+Route::put('/adminBudget/{program}/edit', [AdminBudgetController::class, 'update']);
 
+Route::get('/admin-activities/{id}', [App\Admin\Controllers\RequisitionController::class, 'getAdminActivities']);
+Route::get('/adminprogram-budgetlines/{id}', [App\Admin\Controllers\RequisitionController::class, 'getAdminbudgetlines'])->name('adminbudgetlines');
+
+Route::get('/budget', [App\Http\Controllers\BudgetController::class, 'index'])->name('budget.index');
 // download all the requisitions related documents
 // Route::get('requisitions/download/{id}', [RequisitionController::class, 'downloadDocuments'])
 // ->middleware(['web', 'auth'])
 // ->name('requisition.download');
+
+Route::post('/approve/edit', [AccountabilityController::class, 'status'])->name('edit');
+

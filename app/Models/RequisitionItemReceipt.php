@@ -13,8 +13,10 @@ class RequisitionItemReceipt extends Model
         'requisition_item_id',
         'accountability_id',
         'receipt_file',
+        'payment_proof',
+        'Invoice',
         'amount',
-        'date',
+        
     ];
 
 

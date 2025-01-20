@@ -120,6 +120,33 @@ class Notification extends Model
             }
             }
     }
+
+    public static function Notify_Admin($model, $model_name, $entity, $receiver)
+    {
+        $user = Staff::find($model->staff_id);
+        $name = $user ? $user->name : null;
+        // $receiver = Notification::get_users_by_role(8);
+        
+        
+        // Log::info('Requisition ID: ' . $model);
+       
+        // Check if $entity is a string
+        if (is_string($entity)) {
+            foreach ($receiver as $user) {
+                $notification = new Notification();
+                $notification->role_id = 5;
+                $notification->receiver_id = $user->id;
+                $notification->message = "New {$entity} has been submitted by" . $name .' ';
+                $notification->link = admin_url("auth/login");
+                $notification->form_link = admin_url("{$entity}/{$model->id}");
+                $notification->model = $model_name;
+                $notification->model_id = $model->id;
+                $notification->save();
+            
+                self::sendMail($notification);
+            }
+            }
+    }
     
     
 

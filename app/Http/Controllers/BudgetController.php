@@ -45,6 +45,57 @@ class BudgetController extends Controller
     //     return response()->json($data);
     // }
 
+    public function index()
+    {
+        // Sample data for treemap
+        $treemapData = [
+            [
+                'category' => 'LLF',
+                'value' => 85
+            ],
+            [
+                'category' => 'VRC',
+                'value' => 65
+            ],
+            [
+                'category' => 'G',
+                'value' => 45
+            ],
+            [
+                'category' => 'DRR',
+                'value' => 75
+            ],
+            [
+                'category' => 'DSR',
+                'value' => 55
+            ],
+            [
+                'category' => 'RKY',
+                'value' => 90
+            ],
+            [
+                'category' => 'PTE',
+                'value' => 70
+            ],
+            [
+                'category' => 'APGR',
+                'value' => 80
+            ]
+        ];
+
+        // Sample data for bar chart
+        $barChartLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+        $lerData = [100, 95, 90, 85, 80, 85];
+        $rxrData = [80, 85, 75, 70, 65, 70];
+
+        return view('budget-dashboard', compact(
+            'treemapData',
+            'barChartLabels',
+            'lerData',
+            'rxrData'
+        ));
+    }
+
     public function fetchActivities($programId)
 {
     try {
