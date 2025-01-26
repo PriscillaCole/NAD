@@ -1,6 +1,6 @@
 
 <!DOCTYPE html>
-<div class="container">
+<div class="container-fluid">
     <h4>Fund Request Status Overview</h4>
     
     <div class="row">

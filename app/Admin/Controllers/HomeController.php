@@ -40,7 +40,7 @@ class HomeController extends Controller
                
             })
             ->row(function (Row $row) use ($programId, $data, $fund) {
-                $row->column(6, function (Column $column) use ($data, $fund) {
+                $row->column(12, function (Column $column) use ($data, $fund) {
                         $column->append(view('dashboard.fund_disbursement_summary', $data, $fund));
                     });
                 // $row->column(6, function (Column $column) use ($fund) {
@@ -60,12 +60,7 @@ class HomeController extends Controller
                     $column->append(DashboardController::getBudgetComparisonData($programId2));
                 });
         
-                // $row->column(6, function (Column $column) use ($data) {
-                //     $column->append(view('dashboard.budget_comparison_chart', $data));
-                // });
-                // $row->column(6, function (Column $column) use ($chartData) {
-                //     $column->append(view('dashboard.average_approval_time', $chartData));
-                // });
+            
             });
     }
 

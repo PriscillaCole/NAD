@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<div class="container">
+<div class="container-fluid">
     <h4 style="font-size: 16px; margin-bottom: 20px;">Fund Disbursement Summary</h4>
     
     <div class="row">
@@ -24,9 +24,9 @@
                         </div>
                     </form>
                 </div>
-                <div class="panel-body text-center" style="height: 261px">
-                    <div style="width: 350px; height:200px; margin: 0 auto;">
-                        <canvas id="gaugeChart" width="320" height="220"></canvas>
+                <div class="panel-body text-center" style="height: 228px">
+                    <div style="width: 300px; height:200px; margin: 0 auto;">
+                        <canvas id="gaugeChart" width="300" height="200"></canvas>
                     </div>
                     <div style="margin-top: -113px;">
                         <h3 style="font-size: 24px; margin: 0;">{{$data[0]?? 0}}%</h3>
@@ -84,6 +84,10 @@
 select.form-control {
     border-radius: 4px;
 }
+
+/* .container {
+    width: max-content;
+} */
 </style>
 
 <script>

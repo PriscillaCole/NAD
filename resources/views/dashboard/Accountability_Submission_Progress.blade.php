@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<div class="container">
+<div class="container-fluid">
     <h4 style="font-size: 16px; margin-bottom: 20px;">Accountability Submission Progress</h4>
     
     <div class="row">

@@ -63,7 +63,7 @@
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="container-fluid">
         <div class="panel panel-default">
             <div class="panel-heading">
                 <h4 class="panel-title bold">Key Performance Indicators</h3>
