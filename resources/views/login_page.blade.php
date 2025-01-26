@@ -21,7 +21,8 @@
             background-color:  #B0E0E6; /* Sky blue for hover effect */
         }
         .img-fluid {
-            max-width: 100%;
+            margin-left: -81px;
+            max-width: 117%;
             height: 100%;
         }
 
@@ -32,182 +33,93 @@
       </style>
    </head>
    <body >
-        {{-- <div class="container-fluid ">
-                <div class="container ">
-                    <div class="row ">
-                    @if(session('success'))
-                
-                        <div id="errorBox" style="text-align:center;margin-top:20px;" class="alert alert-success col-md-12 alert-dismissible fade show" role="alert">
-                            <strong style="color:white;">{{ session('success') }}</strong>
-                            <button type="button" style="color:white;" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true" style="color:white;" >&times;</span>
-                            </button>
-                        </div>
-                    @endif
-
-                    @if($errors->any())
-                            @foreach ($errors->all() as $error)
-                                    <div id="errorBox" style="text-align:center;margin-top:20px;" class="alert alert-danger col-md-12 alert-dismissible fade show" role="alert">
-                                            <strong style="color:white;">{!!$error!!}</strong>
-                                            <button type="button" style="color:white;" class="close" data-dismiss="alert" aria-label="Close">
-                                            <span aria-hidden="true" style="color:white;" >&times;</span>
-                                            </button>
-                                    </div>
-
-                                    <script>
-
-                                        window.onload=function(){
-
-                                            $("#errorBox").delay(3000).fadeOut("slow");
-
-                                        }
-
-                                    </script>
-
-                            @endforeach
-                    @endif
-                    <div class="col-sm-10 login-box">
-                            <div class="row">
-                                <div class="col-lg-6 col-md-6 log-det">
-                                    <div class="d-flex align-items-center justify-content-center">
-                                        <img src="{{asset('login-template')}}/images/logo.webp" >
-                                    </div>
-                                    <h2 class="mb-3" style="font-family: 'PT Sans', sans-serif;">ReQTrack</h2>
-                                    <div class="text-box-cont mt-3">
-                                    <form action="{{ admin_url('auth/login') }}" method="POST" class="login-form">
-                                    {{ csrf_field() }}
-                                    <input type="hidden" name="redirect_to" value="{{ request('redirect_to') }}">
-                                        <div class="input-group mb-3">
-                                            <div class="input-group-prepend">
-                                                <span class="input-group-text" id="basic-addon1"><i class="fas fa-user"></i></span>
-                                            </div>
-                                            <input type="text" class="form-control" placeholder="{{ trans('email') }}" name="email" value="{{ old('email') }}">
-                                        </div>
-                                        <div class="input-group mb-3">
-                                            <div class="input-group-prepend">
-                                                <span class="input-group-text" id="basic-addon1"><i class="fas fa-lock"></i></span>
-                                            </div>
-                                        <input type="password" class="form-control" placeholder="{{ trans('admin.password') }}" name="password">
-                                        </div>
-                                        <div class="input-group center mb-3">
-                                            <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                        
-                                            <button type="submit" value="Login" class="btn  btn-round custom-blue-btn">LOG IN</button>
-
-
-                                        </div>
-                                        
-                                        @if (Route::has('password.request'))
-                                        <div class="input-group center mb-3">
-                                            <a class="btn btn-link" href="{{ route('password.request') }}">
-                                                {{ __('Forgot Your Password?') }}
-                                            </a>
-                                        </div>
-                                        @endif
-                                    </form>
-                                    </div>
-                                </div><img src="">
-                                <div class="col-lg-6 col-md-6 box-de">
-                                    <div class="ditk-inf">
-                                        <img src="{{asset('login-template')}}/images/inclusion.png">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-        </div>
-        <script src="{{asset('login-template')}}/js/jquery.min.js"></script>
-        <script src="{{asset('login-template')}}/js/popper.js"></script>
-        <script src="{{asset('login-template')}}/js/bootstrap.min.js"></script>
-        <script src="{{asset('login-template')}}/js/main.js"></script> --}}
-      
-        {{-- <section class="vh-100" >
-            <div class="container py-5 h-100">
-                @if(session('success'))
-                
-                        <div id="errorBox" style="text-align:center;margin-top:20px;" class="alert alert-success col-md-12 alert-dismissible fade show" role="alert">
-                            <strong style="color:white;">{{ session('success') }}</strong>
-                            <button type="button" style="color:white;" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true" style="color:white;" >&times;</span>
-                            </button>
-                        </div>
-                    @endif
-
-                    @if($errors->any())
-                            @foreach ($errors->all() as $error)
-                                    <div id="errorBox" style="text-align:center;margin-top:20px;" class="alert alert-danger col-md-12 alert-dismissible fade show" role="alert">
-                                            <strong style="color:white;">{!!$error!!}</strong>
-                                            <button type="button" style="color:white;" class="close" data-dismiss="alert" aria-label="Close">
-                                            <span aria-hidden="true" style="color:white;" >&times;</span>
-                                            </button>
-                                    </div>
-
-                                    <script>
-
-                                        window.onload=function(){
-
-                                            $("#errorBox").delay(3000).fadeOut("slow");
-
-                                        }
-
-                                    </script>
-
-                            @endforeach
-                    @endif
-              {{-- <div class="row d-flex justify-content-center align-items-center h-100">
-                <div class="col col-xl-10">
-                  
-                </div>
-              </div> --}}
-              
-            {{-- </div>
-        </section> --}} 
-        <div class="card" style="height: 100%" >
+       
+    <div class="container-fluid ">
+        <div class="container ">
+            
             <div class="row g-0" style="height: 100%">
-              <div class="col-md-8 col-lg-6 d-none d-md-block">
+                
+                <div class="col-md-8 col-lg-6 d-none d-md-block">
                 <img src="http://127.0.0.1:8000/login-template/images/disability-pictures-data.png"
-                  alt="login form" class="img-fluid" />
-              </div>
-              <div class="col-md-3 col-lg-6 d-flex align-items-center">
+                    alt="login form" class="img-fluid" />
+                </div>
+                <div class="col-md-3 col-lg-6 d-flex align-items-center">
                 <div class="card-body p-4 p-lg-5 text-black">
-  
+                    @if(session('success'))
+        
+                    <div id="errorBox" style="text-align:center;margin-top:20px;" class="alert alert-success col-md-12 alert-dismissible fade show" role="alert">
+                        <strong style="color:white;">{{ session('success') }}</strong>
+                        <button type="button" style="color:white;" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true" style="color:white;" >&times;</span>
+                        </button>
+                    </div>
+                @endif
+
+                @if($errors->any())
+                        @foreach ($errors->all() as $error)
+                                <div id="errorBox" style="text-align:center;margin-top:20px;" class="alert alert-danger col-md-12 alert-dismissible fade show" role="alert">
+                                        <strong style="color:white;">{!!$error!!}</strong>
+                                        <button type="button" style="color:white;" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true" style="color:white;" >&times;</span>
+                                        </button>
+                                </div>
+
+                                <script>
+
+                                    window.onload=function(){
+
+                                        $("#errorBox").delay(3000).fadeOut("slow");
+
+                                    }
+
+                                </script>
+
+                        @endforeach
+                @endif
+    
                     <form action="{{ admin_url('auth/login') }}" method="POST" class="login-form">
                         {{ csrf_field() }}
-  
+    
                     <div class="d-flex align-items-center mb-3 pb-1">
                         <img  src="{{asset('login-template')}}/images/logo-removebg-preview.png">
-                      {{-- <span class="h1 fw-bold mb-0">Norwegian Association for Disabled</span> --}}
+                        {{-- <span class="h1 fw-bold mb-0">Norwegian Association for Disabled</span> --}}
                     </div>
-  
+    
                     <h5 class="fw-normal mb-3 pb-3" style="letter-spacing: 1px;">Sign into your account</h5>
-  
+    
                     <div data-mdb-input-init class="form-outline mb-4">
                         <label class="form-label" for="form2Example17">Email address</label>
                         <input type="email" id="form2Example17"  name="email" class="form-control form-control-lg" />
                     </div>
-  
+    
                     <div data-mdb-input-init class="form-outline mb-4">
                         <label class="form-label" for="form2Example27">Password</label>
-                      <input type="password" id="form2Example27" class="form-control form-control-lg" name="password" />
+                        <input type="password" id="form2Example27" class="form-control form-control-lg" name="password" />
                     </div>
-  
+    
                     <div class="pt-1 mb-4">
                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                 
-                      <button data-mdb-button-init data-mdb-ripple-init class="btn btn-round btn-lg btn-block custom-blue-btn" value="login" type="submit">Login</button>
+                        <button data-mdb-button-init data-mdb-ripple-init class="btn btn-round btn-lg btn-block custom-blue-btn" value="login" type="submit">Login</button>
                     </div>
-  
+    
                     <a class="small text-muted" href="{{ route('password.request') }}">Forgot password?</a>
                     {{-- <p class="mb-5 pb-lg-2" style="color: #393f81;">Don't have an account? <a href="#!"
                         style="color: #393f81;">Register here</a></p>
                     <a href="#!" class="small text-muted">Terms of use.</a>
                     <a href="#!" class="small text-muted">Privacy policy</a> --}}
-                  </form>
-  
+                    </form>
+    
                 </div>
-              </div>
+                </div>
             </div>
+            
         </div>
+    </div>
+    <script src="{{asset('login-template')}}/js/jquery.min.js"></script>
+    <script src="{{asset('login-template')}}/js/popper.js"></script>
+    <script src="{{asset('login-template')}}/js/bootstrap.min.js"></script>
+    <script src="{{asset('login-template')}}/js/main.js"></script> 
+  
    </body>
 </html>
