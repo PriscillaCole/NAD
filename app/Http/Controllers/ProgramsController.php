@@ -98,8 +98,8 @@ class ProgramsController extends Controller
             \DB::commit();
     
             // Redirect with success message
-            admin_toastr('Program created successfully!', 'success');
-            return redirect('/requisitions');
+            admin_toastr('Budget created successfully!', 'success');
+            return redirect(admin_url('budgets'));
             // return redirect()->route('programsCreate');
         } catch (\Exception $e) {
             // Rollback transaction if anything goes wrong
@@ -255,7 +255,8 @@ class ProgramsController extends Controller
             }
     
             \DB::commit();
-            return redirect(admin_url('programs'));
+            admin_toastr('Budget Updated successfully!', 'success');
+            return redirect(admin_url('budgets'));
         } catch (\Exception $e) {
             \DB::rollBack();
             \Log::error($e);

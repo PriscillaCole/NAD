@@ -14,8 +14,8 @@ Route::group([
     $router->get('/dashboard', 'HomeController@index')->name('home');
     $router->resource('staff', StaffController::class);
     $router->resource('accountabilities', AccountabilityController::class);
-    $router->resource('Invoice', AccountabilityInvoiceController::class);
-    $router->resource('payment proof', AccountabilityController::class);
+    // $router->resource('Invoice', AccountabilityController::class);
+    // $router->resource('payment proof', AccountabilityController::class);
     $router->resource('budgets', BudgetController::class);
     $router->resource('requisitions', RequisitionController::class);
     // $router->resource('adminRequisitions', AdminRequisitionController::class);
@@ -25,7 +25,7 @@ Route::group([
     $router->resource('categories', CategoryController::class);
     $router->resource('reports', ReportController::class);
 
-    $router->get('/requisitions/download/{id}', [RequisitionController::class, 'downloadDocuments'])->name('requisition.download');
+    // $router->get('/requisitions/download/{id}', [RequisitionController::class, 'downloadDocuments'])->name('requisition.download');
 
    
 

@@ -95,9 +95,18 @@ class RequisitionController extends AdminController
         $grid->column('staff_id', __('Requested by'))->display(function($staff_id){
             return Staff::find($staff_id)->name;
         });
-        $grid->column('program_id', 'Program')->display(function($program_id){
-            return Program::find($program_id)->name;
-        });
+        
+            $grid->column('', 'Program')->display(function(){
+                if ($this->program_id) {
+                    return Program::find($this->program_id)->name ?? 'N/A';
+                }
+                if ($this->admin_program_id) {
+                    return AdminProgram::find($this->admin_program_id)->name ?? 'N/A';
+                }
+                return 'N/A';
+                
+            });
+        
         $grid->column('amount', __('Amount'));
         $grid->column('status', __('Status'))->display(
             function ($status) {
@@ -114,6 +123,8 @@ class RequisitionController extends AdminController
                 }
             }
         );
+        // $id = $grid->column('id');
+        // $downloadLink = admin_url('/requisitions/download/'. $id);
         $grid->column('id', __('Inspection Report'))->display(function ($id)
         {
             $requisition = Requisition::find($id);
@@ -121,26 +132,37 @@ class RequisitionController extends AdminController
             if ($requisition && $requisition->status == 'approved') {
                 $token = csrf_token();
                 $downloadLink = admin_url('/requisitions/download/'. $id);
-                return "<b><a href='{$downloadLink}' 
-                          onclick='event.preventDefault(); 
-                                  let form = document.createElement(\"form\"); 
-                                  form.method = \"POST\";
-                                  form.action = \"{$downloadLink}\";
-                                  form.target = \"_blank\";
-                                  let tokenInput = document.createElement(\"input\");
-                                  tokenInput.type = \"hidden\";
-                                  tokenInput.name = \"_token\";
-                                  tokenInput.value = \"{$token}\";
-                                  form.appendChild(tokenInput);
-                                  document.body.appendChild(form);
-                                  form.submit();
-                                  document.body.removeChild(form);'>
-                          Download Reports</a></b>";
+                return "<b>
+                          Download Reports
+                        </b>";
             } else
             {          
                 return '<b> No accountability</b>';
             }
-        });
+        })
+        ->link(function () {
+            // Use the dynamically generated link
+            return $this->value; // This is the link returned by the `display()` method
+        }, '_blank', function () {
+            // Optional attributes or classes for the link
+            return ['class' => 'btn btn-sm btn-primary']; // Example: add a button style
+        });;
+        // $grid->column('id', __('Inspection Report'))->display(function ($id) {
+        //     $downloadLink = admin_url('/requisitions/download/' . $id);
+            
+        //     return $downloadLink; // Return the dynamic link for each row
+        // })->link(function () {
+        //     // Use the dynamically generated link
+        //     return $this->value; // This is the link returned by the `display()` method
+        // }, '_blank', function () {
+        //     // Optional attributes or classes for the link
+        //     return ['class' => 'btn btn-sm btn-primary']; // Example: add a button style
+        // });
+        
+        
+
+// or pass in a specified href
+// $grid->column('homepage')->link($href);
         $grid->column('created_at', __('Created at'))->display(function ($created_at) {
             //return human readable format
             return (Carbon::parse($created_at)->diffForHumans());
@@ -311,8 +333,9 @@ class RequisitionController extends AdminController
                     $activity = Activity::find($id);
                     return $activity ? [$activity->id => $activity->name] : [];
                     })->attribute('id', 'activity_id')->required();
-        
-        
+                $form->date('setOff_date', __('Set Off Date'))->required();
+                $form->date('return_date', __('Return Date'))->required();
+
                     //add requisition items
                     $form->hasMany('requisition_items', 'Requisition items', function (Form\NestedForm $form) {
                         $form->select('budget_line_id', __('Budget Line'))
@@ -520,174 +543,5 @@ class RequisitionController extends AdminController
 
         return $budgetlines;
     }
-
-    public function downloadDocuments($id)
-    {
-        // $route = Route::current(); 
-        // dd($route->middleware());
-        if (!auth()->check()) {
-            abort(403, 'Unauthorized');
-        }
-        $requisition = Requisition::with('requisition_items.requisitionItemReceipts')->findOrFail($id);
-        
-        // Create a temporary directory
-        $tempDir = storage_path('app/temp/' . uniqid());
-        mkdir($tempDir, 0755, true);
-        $zipPath = null;
-        
-        try {
-            // dd(auth()->check()); 
-            // Generate and save requisition form PDF
-            $requisitionPdf = PDF::loadView('requisition_request', ['requisition' => $requisition]);
-            $requisitionPath = $tempDir . '/requisition_form.pdf';
-            $requisitionPdf->save($requisitionPath);
-            
-            // Generate and save accountability form PDF
-            $accountabilityPdf = PDF::loadView('pdfs.accountability-form', ['requisition' => $requisition]);
-            $accountabilityPath = $tempDir . '/accountability_form.pdf';
-            $accountabilityPdf->save($accountabilityPath);
-            
-            $code= $requisition->code;
-            // Create ZIP archive
-            $zipFileName = 'requisition_' . $code . '_documents.zip';
-            $zipPath = storage_path('app/temp/' . $zipFileName);
-            
-            $zip = new ZipArchive();
-            $zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE);
-            
-            // Add requisition form to ZIP
-            $zip->addFile($requisitionPath, 'requisition_form.pdf');
-            
-            // Add accountability form to ZIP
-            $zip->addFile($accountabilityPath, 'accountability_form.pdf');
-            
-            Log::info('path:',$zipPath );
-            
-            // Add all attached receipts to ZIP
-            foreach ($requisition->requisition_items->requisitionItemReceipts as $receipt) {
-                // $receiptPath = asset('storage/files/'.$receipt->receipt_file);
-                $receiptPath = public_path('files/' . $receipt->receipt_file);
-
-                Log::info('path:',$receiptPath );
-
-                if (file_exists($receiptPath)) {
-                    $zip->addFile($receiptPath, 'receipts/' . basename($receipt->receipt_file));
-                }
-            }
-            
-            // $zip->close();
-            
-            // Download ZIP file
-            $headers = [
-                'Content-Type' => 'application/zip',
-                'Content-Disposition' => 'attachment; filename="' . $zipFileName . '"',
-            ];
-            
-            // Clean up temporary files after sending the response
-            $response = response()->download($zipPath, $zipFileName, $headers)->deleteFileAfterSend(true);
-            
-            // Clean up the temp directory
-            File::deleteDirectory($tempDir);
-            
-            return $response;
-            
-        } catch (\Exception $e) {
-            // Clean up on error
-            File::deleteDirectory($tempDir);
-            if (file_exists($zipPath)) {
-                unlink($zipPath);
-            }
-            
-            throw $e;
-        }
-    }
-
-//     public function downloadDocuments($id)
-// {
-//     if (!auth()->check()) {
-//         abort(403, 'Unauthorized');
-//     }
-
-//     $requisition = Requisition::with('requisition_items.requisitionItemReceipts')->findOrFail($id);
-
-//     // Create a temporary directory
-//     $tempDir = storage_path('app/temp/' . uniqid());
-//     if (!file_exists($tempDir)) {
-//         mkdir($tempDir, 0755, true);
-//     }
-
-//     $zipPath = null;
-
-//     try {
-//         // Generate and save requisition form PDF
-//         $requisitionPdf = PDF::loadView('requisition_request', ['requisition' => $requisition]);
-//         $requisitionPath = $tempDir . '/requisition_form.pdf';
-//         $requisitionPdf->save($requisitionPath);
-
-//         // Generate and save accountability form PDF
-//         $accountabilityPdf = PDF::loadView('pdfs.accountability-form', ['requisition' => $requisition]);
-//         $accountabilityPath = $tempDir . '/accountability_form.pdf';
-//         $accountabilityPdf->save($accountabilityPath);
-
-//         $code = $requisition->code;
-//         $zipFileName = 'requisition_' . $code . '_documents.zip';
-//         $zipPath = storage_path('app/temp/' . $zipFileName);
-
-//         $zip = new ZipArchive();
-//         if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
-//             throw new \Exception('Failed to create ZIP file');
-//         }
-
-//         // Add requisition form to ZIP
-//         $zip->addFile($requisitionPath, 'requisition_form.pdf');
-
-//         // Add accountability form to ZIP
-//         $zip->addFile($accountabilityPath, 'accountability_form.pdf');
-
-//         // Add all attached receipts to ZIP
-//         foreach ($requisition->requisition_items as $item) {
-//             foreach ($item->requisitionItemReceipts as $receipt) {
-//                 $receiptPath = public_path('files/' . $receipt->receipt_file);
-//                 Log::info('Checking receipt path:', ['path' => $receiptPath]);
-
-//                 if (file_exists($receiptPath)) {
-//                     $zip->addFile($receiptPath, 'receipts/' . basename($receipt->receipt_file));
-//                 } else {
-//                     Log::warning("File does not exist: $receiptPath");
-//                 }
-//             }
-//         }
-
-//         $zip->close();
-
-//         // Download ZIP file
-//         $headers = [
-//             'Content-Type' => 'application/zip',
-//             'Content-Disposition' => 'attachment; filename="' . $zipFileName . '"',
-//         ];
-
-//         // Clean up temporary files after sending the response
-//         $response = response()->download($zipPath, $zipFileName, $headers)->deleteFileAfterSend(true);
-
-//         // Clean up the temp directory
-//         File::deleteDirectory($tempDir);
-
-//         return $response;
-
-//     } catch (\Exception $e) {
-//         // Log error
-//         Log::error('Download error: ' . $e->getMessage());
-
-//         // Clean up on error
-//         File::deleteDirectory($tempDir);
-//         if (file_exists($zipPath)) {
-//             unlink($zipPath);
-//         }
-
-//         throw $e;
-//     }
-// }
-
-
     
 }

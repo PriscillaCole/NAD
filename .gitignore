@@ -3,9 +3,11 @@
 /public/build
 /public/hot
 /public/storage
+/public/.htaccess
 /storage/*.key
 .env
 .env.backup
+.htaccess
 .env.production
 .phpunit.result.cache
 Homestead.json
@@ -17,5 +19,4 @@ yarn-error.log
 /.idea
 /.vscode
 /tests
-.env
 /vendor/bennett-treptow

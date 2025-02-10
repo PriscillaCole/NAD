@@ -301,65 +301,128 @@ class AccountabilityController extends AdminController
             $token = request()->input('_token');
             Cache::forget("form_token_{$token}");
         });
-    
-            Admin::script('
-                $(document).ready(function() {
-                    $("#requisitionId").change(function() {
-                        var requisition_id = $(this).val();
-                        if (requisition_id) {
-                            $.ajax({
-                                url: "/requisition/" + requisition_id,
-                                type: "GET",
-                                dataType: "json",
-                                success: function(data) {
-                                    if (data.total_amount) {
-                                        $("#amount_dispensed").val(data.total_amount);
-                                        $("#amount_used").val("");
-                                        $("#returned_amount").val("");
-                                        $("#amount_to_be_returned").val("");
-                                        
-                                        // if ($.isEmptyObject(data.items)) {
-                                        //     alert("No budget lines available for the selected activity");
-                                        //     return;
-                                        // }
 
-                                        // Clear existing requisition items
-                                        $("#has-many-requisitionItemReceipts .has-many-requisitionItemReceipts-forms").empty();
-
-                                        // Dynamically add requisition items for each budget line
-                                        $.each(data.items, function(key, value) {
-                                            $(".add").click(); // Add a new requisition item field
-
-                                            setTimeout(function() {
-                                                var lastForm = $("#has-many-requisitionItemReceipts .has-many-requisitionItemReceipts-forms").children().last();
-                                                var requisitionItemField = lastForm.find("[id^=requisition_item_id]");
-                                                
-                                                // Ensure unique options are added
-                                                // requisitionItemField.empty(); // Clear any previous options
-                                                requisitionItemField.append(new Option(value.budget_line, key, true, true)); 
-                                                requisitionItemField.trigger("change"); // Trigger change event
-                                            }, 100);
-                                            
-                                        });
-                                        // $(".add").disable();
+        Admin::script('
+        $(document).ready(function() {
+            $("#requisitionId").change(function() {
+                var requisition_id = $(this).val();
+                if (requisition_id) {
+                    $.ajax({
+                        url: "/requisition/" + requisition_id,
+                        type: "GET",
+                        dataType: "json",
+                        success: function(data) {
+                            if (data.total_amount) {
+                                $("#amount_dispensed").val(data.total_amount);
+                                $("#amount_used").val("");
+                                $("#returned_amount").val("");
+                                $("#amount_to_be_returned").val("");
+                                
+                                // Clear existing requisition items
+                                $("#has-many-requisitionItemReceipts .has-many-requisitionItemReceipts-forms").empty();
+        
+                                // Check if there are items
+                                if (data.items && Object.keys(data.items).length > 0) {
+                                    // First, create all necessary forms
+                                    for (var i = 0; i < Object.keys(data.items).length; i++) {
+                                        $(".add").click();
                                     }
+        
+                                    // Wait for forms to be created
+                                    setTimeout(function() {
+                                        var forms = $("#has-many-requisitionItemReceipts .has-many-requisitionItemReceipts-forms").children();
+                                        
+                                        // Add options to each form
+                                        Object.entries(data.items).forEach(function([key, value], index) {
+                                            var currentForm = $(forms[index]);
+                                            var requisitionItemField = currentForm.find("[id^=requisition_item_id]");
+                                            
+                                            // Clear existing options
+                                            requisitionItemField.empty();
+                                            
+                                            // Add new option
+                                            requisitionItemField.append(new Option(value.budget_line, key, true, true));
+                                            requisitionItemField.trigger("change");
+                                        });
+                                    }, 500); // Increased timeout to ensure forms are ready
                                 }
-                            });
+                            }
                         }
                     });
+                }
+            });
+        
+            $("#amount_used").on("input", function() {
+                var amount_used = parseFloat($(this).val()) || 0;
+                var amount_dispensed = parseFloat($("#amount_dispensed").val()) || 0;
+        
+                var returned_amount = amount_dispensed > amount_used ? (amount_dispensed - amount_used) : 0;
+                var amount_to_be_returned = amount_used > amount_dispensed ? (amount_used - amount_dispensed) : 0;
+        
+                $("#returned_amount").val(returned_amount.toFixed(2));
+                $("#amount_to_be_returned").val(amount_to_be_returned.toFixed(2));
+            });
+        });
+        ');
+    
+            // Admin::script('
+            //     $(document).ready(function() {
+            //         $("#requisitionId").change(function() {
+            //             var requisition_id = $(this).val();
+            //             if (requisition_id) {
+            //                 $.ajax({
+            //                     url: "/requisition/" + requisition_id,
+            //                     type: "GET",
+            //                     dataType: "json",
+            //                     success: function(data) {
+            //                         if (data.total_amount) {
+            //                             $("#amount_dispensed").val(data.total_amount);
+            //                             $("#amount_used").val("");
+            //                             $("#returned_amount").val("");
+            //                             $("#amount_to_be_returned").val("");
+                                        
+            //                             // if ($.isEmptyObject(data.items)) {
+            //                             //     alert("No budget lines available for the selected activity");
+            //                             //     return;
+            //                             // }
 
-                    $("#amount_used").on("input", function() {
-                        var amount_used = parseFloat($(this).val()) || 0;
-                        var amount_dispensed = parseFloat($("#amount_dispensed").val()) || 0;
+            //                             // Clear existing requisition items
+            //                             $("#has-many-requisitionItemReceipts .has-many-requisitionItemReceipts-forms").empty();
 
-                        var returned_amount = amount_dispensed > amount_used ? (amount_dispensed - amount_used) : 0;
-                        var amount_to_be_returned = amount_used > amount_dispensed ? (amount_used - amount_dispensed) : 0;
+            //                             // Dynamically add requisition items for each budget line
+            //                             $.each(data.items, function(key, value) {
+            //                                 $(".add").click(); // Add a new requisition item field
 
-                        $("#returned_amount").val(returned_amount.toFixed(2));
-                        $("#amount_to_be_returned").val(amount_to_be_returned.toFixed(2));
-                    });
-                });
-            ');
+            //                                 setTimeout(function() {
+            //                                     var lastForm = $("#has-many-requisitionItemReceipts .has-many-requisitionItemReceipts-forms").children().last();
+            //                                     var requisitionItemField = lastForm.find("[id^=requisition_item_id]");
+                                                
+            //                                     // Ensure unique options are added
+            //                                     // requisitionItemField.empty(); // Clear any previous options
+            //                                     requisitionItemField.append(new Option(value.budget_line, key, true, true)); 
+            //                                     requisitionItemField.trigger("change"); // Trigger change event
+            //                                 }, 100);
+                                            
+            //                             });
+            //                             // $(".add").disable();
+            //                         }
+            //                     }
+            //                 });
+            //             }
+            //         });
+
+            //         $("#amount_used").on("input", function() {
+            //             var amount_used = parseFloat($(this).val()) || 0;
+            //             var amount_dispensed = parseFloat($("#amount_dispensed").val()) || 0;
+
+            //             var returned_amount = amount_dispensed > amount_used ? (amount_dispensed - amount_used) : 0;
+            //             var amount_to_be_returned = amount_used > amount_dispensed ? (amount_used - amount_dispensed) : 0;
+
+            //             $("#returned_amount").val(returned_amount.toFixed(2));
+            //             $("#amount_to_be_returned").val(amount_to_be_returned.toFixed(2));
+            //         });
+            //     });
+            // ');
 
         //     Admin::script('
         //     $(document).ready(function() {

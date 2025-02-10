@@ -7,6 +7,7 @@ use App\Http\Controllers\AdminBudgetController;
 use App\Http\Controllers\customProgram;
 use App\Http\Controllers\ProgramsController;
 use App\Http\Controllers\RequisitionController;
+use App\Models\Notification;
 // use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Route;
 
@@ -71,4 +72,14 @@ Route::get('/budget', [App\Http\Controllers\BudgetController::class, 'index'])->
 // ->name('requisition.download');
 
 Route::post('/approve/edit', [AccountabilityController::class, 'status'])->name('edit');
+
+Route::post('/notifications/mark-as-read/{id}', function($id) {
+    try {
+        $notification = new App\Models\Notification();
+        $notification->deleteNotification($id);
+        return response()->json(['success' => true]);
+    } catch (\Exception $e) {
+        return response()->json(['success' => false]);
+    }
+});
 

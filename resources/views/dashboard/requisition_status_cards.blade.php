@@ -45,6 +45,12 @@
         .purple-bg {
             background-color: #F3E5F5;
         }
+        .blue-bg {
+            background-color: #b7f7f1;
+        }
+        .cyan-bg{
+            background-color: #baf5bb;
+        }
 
         .dropdown {
             margin-bottom: 20px;
@@ -60,6 +66,9 @@
             border-bottom: none;
             padding-left: 2px 2px;
         }
+        .container-fluid {
+            background-color: white;
+        }
     </style>
 </head>
 <body>
@@ -71,40 +80,59 @@
             </div>
             <div class="panel-body">
                 <div class="row">
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <div class="kpi-card pink-bg">
                             <div class="kpi-icon">
                                 <i class="glyphicon glyphicon-list-alt"></i>
                             </div>
-                            <div class="kpi-value">{{ $data['total_requisitions'] }}</div>
-                            <div class="kpi-label">Requisitions</div>
+                            <div class="kpi-value">{{ $data['pending_requisitions'] }}</div>
+                            <div class="kpi-label">Requisitions pending Finance approval</div>
                         </div>
                     </div>
-                    <div class=" col-lg-3 col-md-3">
-                        <div class="kpi-card orange-bg">
-                            <div class="kpi-icon">
-                                <i class="glyphicon glyphicon-usd"></i>
-                            </div>
-                            <div class="kpi-value">${{ $data['total_amount_requested'] }}</div>
-                            <div class="kpi-label">Total Funds Disbursed</div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <div class="kpi-card green-bg">
                             <div class="kpi-icon">
                                 <i class="glyphicon glyphicon-ok"></i>
                             </div>
-                            <div class="kpi-value">{{ $data['approved_requisitions'] }}</div>
-                            <div class="kpi-label">Requisitions Approved</div>
+                            <div class="kpi-value">{{ $data['director_requisitions'] }}</div>
+                            <div class="kpi-label">Requisitions pending Director's approval</div>
                         </div>
                     </div>
-                    <div class="col-md-3">
+                    
+                    <div class="col-md-2">
                         <div class="kpi-card purple-bg">
                             <div class="kpi-icon">
-                                <i class="glyphicon glyphicon-file"></i>
+                                <i class="glyphicon glyphicon-folder-open"></i>
+                            </div>
+                            <div class="kpi-value">{{ $data['approved_requisitions'] }}</div>
+                            <div class="kpi-label">Pending Accountabilities</div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="kpi-card blue-bg">
+                            <div class="kpi-icon">
+                                <i class="glyphicon glyphicon-folder-close"></i>
+                            </div>
+                            <div class="kpi-value">{{ $data['closed_accountabilities'] }}</div>
+                            <div class="kpi-label">Approved Accountabilities this month</div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="kpi-card cyan-bg">
+                            <div class="kpi-icon orang">
+                                <i class="glyphicon glyphicon-stats" style="color: white"></i>
                             </div>
                             <div class="kpi-value">{{ $data['accountabilities'] }}</div>
-                            <div class="kpi-label">Accountabilities</div>
+                            <div class="kpi-label">Total Accountabilities this month</div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="kpi-card orange-bg">
+                            <div class="kpi-icon">
+                                <i class="glyphicon glyphicon-usd"></i>
+                            </div>
+                            <div class="kpi-value">UGX {{ $data['total_amount_requested'] }}</div>
+                            <div class="kpi-label">Total Funds Disbursed this year</div>
                         </div>
                     </div>
                 </div>

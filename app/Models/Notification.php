@@ -249,7 +249,8 @@ class Notification extends Model
 
     public static function deleteNotification($notification)
     {
-        // $note = Notification::
+        return self::find($notification)->delete();
+        
     }
        
 }

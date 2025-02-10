@@ -182,7 +182,7 @@
                     @if($requisition->admin_program_id)
                         <td>{{ $requisition->admin_program->name }}</td>
                     @else
-                        <td>{{ $requisition->activity->output->outcome->program->name }}</td>
+                        <td>{{ $requisition->activity->output->outcome->program->name }}</td> 
                         <td>{{ $requisition->activity->name }}</td>
                     @endif
                     
@@ -262,7 +262,7 @@
                 <tr>
                     <td>1</td>
                     <td>Head of finance</td>
-                    <td>Mbabazi Isaac</td>
+                    <td>Mwebaza Rolaine</td>
                     <td>{{ $requisition->status }}</td>
 
                 </tr>
@@ -338,12 +338,12 @@
         <div class="field" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
             @if ($requisition->status != null)
                 <div style="text-align: center;">
-                    <label for="signature">Mbabazi Isaac, Head of Finance</label><br>
+                    <label for="signature">Mwebaza Rolaine, Head of Finance</label><br>
                     <img src="{{ asset('storage/signatures/hofs.png') }}" alt="signature" style="width: 200px; height: 100px;">
                 </div>
                 @if($requisition->status == 'approved')
                     <div style="text-align: center;">
-                        <label for="signature">Amokol Priscilla, Country Director</label><br>
+                        <label for="signature">Edson Ngirabakunzi, Country Director</label><br>
                         <img src="{{ asset('storage/signatures/cds.png') }}" alt="signature" style="width: 200px; height: 100px;">
                     </div>
                 @endif

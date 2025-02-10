@@ -12,7 +12,7 @@
         .navbar {
             height: 2px;
         }
-        .heatmap-container {
+        /* .heatmap-container {
             padding: 15px;
             background: white;
             border-radius: 4px;
@@ -33,7 +33,7 @@
             font-size: 12px;
             color: #333;
             border-radius: 2px;
-        }
+        } */
         
         .chart-title {
             margin-bottom: 15px;
@@ -44,17 +44,124 @@
         
         .panel {
             margin-bottom: 20px;
+            /* background-color: #b3c7eb !important; */
         }
         
         .panel-heading {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            background-color: #ccdbf79c !important;
         }
         
         .project-select {
-            width: auto;
             display: inline-block;
+        }
+    </style>
+    <style>
+        .heatmap-container {
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+            margin: 20px;
+        }
+
+        .heatmap-grid {
+            display: block;
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        /* .level-container {
+            margin-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+        } */
+
+        .level-title {
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .level-grid {
+            display: grid;
+            gap: 8px;
+            margin-top: 10px;
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .heatmap-cell {
+            /* min-width: 80px;
+            min-height: 70px; */
+            width: 69px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            padding: 8px;
+        }
+
+        .heatmap-cell:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .cell-content {
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+
+        .cell-code {
+            font-weight: bold;
+            font-size: 8px;
+            margin-bottom: 4px;
+        }
+
+        .cell-value {
+            font-size: 12px;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 20px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-family: Arial, sans-serif;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+        }
+
+        .tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            display: none;
+            z-index: 1000;
+            pointer-events: none;
+            max-width: 250px;
         }
     </style>
 </head>
@@ -62,27 +169,54 @@
     <div class="container-fluid">
         <div class="row">
             <!-- Heatmap -->
-            <div class="col-md-6">
+            {{-- <div class="col-md-6">
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <span>Budget Utilisation Breakdown</span>
-                        <select class="form-control input-sm project-select">
+                        {{-- <select class="form-control input-sm project-select">
                             <option>Project</option>
-                        </select>
+                        </select> 
+                        <form method="GET" action="{{ request()->url() }}">
+                            <select name="programId2" id="program-filter" class="form-control input-sm project-select" >
+                                <option value="">{{ __('Select Project') }}</option>
+                                @foreach($programs as $program)
+                                    <option value="{{ $program->id }}" {{ request()->query('programId2') == $program->id ? 'selected' : '' }}>
+                                        {{ $program->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            </form>
                     </div>
                     <div class="panel-body">
-                        <div class="heatmap-grid" id="budgetHeatmap"></div>
+                        <div id="heatmap" class="heatmap-grid"></div>
+                        <div class="legend">
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: #FEF9C3"></div>
+                                <span>Low (0-20%)</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: #FDE047"></div>
+                                <span>Medium (40-60%)</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: #4ADE80"></div>
+                                <span>High (80-100%)</span>
+                            </div>
+                        </div> 
+                        
                     </div>
+                    
+                    <div id="tooltip" class="tooltip"></div>
                 </div>
-            </div>
+            </div> --}}
             
             <!-- Bar Chart -->
-            <div class="col-md-6">
+            <div class="col-md-12">
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <span>Budget vs Spending</span>
                         <form method="GET" action="{{ request()->url() }}">
-                        <select name="programId2" id="program-filter" class="form-control project-select" >
+                        <select name="programId2" id="program-filter" class="form-control input-sm project-select" >
                             <option value="">{{ __('Select Project') }}</option>
                             @foreach($programs as $program)
                                 <option value="{{ $program->id }}" {{ request()->query('programId2') == $program->id ? 'selected' : '' }}>
@@ -93,7 +227,7 @@
                         </form>
                     </div>
                     <div class="panel-body">
-                        <canvas id="budgetChart"></canvas>
+                        <canvas id="budgetChart" height="100"></canvas>
                     </div>
                 </div>
             </div>
@@ -111,7 +245,7 @@
             // Handle program select change
             programSelect.addEventListener('change', function() {
                 const currentYear = new Date().getFullYear();
-                const url = `/dashboard?programId2=${this.value}&year=${currentYear}`;
+                const url = `dashboard?programId2=${this.value}&year=${currentYear}`;
                 window.location.href = url;
             });
             
@@ -122,41 +256,18 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script>
-        // Heatmap Data
-        const heatmapData = [
-            ['PTE', 'APGR', 'JAN', 'FEB', 'MAR', 'APR', 'MAY'],
-            ['LLF', 'VRC', 'G', 'DRR', 'DSR', 'RKY', 'TGET'],
-            ['DRR', 'DSR', 'RKY', 'PTE', 'APGR', 'G', 'VRC'],
-            ['LLF', 'VRC', 'G', 'DRR', 'DSR', 'RKY', 'TGET'],
-        ];
+       //heatmap
         
-        const heatmapValues = [
-            [85, 75, 65, 60, 55, 50, 45],
-            [80, 70, 60, 55, 50, 45, 40],
-            [75, 65, 55, 50, 45, 40, 35],
-            [80, 70, 60, 55, 50, 45, 80]
-        ];
-
-        // Create heatmap
-        function createHeatmap() {
-            const heatmap = document.getElementById('budgetHeatmap');
+            const heatmapContainer = document.getElementById('heatmap');
+            const tooltip = document.getElementById('tooltip');
             
-            heatmapData.forEach((row, i) => {
-                row.forEach((cell, j) => {
-                    const value = heatmapValues[i][j];
-                    const div = document.createElement('div');
-                    div.className = 'heatmap-cell';
-                    div.textContent = cell;
-                    div.style.backgroundColor = `hsl(${60 + (value * 0.6)}, 75%, 60%)`;
-                    heatmap.appendChild(div);
-                });
-            });
-        }
+            
 
         // Create bar chart
         function createBarChart() {
             const ctx = document.getElementById('budgetChart').getContext('2d');
             const chartData = @json($chartData); // Pass data from the backend
+            console.log(chartData);
 
             const labels = chartData.map(item => item.activity_name);
             const budgetData = chartData.map(item => item.budget);
@@ -195,9 +306,10 @@
 
         // Initialize visualizations
         document.addEventListener('DOMContentLoaded', function() {
-            createHeatmap();
+            // createHeatmap();
             createBarChart();
         });
     </script>
+
 </body>
 </html>

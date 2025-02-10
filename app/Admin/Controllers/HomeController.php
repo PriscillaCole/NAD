@@ -8,6 +8,7 @@ use Encore\Admin\Layout\Column;
 use App\Http\Controllers\DashboardController;
 use Encore\Admin\Layout\Content;
 use Encore\Admin\Layout\Row;
+use Illuminate\Support\Facades\DB;
 
 class HomeController extends Controller
 {
@@ -21,9 +22,10 @@ class HomeController extends Controller
         $data = DashboardController::programBudget($programId2);
         $fund = DashboardController::yearExpense($year);
         $status = DashboardController::RequisitionStatuschart();
+        
 
         $period = request()->query('period', 'month'); // Default to 'month' if not specified
-        $chartData = DashboardController::getAverageApprovalTimeData($period);
+        // $chartData = DashboardController::getAverageApprovalTimeData($period);
     
         return $content
             ->row(function (Row $row) {
@@ -49,7 +51,7 @@ class HomeController extends Controller
                 
                 
             })
-            ->row(function (Row $row) use ($data, $chartData) {
+            ->row(function (Row $row) use ($data) {
                 $row->column(12, function (Column $column) {
                     $column->append(DashboardController::showProgramsWithActivities());
                 });
@@ -64,10 +66,6 @@ class HomeController extends Controller
             });
     }
 
-    private function getHeatmapColor($value) {
-        // Convert value to a color on a scale from yellow to green
-        $hue = 60 + ($value * 60); // 60 is yellow, 120 is green
-        return "hsl($hue, 75%, 60%)";
-    }
+    
     
 }

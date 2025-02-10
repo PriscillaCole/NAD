@@ -13,7 +13,8 @@
         .entity-label { font-weight: bold; margin-right: 10px; }
         .text-right { text-align: right; }
     </style>
-    <script src="/js/adminbudget.js"></script>
+    
+    <script src="{{asset('js')}}/adminbudget.js"></script>
 </head>
 <body>
 <div class="col-md-12">

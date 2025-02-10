@@ -430,48 +430,48 @@
     }
 
     // Validation function for budget line
-function validateBudgetLine(budgetLineId, activityId) {
-    const budgetLineInput = document.getElementById(`budget-${budgetLineId}`);
-    const activityBudgetInput = document.querySelector(`input[name*="[activities][${activityId}][budget]"]`);
-    const budgetLineValue = parseFloat(budgetLineInput.value) || 0;
-    const activityBudgetValue = parseFloat(activityBudgetInput.value) || 0;
-    
-    if (budgetLineValue > activityBudgetValue) {
-        alert('Budget line amount cannot exceed activity budget');
-        budgetLineInput.value = activityBudgetValue;
-        return false;
+    function validateBudgetLine(budgetLineId, activityId) {
+        const budgetLineInput = document.getElementById(`budget-${budgetLineId}`);
+        const activityBudgetInput = document.querySelector(`input[name*="[activities][${activityId}][budget]"]`);
+        const budgetLineValue = parseFloat(budgetLineInput.value) || 0;
+        const activityBudgetValue = parseFloat(activityBudgetInput.value) || 0;
+        
+        if (budgetLineValue > activityBudgetValue) {
+            alert('Budget line amount cannot exceed activity budget');
+            budgetLineInput.value = activityBudgetValue;
+            return false;
+        }
+        return true;
     }
-    return true;
-}
 
-// Validation function for activity
-function validateActivityBudget(activityId, outputId) {
-    const activityBudgetInput = document.querySelector(`input[name*="[activities][${activityId}][budget]"]`);
-    const outputBudgetInput = document.querySelector(`input[name*="[outputs][${outputId}][budget]"]`);
-    const activityTotal = calculateActivityTotal(activityId);
-    const outputBudgetValue = parseFloat(outputBudgetInput.value) || 0;
-    
-    if (activityTotal > outputBudgetValue) {
-        alert('Activity budget cannot exceed output budget');
-        activityBudgetInput.value = outputBudgetValue;
-        return false;
+    // Validation function for activity
+    function validateActivityBudget(activityId, outputId) {
+        const activityBudgetInput = document.querySelector(`input[name*="[activities][${activityId}][budget]"]`);
+        const outputBudgetInput = document.querySelector(`input[name*="[outputs][${outputId}][budget]"]`);
+        const activityTotal = calculateActivityTotal(activityId);
+        const outputBudgetValue = parseFloat(outputBudgetInput.value) || 0;
+        
+        if (activityTotal > outputBudgetValue) {
+            alert('Activity budget cannot exceed output budget');
+            activityBudgetInput.value = outputBudgetValue;
+            return false;
+        }
+        activityBudgetInput.value = activityTotal;
+        return true;
     }
-    activityBudgetInput.value = activityTotal;
-    return true;
-}
 
-// Validation function for output
-function validateOutputBudget(outputId, outcomeId) {
-    const outputBudgetInput = document.querySelector(`input[name*="[outputs][${outputId}][budget]"]`);
-    const outcomeBudgetInput = document.querySelector(`input[name*="outcomes[${outcomeId}][budget]"]`);
-    const outputTotal = calculateOutputTotal(outputId);
-    const outcomeBudgetValue = parseFloat(outcomeBudgetInput.value) || 0;
-    
-    if (outputTotal > outcomeBudgetValue) {
-        alert('Output budget cannot exceed outcome budget');
-        outputBudgetInput.value = outcomeBudgetValue;
-        return false;
+    // Validation function for output
+    function validateOutputBudget(outputId, outcomeId) {
+        const outputBudgetInput = document.querySelector(`input[name*="[outputs][${outputId}][budget]"]`);
+        const outcomeBudgetInput = document.querySelector(`input[name*="outcomes[${outcomeId}][budget]"]`);
+        const outputTotal = calculateOutputTotal(outputId);
+        const outcomeBudgetValue = parseFloat(outcomeBudgetInput.value) || 0;
+        
+        if (outputTotal > outcomeBudgetValue) {
+            alert('Output budget cannot exceed outcome budget');
+            outputBudgetInput.value = outcomeBudgetValue;
+            return false;
+        }
+        outputBudgetInput.value = outputTotal;
+        return true;
     }
-    outputBudgetInput.value = outputTotal;
-    return true;
-}

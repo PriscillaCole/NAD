@@ -17,6 +17,8 @@ class Requisition extends Model
         'concept_note',
         'staff_id',
         'description',
+        'setOff_date',
+        'return_date',
         'amount',
         'status comment',
         ''

@@ -14,11 +14,11 @@
                     <div class="progress" style="height: 24px; margin-bottom: 10px; background-color: #f0f0f0;">
                         <div class="progress-bar" role="progressbar" 
                              style="width: {{$pending}}%; background-color: #6366F1;">
-                            <span class="progress-label">Pending</span>
+                            <span class="progress-label">Pending({{$pending}}%)</span>
                         </div>
                         <div class="progress-bar" role="progressbar" 
                              style="width: {{$submitted}}%; background-color: #A5B4FC;">
-                            <span class="progress-label">Submitted</span>
+                            <span class="progress-label">Submitted({{$submitted}}%)</span>
                         </div>
                     </div>
                     <div class="legend" style="display: flex; justify-content: flex-start; gap: 20px;">
@@ -82,7 +82,7 @@
                     <h5 class="panel-title">Accountability Report</h5>
                 </div>
                 <div class="panel-body">
-                    <canvas id="stackedBarChart" height="32" width="430" style="border-radius: 15px;"></canvas>
+                    <canvas id="stackedBarChart" height="32"  style="border-radius: 15px;"></canvas>
                     <div class="legend mt-3" style="display: flex; align-items: center; gap: 20px;">
                         <div class="legend-item">
                             <span class="dot" style="background: #EF4444;"></span>
@@ -180,6 +180,7 @@
                     borderWidth: 0
                 }, {
                     label: 'Pending',
+                    indexAxis:'y',
                     data: [pendingPerc],
                     backgroundColor: '#FCD34D',
                     borderWidth: 0

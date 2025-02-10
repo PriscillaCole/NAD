@@ -1,6 +1,6 @@
 
 <!DOCTYPE html>
-<div class="container-fluid">
+<div class="container-fluid" style="background-color: white; ">
     <h4>Fund Request Status Overview</h4>
     
     <div class="row">
@@ -10,10 +10,10 @@
                     <h5 class="panel-title">Requisition Status</h5>
                 </div>
                 <div class="panel-body" style="display: flex">
-                    <div>
+                    <div class="chart-legend">
                         <canvas id="pieChart" width="250" height="200" ></canvas>
                     </div>
-                    <div class="chart-legend" style="margin-top: 88px; padding-left: 60px ">
+                    <div class="chart-legend" style="margin-top: 88px;">
                         <div class="row">
                            <span class="legend-dot" style="background-color: #4CAF50"></span> Approved
                         </div>

@@ -107,19 +107,19 @@ select.form-control {
         // Handle program select change
         programSelect.addEventListener('change', function() {
             const currentYear = new Date().getFullYear();
-            const url = `/dashboard?programId2=${this.value}&year=${yearSelect.value}`;
+            const url = `dashboard?programId2=${this.value}&year=${yearSelect.value}`;
             window.location.href = url;
         });
         yearSelect.addEventListener('change', function() {
             // const currentYear = new Date().getFullYear();
-            const url = `/dashboard?programId2=${programSelect.value}&year=${this.value}`;
+            const url = `dashboard?programId2=${programSelect.value}&year=${this.value}`;
             window.location.href = url;
         });
         
         // Trigger initial load if no program is selected
         if (!window.location.search.includes('programId2')) {
             const currentYear = new Date().getFullYear();
-            const url = `/dashboard?programId2=${programSelect.value}&year=${currentYear}`;
+            const url = `dashboard?programId2=${programSelect.value}&year=${currentYear}`;
             window.location.href = url;
         }
     

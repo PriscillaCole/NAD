@@ -16,7 +16,7 @@
         .text-right { text-align: right; }
     </style>
     <!-- add script -->
-    <script src="/js/createProgram.js"></script>
+    <script src="{{asset('js')}}/createProgram.js"></script>
 </head>
 <body>
 <div class="col-md-12">

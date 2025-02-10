@@ -10,6 +10,7 @@ use Encore\Admin\Facades\Admin;
 use App\Models\Program;
 use App\Models\Staff;
 use App\Models\Requisition;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
 class DashboardController extends Controller
@@ -17,21 +18,35 @@ class DashboardController extends Controller
 
     public static function getRequisitionStatus()
     {
+        //function to display the amount as 2M or 2K
+        function formatAmount($amount)
+        {
+            if ($amount >= 1000000) {
+                return round($amount / 1000000, 1) . 'M'; // Converts to millions
+            } elseif ($amount >= 1000) {
+                return round($amount / 1000, 1) . 'K'; // Converts to thousands
+            }
+            return $amount; // Returns as-is for smaller numbers
+        }
         $data = [
             'total_requisitions' => Requisition::count(),
             'pending_requisitions' => Requisition::where('status', 'pending')->orWhere('status', null)->count(),
-            'approved_requisitions' => Requisition::where('status', 'approved')->count(),
+            'director_requisitions' => Requisition::where('status', 'accepted')->count(),
+            'approved_requisitions' => Requisition::where('status', 'approved')->whereDoesntHave('accountability')->count(),
             'rejected_requisitions' => Requisition::where('status', 'rejected')->count(),
             'halted_requisitions' => Requisition::where('status', 'halted')->count(),
             //get the total amount of money requested in all requisitions
-            'total_amount_requested' => Requisition::sum('amount'),
-            'accountabilities' => Accountability::count()
-           
+            'total_amount_requested' => formatAmount(Requisition::whereYear('created_at', Carbon::now()->year)->sum('amount')),
+            'accountabilities' => Accountability::whereMonth('created_at', Carbon::now()->month)->count(),
+            'closed_accountabilities' => Accountability::whereMonth('created_at', Carbon::now()->month)->where('status', 'closed')->count()
         ];
+        
 
         return view('dashboard.requisition_status_cards', ['data' => $data]);
        
     }
+
+    
 
     public static function RequisitionStatuschart()
     {
@@ -103,6 +118,7 @@ class DashboardController extends Controller
 
         return view('dashboard.Accountability_Submission_Progress', compact('submitted', 'pending', 'pendingCount', 'haltedCount', 'acceptedCount'));
     }
+
     public static function programBudget($programId2 = null){
         $user = auth()->user();
             if ($user->isRole('staff')){
@@ -136,8 +152,8 @@ class DashboardController extends Controller
                             // Calculate remaining budget
                             $remainingBudget = $program->budget - $totalUsed;
             // $programs = Program::all();
-            $balance = ($remainingBudget / $program->budget) *100;
-            $used = ($totalUsed /$program->budget) *100;
+            $balance = round(($remainingBudget / $program->budget) * 100);
+            $used = round(($totalUsed / $program->budget) * 100);
 
             Log::info([$remainingBudget, $totalUsed]);
             Log::info([$used, $balance]);
@@ -251,11 +267,17 @@ class DashboardController extends Controller
             ];
         });
 
-        // dd($chartData);
+        // $heatmap = DashboardController::getBudgetUtilization();
+        // $heatmap = DashboardController::getProgramHierarchy($programId);
+        
+        // Log::info([$heatmap]);
 
+        // dd($chartData);
+        
         return view('dashboard.average_approval_time', compact(
             'chartData',
-            'programs'
+            'programs',
+            // 'heatmap'
         ));
         }
         else{
@@ -269,78 +291,193 @@ class DashboardController extends Controller
 
 
     // In DashboardController.php
-    public static function getAverageApprovalTimeData()
+    public static function getBudgetUtilization()
     {
-        // $programs = Program::all();
+        // Get all hierarchical data
+        $results = DB::table('activities')
+            ->join('outputs', 'activities.output_id', '=', 'outputs.id')
+            ->join('outcomes', 'outputs.outcome_id', '=', 'outcomes.id')
+            ->join('programs', 'outcomes.program_id', '=', 'programs.id')
+            ->select(
+                'activities.id as id',
+                'activities.name as activity_name',
+                'activities.budget as activity_budget',
+                'outputs.id as output_id',
+                'outputs.name as output_name',
+                'outputs.budget as output_budget',
+                'outcomes.id as outcome_id',
+                'outcomes.name as outcome_name',
+                'outcomes.budget as outcome_budget',
+                'programs.id as program_id',
+                'programs.name as program_name',
+                'programs.budget as program_budget'
+            )
+            ->get();
 
-        // // Fetch requisitions with approval times
-        // $query = DB::table('requisitions')
-        //     ->select(DB::raw('DATE_FORMAT(updated_at, "%Y-%m") as period'), DB::raw('AVG(TIMESTAMPDIFF(DAY, created_at, updated_at)) as avg_days'))
-        //     ->whereNotNull('updated_at')
-        //     ->groupBy(DB::raw('DATE_FORMAT(updated_at, "%Y-%m")'))
-        //     ->orderBy(DB::raw('DATE_FORMAT(updated_at, "%Y-%m")'))
-        //     ->get();
+        $structuredData = [];
 
-        // // Map results to the required format
-        // $chartData = $query->map(function($item) {
-        //     return [
-        //         'period' => $item->period,
-        //         'avg_days' => $item->avg_days,
-        //     ];
-        // });
+        foreach ($results as $row) {
+            // Calculate percentages at each level
+            
+            // Activity as percentage of its Output
+            if ($row->output_budget > 0) {
+                $activityPercentage = round(($row->activity_budget / $row->output_budget) * 100, 2);
+            } else {
+                $activityPercentage = 0;
+            }
+            
+            // Output as percentage of its Outcome
+            if ($row->outcome_budget > 0) {
+                $outputPercentage = round(($row->output_budget / $row->outcome_budget) * 100, 2);
+            } else {
+                $outputPercentage = 0;
+            }
+            
+            // Outcome as percentage of its Program
+            if ($row->program_budget > 0) {
+                $outcomePercentage = round(($row->outcome_budget / $row->program_budget) * 100, 2);
+            } else {
+                $outcomePercentage = 0;
+            }
 
-        // return [
-        //     'chartData' => $chartData,
-        //     'programs' => $programs,
-        // ];
+            // Add Activity data
+            $structuredData[$row->activity_name] = [
+                'name' => $row->activity_name,
+                'utilization' => $activityPercentage / 100,
+                'budget_amount' => $row->activity_budget,
+                'parent_budget' => $row->output_budget,
+                'level' => 1
+            ];
 
-        $treemapData = [
-            [
-                'category' => 'LLF',
-                'value' => 85
-            ],
-            [
-                'category' => 'VRC',
-                'value' => 65
-            ],
-            [
-                'category' => 'G',
-                'value' => 45
-            ],
-            [
-                'category' => 'DRR',
-                'value' => 75
-            ],
-            [
-                'category' => 'DSR',
-                'value' => 55
-            ],
-            [
-                'category' => 'RKY',
-                'value' => 90
-            ],
-            [
-                'category' => 'PTE',
-                'value' => 70
-            ],
-            [
-                'category' => 'APGR',
-                'value' => 80
-            ]
+            // Add Output data if not already added
+            if (!isset($structuredData[$row->output_name])) {
+                $structuredData[$row->output_name] = [
+                    'name' => $row->output_name,
+                    'utilization' => $outputPercentage / 100,
+                    'budget_amount' => $row->output_budget,
+                    'parent_budget' => $row->outcome_budget,
+                    'level' => 2
+                ];
+            }
+
+            // Add Outcome data if not already added
+            if (!isset($structuredData[$row->outcome_name])) {
+                $structuredData[$row->outcome_name] = [
+                    'name' => $row->outcome_name,
+                    'utilization' => $outcomePercentage / 100,
+                    'budget_amount' => $row->outcome_budget,
+                    'parent_budget' => $row->program_budget,
+                    'level' => 3
+                ];
+            }
+
+            // Add Program data if not already added
+            if (!isset($structuredData[$row->program_name])) {
+                $structuredData[$row->program_name] = [
+                    'name' => $row->program_name,
+                    'utilization' => 1, // Program is 100% of itself
+                    'budget_amount' => $row->program_budget,
+                    'parent_budget' => $row->program_budget,
+                    'level' => 4
+                ];
+            }
+        }
+
+        return $structuredData;
+    }
+
+    public static function getProgramHierarchy($programId)
+    {
+        // Get all hierarchical data filtered by program
+        $results = DB::table('activities')
+            ->join('outputs', 'activities.output_id', '=', 'outputs.id')
+            ->join('outcomes', 'outputs.outcome_id', '=', 'outcomes.id')
+            ->join('programs', 'outcomes.program_id', '=', 'programs.id')
+            ->where('programs.id', '=', $programId)
+            ->select(
+                'activities.id as activity_id',
+                'activities.name as activity_name',
+                'activities.budget as activity_budget',
+                'outputs.id as output_id',
+                'outputs.name as output_name',
+                'outputs.budget as output_budget',
+                'outcomes.id as outcome_id',
+                'outcomes.name as outcome_name',
+                'outcomes.budget as outcome_budget',
+                'programs.id as program_id',
+                'programs.name as program_name',
+                'programs.budget as program_budget'
+            )
+            ->get();
+
+        if ($results->isEmpty()) {
+            return [];
+        }
+
+        // Structure the data hierarchically
+        $programData = [];
+        
+        foreach ($results as $row) {
+            // Calculate utilization percentages
+            $activityPercentage = $row->output_budget > 0 
+                ? round(($row->activity_budget / $row->output_budget) * 100, 2) / 100 
+                : 0;
+                
+            $outputPercentage = $row->outcome_budget > 0 
+                ? round(($row->output_budget / $row->outcome_budget) * 100, 2) / 100 
+                : 0;
+                
+            $outcomePercentage = $row->program_budget > 0 
+                ? round(($row->outcome_budget / $row->program_budget) * 100, 2) / 100 
+                : 0;
+
+            // Build hierarchical structure
+            if (!isset($programData['outcomes'][$row->outcome_name])) {
+                $programData['outcomes'][$row->outcome_name] = [
+                    'name' => $row->outcome_name,
+                    'budget_amount' => $row->outcome_budget,
+                    'utilization' => $outcomePercentage,
+                    'outputs' => []
+                ];
+            }
+
+            if (!isset($programData['outcomes'][$row->outcome_name]['outputs'][$row->output_name])) {
+                $programData['outcomes'][$row->outcome_name]['outputs'][$row->output_name] = [
+                    'name' => $row->output_name,
+                    'budget_amount' => $row->output_budget,
+                    'utilization' => $outputPercentage,
+                    'activities' => []
+                ];
+            }
+
+            // Add activity
+            $programData['outcomes'][$row->outcome_name]['outputs'][$row->output_name]['activities'][$row->activity_name] = [
+                'name' => $row->activity_name,
+                'budget_amount' => $row->activity_budget,
+                'utilization' => $activityPercentage
+            ];
+        }
+
+        // Add program level information
+        $programData['program'] = [
+            'name' => $results->first()->program_name,
+            'budget_amount' => $results->first()->program_budget
         ];
 
-        // Sample data for bar chart
-        $barChartLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-        $lerData = [100, 95, 90, 85, 80, 85];
-        $rxrData = [80, 85, 75, 70, 65, 70];
-
-        return view('dashboard.average_approval_time', compact(
-            'treemapData',
-            'barChartLabels',
-            'lerData',
-            'rxrData'
-        ));
+        return $programData;
     }
+
+    // API endpoint to fetch data for the frontend
+    public function getBudgetData()
+    {
+        try {
+            $data = $this->getBudgetUtilization();
+            return response()->json($data);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
 
     
 
