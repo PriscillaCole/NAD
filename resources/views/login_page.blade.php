@@ -34,10 +34,10 @@
    </head>
    <body >
        
-    <div class="container-fluid ">
-        <div class="container ">
+    <div class="container-fluid " style="height: 100%; witdth:100%;">
+        {{-- <div class="container " style="height: 100%; max-witdth:100% !important;"> --}}
             
-            <div class="row g-0" style="height: 100%">
+            <div class="row g-0" style="height: 100%; witdth:100%;">
                 
                 <div class="col-md-8 col-lg-6 d-none d-md-block">
                 <img src="http://localhost/NAD/public/login-template/images/disability-pictures-data.png"
@@ -114,7 +114,7 @@
                 </div>
             </div>
             
-        </div>
+        {{-- </div> --}}
     </div>
     <script src="{{asset('login-template')}}/js/jquery.min.js"></script>
     <script src="{{asset('login-template')}}/js/popper.js"></script>
