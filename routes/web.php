@@ -83,3 +83,11 @@ Route::post('/notifications/mark-as-read/{id}', function($id) {
     }
 });
 
+Route::get('migrate', function () {
+    //do run laravel migration command
+    // Artisan::call('migrate');
+    Artisan::call('migrate', ['--force' => true]);
+    //returning the output
+    return Artisan::output();
+});
+
