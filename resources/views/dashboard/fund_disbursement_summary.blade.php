@@ -39,10 +39,8 @@
         <div class="col-md-6">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <div class="row">
-                        <div class="col-xs-6">
                             <h5 class="panel-title" style="margin-top: 7px;">Funds disbursed</h5>
-                        </div>
+                        
                         <form method="GET" action="{{ request()->url() }}">
                         <div class="col-xs-6 text-right">
                             <select class="form-control input-sm" name="year" id='year-filter'  style="width: 100px; display: inline-block;">
@@ -57,7 +55,6 @@
                             </select>
                         </div>
                         </form>
-                    </div>
                 </div>
                 <div class="panel-body">
                     <canvas id="lineChart" width="400" height="165"></canvas>
