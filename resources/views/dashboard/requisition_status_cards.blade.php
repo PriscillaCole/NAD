@@ -120,7 +120,7 @@
                     <div class="col-md-2">
                         <div class="kpi-card cyan-bg">
                             <div class="kpi-icon orang">
-                                <i class="glyphicon glyphicon-stats" style="color: white"></i>
+                                <i class="glyphicon glyphicon-stats"></i>
                             </div>
                             <div class="kpi-value">{{ $data['accountabilities'] }}</div>
                             <div class="kpi-label">Total Accountabilities this month</div>
