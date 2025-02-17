@@ -9,7 +9,7 @@
 
         const outcomeTemplate = `
             <div class="panel panel-default outcome" id="outcome-${outcomeId}">
-                <div class="panel-heading">
+                <div class="panel-heading outcomes">
                     <h4 class="panel-title">
                         <span class="entity-label">Outcome ${outcomeCounter}</span> 
                        
@@ -68,7 +68,7 @@
 
         const outputTemplate = `
             <div class="panel panel-default output" id="output-${outputId}">
-                <div class="panel-heading">
+                <div class="panel-heading outputs">
                     <h5 class="panel-title">
                         <span class="entity-label">Output ${outcomeCounter}.${outputCount}</span> 
                         
@@ -125,7 +125,7 @@
 
         const activityTemplate = `
             <div class="panel panel-default activity" id="activity-${activityId}">
-                <div class="panel-heading">
+                <div class="panel-heading activities">
                     <h6 class="panel-title">
                         <span class="entity-label">Activity ${outcomeCounter}.${activityCount}</span> 
                     </h6>
@@ -276,7 +276,7 @@
     
         const budgetLineTemplate = `
             <div class="panel panel-default budget-line" id="budget-line-${budgetLineId}">
-                <div class="panel-heading">
+                <div class="panel-heading budgetlines">
                     <h6 class="panel-title">
                         <span class="entity-label">Budget Line ${outcomeCounter}.${budgetLineCount}</span>
                     </h6>
@@ -478,12 +478,12 @@
 
     document.addEventListener('DOMContentLoaded', function() {
         // Add collapsed class to all panels initially
-        document.querySelectorAll('.panel').forEach(panel => {
+        document.querySelectorAll(' .output, .activity, .budgetlines').forEach(panel => {
             panel.classList.add('collapsed');
         });
     
         // Add click handlers to all panel headings
-        document.querySelectorAll('.panel-heading').forEach(heading => {
+        document.querySelectorAll(' .outcomes, .outputs, .activities, .budgetlines').forEach(heading => {
             heading.addEventListener('click', function(e) {
                 // Get the parent panel
                 const panel = this.closest('.panel');

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Program</title>
-    <style>
+    {{-- <style>
         .ml-4 { margin-left: 1.5rem; }
         .ml-5 { margin-left: 3rem; }
         .btn-add { margin-top: 10px; margin-bottom: 10px; }
@@ -12,6 +12,75 @@
         .panel-body { padding: 15px; }
         .entity-label { font-weight: bold; margin-right: 10px; }
         .text-right { text-align: right; }
+    </style> --}}
+
+    <style>
+        /* Basic collapsible functionality */
+        .panel-body {
+            display: none;
+        }
+
+        .outcomes,
+        .outputs,
+        .activities,
+        .budgetlines {
+            cursor: pointer;
+            position: relative;
+            padding-right: 30px;
+        }
+
+        /* Add toggle indicators */
+        .outcomes::after,
+        .outputs::after,
+        .activities::after,
+        .budgetlines::after {
+            content: '▼';
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: transform 0.3s ease;
+        }
+
+        .panel.collapsed,
+        .outcomes::after,
+        /* .outputs::after, */
+        /* .activities::after*/ { 
+            transform: translateY(-50%) rotate(-90deg);
+        }
+        /* Show panel body when not collapsed */
+        .panel:not(.collapsed) > .panel-body {
+            display: block;
+        }
+
+        /* Initial state - all panels collapsed except outcomes */
+        .outcome .output,
+        .outcome .activity,
+        .outcome .budget-lines {
+            margin-left: 20px;
+        }
+
+        /* Maintain the existing color scheme */
+        .outcomes {
+            background-color: #FFE6E6 !important;
+        }
+
+        .outputs {
+            background-color: #E8F5E9 !important;
+        }
+
+        .activities {
+            background-color: #F3E5F5 !important;
+        }
+
+        .budgetlines {
+            background-color: #b7f7f1 !important;
+        }
+
+        /* Add smooth transition */
+        .panel-body {
+            transition: all 0.3s ease-out;
+        }
     </style>
     <script src="{{asset('js')}}/createProgram.js"></script>
 </head>
@@ -22,7 +91,7 @@
             <!-- Program Edit Box -->
             <div class="panel panel-info">
                 <div class="panel-heading bg-primary" style="background-color: transparent; display: flex; justify-content: space-between; align-items: center; border-top: 4px solid #87cefa;">
-                    <h3 class="panel-title" style="margin: 0;">Edit Program</h3>
+                    <h3 class="panel-title" style="margin: 0;">Edit Budget</h3>
                     <div class="btn-group">
                         <a href="http://127.0.0.1:8000/budgets" class="btn btn-sm btn-default" title="List">
                             <i class="fa fa-list"></i> List
@@ -61,7 +130,7 @@
                         
                             @foreach ($program->outcomes as $outcome)
                                 <div class="panel panel-default outcome" id="outcome-{{ $outcome->id }}">
-                                    <div class="panel-heading">
+                                    <div class="panel-heading outcomes">
                                         <h4 class="panel-title">
                                             <span class="entity-label">Outcome </span> 
                                         </h4>
@@ -95,7 +164,7 @@
                                         <div id="outputs-{{ $outcome->id }}">
                                             @foreach ($outcome->outputs as $output)
                                                 <div class="panel panel-default output" id="output-{{ $output->id }}">
-                                                    <div class="panel-heading">
+                                                    <div class="panel-heading outputs">
                                                         <h5 class="panel-title">
                                                             <span class="entity-label">Output</span> 
                                                         </h5>
@@ -129,7 +198,7 @@
                                                         <div id="activities-{{ $output->id }}">
                                                             @foreach ($output->activities as $activity)
                                                                 <div class="panel panel-default activity" id="activity-{{ $activity->id }}">
-                                                                    <div class="panel-heading">
+                                                                    <div class="panel-heading activities">
                                                                         <h6 class="panel-title">
                                                                             <span class="entity-label">Activity</span> 
                                                                         </h6>
@@ -162,7 +231,7 @@
                                                                         <div id="budget-lines-{{ $activity->id }}">
                                                                             @foreach ($activity->budget_lines as $budget_line)
                                                                                 <div class="panel panel-default activity" id="activity-{{ $budget_line->id }}">
-                                                                                    <div class="panel-heading">
+                                                                                    <div class="panel-heading budgetlines">
                                                                                         <h6 class="panel-title">
                                                                                             <span class="entity-label">Budget Lines</span> 
                                                                                         </h6>

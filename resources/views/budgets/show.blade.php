@@ -29,63 +29,71 @@
 
     <style>
         /* Basic collapsible functionality */
-.panel-body {
-    display: none;
-}
+        .panel-body {
+            display: none;
+        }
 
-.panel-heading {
-    cursor: pointer;
-    position: relative;
-    padding-right: 30px;
-}
+        .outcomes,
+        .outputs,
+        .activities,
+        .budgetlines {
+            cursor: pointer;
+            position: relative;
+            padding-right: 30px;
+        }
 
-/* Add toggle indicators */
-.panel-heading::after {
-    content: '▼';
-    position: absolute;
-    right: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-    transition: transform 0.3s ease;
-}
+        /* Add toggle indicators */
+        .outcomes::after,
+        .outputs::after,
+        .activities::after,
+        .budgetlines::after {
+            content: '▼';
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: transform 0.3s ease;
+        }
 
-.panel.collapsed .panel-heading::after {
-    transform: translateY(-50%) rotate(-90deg);
-}
+        .panel.collapsed,
+        .outcomes::after,
+        /* .outputs::after, */
+        /* .activities::after*/ { 
+            transform: translateY(-50%) rotate(-90deg);
+        }
+        /* Show panel body when not collapsed */
+        .panel:not(.collapsed) > .panel-body {
+            display: block;
+        }
 
-/* Show panel body when not collapsed */
-.panel:not(.collapsed) > .panel-body {
-    display: block;
-}
+        /* Initial state - all panels collapsed except outcomes */
+        .outcome .output,
+        .outcome .activity,
+        .outcome .budget-lines {
+            margin-left: 20px;
+        }
 
-/* Initial state - all panels collapsed except outcomes */
-.outcome .output,
-.outcome .activity,
-.outcome .budget-lines {
-    margin-left: 20px;
-}
+        /* Maintain the existing color scheme */
+        .outcomes {
+            background-color: #FFE6E6 !important;
+        }
 
-/* Maintain the existing color scheme */
-.outcomes {
-    background-color: #FFE6E6 !important;
-}
+        .outputs {
+            background-color: #E8F5E9 !important;
+        }
 
-.outputs {
-    background-color: #E8F5E9 !important;
-}
+        .activities {
+            background-color: #F3E5F5 !important;
+        }
 
-.activities {
-    background-color: #F3E5F5 !important;
-}
+        .budgetlines {
+            background-color: #b7f7f1 !important;
+        }
 
-.budgetlines {
-    background-color: #b7f7f1 !important;
-}
-
-/* Add smooth transition */
-.panel-body {
-    transition: all 0.3s ease-out;
-}
+        /* Add smooth transition */
+        .panel-body {
+            transition: all 0.3s ease-out;
+        }
     </style>
     <script src="/js/createProgram.js"></script>
 </head>
@@ -96,9 +104,9 @@
             <!-- Program Edit Box -->
             <div class="panel panel-info">
                 <div class="panel-heading bg-primary" style="background-color: transparent; display: flex; justify-content: space-between; align-items: center; border-top: 4px solid #87cefa;">
-                    <h3 class="panel-title" style="margin: 0;">Edit Program</h3>
+                    <h3 class="panel-title" style="margin: 0;">Show Budget</h3>
                     <div class="btn-group">
-                        <a href="http://127.0.0.1:8000/programs" class="btn btn-sm btn-default" title="List">
+                        <a href="http://127.0.0.1:8000/budgets" class="btn btn-sm btn-default" title="List">
                             <i class="fa fa-list"></i> List
                         </a>
                     </div>
