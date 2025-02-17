@@ -23,4 +23,9 @@ class Output extends Model
     {
         return $this->hasMany(Activity::class);
     }
+
+    public function requisitions()
+    {
+        return $this->hasMany(Requisition::class);
+    }
 }

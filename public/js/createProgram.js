@@ -475,3 +475,34 @@
         outputBudgetInput.value = outputTotal;
         return true;
     }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add collapsed class to all panels initially
+        document.querySelectorAll('.panel').forEach(panel => {
+            panel.classList.add('collapsed');
+        });
+    
+        // Add click handlers to all panel headings
+        document.querySelectorAll('.panel-heading').forEach(heading => {
+            heading.addEventListener('click', function(e) {
+                // Get the parent panel
+                const panel = this.closest('.panel');
+                
+                // Toggle the collapsed class
+                panel.classList.toggle('collapsed');
+                
+                // If this is an outcome panel
+                if (panel.classList.contains('outcome')) {
+                    // Collapse all child panels when closing
+                    if (panel.classList.contains('collapsed')) {
+                        panel.querySelectorAll('.panel').forEach(childPanel => {
+                            childPanel.classList.add('collapsed');
+                        });
+                    }
+                }
+                
+                // Stop event from bubbling to parent panels
+                e.stopPropagation();
+            });
+        });
+    });

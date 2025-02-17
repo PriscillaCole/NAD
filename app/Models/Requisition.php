@@ -14,6 +14,8 @@ class Requisition extends Model
         'code',
         'activity_id',
         'program_id',
+        'outcome_id',
+        'output_id',
         'concept_note',
         'staff_id',
         'description',
@@ -46,6 +48,15 @@ class Requisition extends Model
     public function activity()
     {
         return $this->belongsTo(Activity::class);
+    }
+    //relationship between requisitions and activities
+    public function outcome()
+    {
+        return $this->belongsTo(Outcome::class);
+    }//relationship between requisitions and activities
+    public function output()
+    {
+        return $this->belongsTo(Output::class);
     }
 
     // A requisition can have many accountabilities

@@ -27,51 +27,6 @@ class BudgetController extends AdminController
      *
      * @return Grid
      */
-    // protected function grid()
-    // {
-    //     $grid = new Grid(new Program());
-
-    //     $grid->disableBatchActions();
-
-    //     $user = auth()->user();
-    //     // disable create button for finance and CD
-    //     if ($user->inRoles(['finance', 'director'])){
-    //         $grid->disableCreateButton();
-    //         $grid->actions(function ($actions) {
-    //             $actions->disableEdit();
-    //         });
-    //     }else{
-    //         $grid->model()->where('user_id', auth()->id());
-
-    //     }
-
-    //     //filter by name 
-    //     $grid->filter(function($filter){
-    //         $filter->disableIdFilter();
-    //         $filter->equal('id', 'Program')->select(Program::all()->pluck('name', 'id'));
-    //     });
-
-    //     // change function for edit action
-    //     $grid->actions(function ($actions) {
-    //         // Disable delete button
-    //         $actions->disableDelete();
-    //     });
-
-    //     $grid->column('id', __('Id'));
-    //     $grid->column('name', __('Name'));
-    //     $grid->column('user_id', __('Project Manager'))->display(function ($user_id) {
-    //         // Use the relationship to fetch the user's name
-    //         return $this->user ? $this->user->name : 'No Project Manager';
-    //     });
-    //     // $grid->column('description', __('Description'));
-
-    //     $grid->column('created_at', __('Created at'))->display(function ($created_at) {
-    //         //return human readable format
-    //         return (Carbon::parse($created_at)->diffForHumans());
-    //     });
-
-    //     return $grid;
-    // }
 
     protected function grid()
 {

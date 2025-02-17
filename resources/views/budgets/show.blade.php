@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Show Program</title>
-    <style>
+    {{-- <style>
         .ml-4 { margin-left: 1.5rem; }
         .ml-5 { margin-left: 3rem; }
         .btn-add { margin-top: 10px; margin-bottom: 10px; }
@@ -12,6 +12,80 @@
         .panel-body { padding: 15px; }
         .entity-label { font-weight: bold; margin-right: 10px; }
         .text-right { text-align: right; }
+
+        .outcomes{
+            background-color: #FFE6E6 !important;
+        }
+        .outputs{
+            background-color: #E8F5E9 !important;
+        }
+        .activities{
+            background-color: #F3E5F5 !important;
+        }
+        .budgetlines{
+            background-color: #b7f7f1 !important;
+        }
+    </style> --}}
+
+    <style>
+        /* Basic collapsible functionality */
+.panel-body {
+    display: none;
+}
+
+.panel-heading {
+    cursor: pointer;
+    position: relative;
+    padding-right: 30px;
+}
+
+/* Add toggle indicators */
+.panel-heading::after {
+    content: '▼';
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: transform 0.3s ease;
+}
+
+.panel.collapsed .panel-heading::after {
+    transform: translateY(-50%) rotate(-90deg);
+}
+
+/* Show panel body when not collapsed */
+.panel:not(.collapsed) > .panel-body {
+    display: block;
+}
+
+/* Initial state - all panels collapsed except outcomes */
+.outcome .output,
+.outcome .activity,
+.outcome .budget-lines {
+    margin-left: 20px;
+}
+
+/* Maintain the existing color scheme */
+.outcomes {
+    background-color: #FFE6E6 !important;
+}
+
+.outputs {
+    background-color: #E8F5E9 !important;
+}
+
+.activities {
+    background-color: #F3E5F5 !important;
+}
+
+.budgetlines {
+    background-color: #b7f7f1 !important;
+}
+
+/* Add smooth transition */
+.panel-body {
+    transition: all 0.3s ease-out;
+}
     </style>
     <script src="/js/createProgram.js"></script>
 </head>
@@ -83,11 +157,15 @@
                     ?>
                         <div class="form-group">
                             <label for="description" class="col-sm-2 control-label">Program Budget</label>
-                            <div class="col-sm-4">
+                            <div class="col-sm-2">
                                 <input type="text" name="budget" class="form-control" value="{{ $program->budget }}" readonly />
                             </div>
+                            <label for="description" class="col-sm-2 control-label">Used Budget</label>
+                            <div class="col-sm-2">
+                                <input type="text" name="budget" class="form-control" value="{{ $totalUsed }}" readonly />
+                            </div>
                             <label for="description" class="col-sm-2 control-label">Remaining amount</label>
-                            <div class="col-sm-4">
+                            <div class="col-sm-2">
                                 <input type="text" name="budget" class="form-control" value="{{ $remainingBudget }}" readonly />
                             </div>
                         </div>
@@ -95,11 +173,18 @@
                         <!-- Outcome Section -->
                         <div id="outcomes">
                         
+                        @php
+                            $count = 0
+                        @endphp
                             @foreach ($program->outcomes as $outcome)
+                           @php
+                                $count++;
+                           @endphp
+                               
                                 <div class="panel panel-default outcome" id="outcome-{{ $outcome->id }}">
-                                    <div class="panel-heading">
+                                    <div class="panel-heading outcomes">
                                         <h4 class="panel-title">
-                                            <span class="entity-label">Outcome </span> 
+                                            <span class="entity-label">Outcome {{$count}} </span> 
                                         </h4>
                                     </div>
                                     <div class="panel-body">
@@ -138,7 +223,7 @@
 
                                         <div class="form-group">
                                             <label class="col-sm-2 control-label">Outcome Budget</label>
-                                            <div class="col-sm-4">
+                                            <div class="col-sm-2">
                                                 <div class="input-group">
                                                     <span class="input-group-addon">
                                                         <i class="fa fa-pencil fa-fw"></i>
@@ -146,8 +231,17 @@
                                                     <input type="number" name="outcomes[{{ $outcome->id }}][budget]" class="form-control" value="{{ $outcome->budget }}" readonly>
                                                 </div>
                                             </div>
+                                            <label class="col-sm-2 control-label">Used Budget</label>
+                                            <div class="col-sm-2">
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa fa-pencil fa-fw"></i>
+                                                    </span>
+                                                    <input type="number" name="outcomes[{{ $outcome->id }}][budget]" class="form-control" value="{{ $totalUsed }}" readonly>
+                                                </div>
+                                            </div>
                                             <label class="col-sm-2 control-label">Remaining Budget</label>
-                                            <div class="col-sm-4">
+                                            <div class="col-sm-2">
                                                 <div class="input-group">
                                                     <span class="input-group-addon">
                                                         <i class="fa fa-pencil fa-fw"></i>
@@ -161,7 +255,7 @@
                                         <div id="outputs-{{ $outcome->id }}">
                                             @foreach ($outcome->outputs as $output)
                                                 <div class="panel panel-default output" id="output-{{ $output->id }}">
-                                                    <div class="panel-heading">
+                                                    <div class="panel-heading outputs">
                                                         <h5 class="panel-title">
                                                             <span class="entity-label">Output</span> 
                                                         </h5>
@@ -199,7 +293,7 @@
 
                                                         <div class="form-group">
                                                             <label class="col-sm-2 control-label">Output Budget</label>
-                                                            <div class="col-sm-4">
+                                                            <div class="col-sm-2">
                                                                 <div class="input-group">
                                                                     <span class="input-group-addon">
                                                                         <i class="fa fa-pencil fa-fw"></i>
@@ -207,8 +301,17 @@
                                                                     <input type="number" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][budget]" class="form-control" value="{{ $output->budget }}" readonly>
                                                                 </div>
                                                             </div>
+                                                            <label class="col-sm-2 control-label">Used Budget</label>
+                                                            <div class="col-sm-2">
+                                                                <div class="input-group">
+                                                                    <span class="input-group-addon">
+                                                                        <i class="fa fa-pencil fa-fw"></i>
+                                                                    </span>
+                                                                    <input type="number" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][budget]" class="form-control" value="{{ $totalUsed }}" readonly>
+                                                                </div>
+                                                            </div>
                                                             <label class="col-sm-2 control-label">Remaining Budget</label>
-                                                            <div class="col-sm-4">
+                                                            <div class="col-sm-2">
                                                                 <div class="input-group">
                                                                     <span class="input-group-addon">
                                                                         <i class="fa fa-pencil fa-fw"></i>
@@ -222,7 +325,7 @@
                                                         <div id="activities-{{ $output->id }}">
                                                             @foreach ($output->activities as $activity)
                                                                 <div class="panel panel-default activity" id="activity-{{ $activity->id }}">
-                                                                    <div class="panel-heading">
+                                                                    <div class="panel-heading activities">
                                                                         <h6 class="panel-title">
                                                                             <span class="entity-label">Activity</span> 
                                                                         </h6>
@@ -256,7 +359,7 @@
                                                                         ?>
                                                                         <div class="form-group">
                                                                             <label class="col-sm-2 control-label">Activity Budget</label>
-                                                                            <div class="col-sm-4">
+                                                                            <div class="col-sm-2">
                                                                                 <div class="input-group">
                                                                                     <span class="input-group-addon">
                                                                                         <i class="fa fa-pencil fa-fw"></i>
@@ -264,8 +367,17 @@
                                                                                     <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][budget]" class="form-control" value="{{ $activity->budget }}" readonly>
                                                                                 </div>
                                                                             </div>
+                                                                            <label class="col-sm-2 control-label">Used Budget</label>
+                                                                            <div class="col-sm-2">
+                                                                                <div class="input-group">
+                                                                                    <span class="input-group-addon">
+                                                                                        <i class="fa fa-pencil fa-fw"></i>
+                                                                                    </span>
+                                                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][budget]" class="form-control" value="{{ $totalUsed }}" readonly>
+                                                                                </div>
+                                                                            </div>
                                                                             <label class="col-sm-2 control-label">Remaining Budget</label>
-                                                                            <div class="col-sm-4">
+                                                                            <div class="col-sm-2">
                                                                                 <div class="input-group">
                                                                                     <span class="input-group-addon">
                                                                                         <i class="fa fa-pencil fa-fw"></i>
@@ -278,7 +390,7 @@
                                                                         <div id="budget-lines-{{ $activity->id }}">
                                                                             @foreach ($activity->budget_lines as $budget_line)
                                                                                 <div class="panel panel-default activity" id="activity-{{ $budget_line->id }}">
-                                                                                    <div class="panel-heading">
+                                                                                    <div class="panel-heading budgetlines">
                                                                                         <h6 class="panel-title">
                                                                                             <span class="entity-label">Budget Lines</span> 
                                                                                         </h6>

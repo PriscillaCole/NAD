@@ -59,7 +59,7 @@ return [
     */
     'route' => [
 
-        'prefix' => env('ADMIN_ROUTE_PREFIX', 'admin'),
+        'prefix' => '',
 
         'namespace' => 'App\\Admin\\Controllers',
 
@@ -86,7 +86,7 @@ return [
     | Html title for all pages.
     |
     */
-    'title' => 'CUAMM',
+    'title' => 'NAD',
 
     /*
     |--------------------------------------------------------------------------

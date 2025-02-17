@@ -8,6 +8,8 @@ use App\Models\AdminBudget_lines;
 use App\Models\AdminProgram;
 use App\Models\BudgetLines;
 use App\Models\Comments;
+use App\Models\Outcome;
+use App\Models\Output;
 use App\Models\Program;
 use App\Models\Requisition;
 use App\Models\Staff;
@@ -125,20 +127,20 @@ class RequisitionController extends AdminController
         );
         // $id = $grid->column('id');
         // $downloadLink = admin_url('/requisitions/download/'. $id);
-        $grid->column('id', __('Inspection Report'))->display(function ($id)
+        $grid->column('id', __('Requisition Documents'))->display(function ($id)
         {
             $requisition = Requisition::find($id);
         
-            if ($requisition && $requisition->status == 'approved') {
+            // if ($requisition && $requisition->status == 'approved') {
                 $token = csrf_token();
                 $downloadLink = admin_url('/requisitions/download/'. $id);
                 return "<b>
-                          Download Reports
+                          Download documents
                         </b>";
-            } else
-            {          
-                return '<b> No accountability</b>';
-            }
+            // } else
+            // {          
+            //     return '<b> No accountability</b>';
+            // }
         })
         ->link(function () {
             // Use the dynamically generated link
@@ -327,14 +329,24 @@ class RequisitionController extends AdminController
             }else{
                 $form->text('code', __('RequisitionID'))->default('REQ-'.rand(1000, 9999))->readonly();
                 $form->select('program_id', __('Program'))->options(Program::where('user_id', $staff_id)->pluck('name', 'id'))->attribute('id', 'program_id')->required();
-            
+                $form->select('outcome_id', __('Outcome'))->options(function ($id) {
+                    // Preload the selected activity for editing
+                    $outcome = Outcome::find($id);
+                    return $outcome ? [$outcome->id => $outcome->name] : [];
+                    })->attribute('id', 'outcome_id')->required();
+                $form->select('output_id', __('Output'))->options(function ($id) {
+                    // Preload the selected activity for editing
+                    $output = Output::find($id);
+                    return $output ? [$output->id => $output->name] : [];
+                    })->attribute('id', 'output_id')->required();
                 $form->select('activity_id', __('Activity'))->options(function ($id) {
                     // Preload the selected activity for editing
                     $activity = Activity::find($id);
                     return $activity ? [$activity->id => $activity->name] : [];
                     })->attribute('id', 'activity_id')->required();
-                $form->date('setOff_date', __('Set Off Date'))->required();
-                $form->date('return_date', __('Return Date'))->required();
+                $form->text('', __('Activity budget'))->attribute('id', 'activity_budget')->readonly();
+                // $form->date('setOff_date', __('Set Off Date'))->required();
+                // $form->date('return_date', __('Return Date'))->required();
 
                     //add requisition items
                     $form->hasMany('requisition_items', 'Requisition items', function (Form\NestedForm $form) {
@@ -376,7 +388,46 @@ class RequisitionController extends AdminController
         Admin::script('
             $("#program_id").change(function(){
                 var program_id = $(this).val();
-                $.get("/program-activities/"+program_id, function(data){
+                $.get("/program-outcomes/"+program_id, function(data){
+                    $("#outcome_id").empty();
+                    $("#no-activities-message").remove();
+                    
+                    if($.isEmptyObject(data)) {
+                        $("#outcome_id").after("<span id=\'no-activities-message\' style=\'color: red;\'>No activities available for this program</span>");
+                    } else {
+                        // Add a default option
+                        $("#outcome_id").append(new Option(\'Select Activity \', \'\'));
+                                
+                        $.each(data, function(key, value){
+                            $("#outcome_id").append("<option value="+key+">"+value+"</option>");
+                        });
+                    }
+                });
+            });
+
+            //show outputs
+            $("#outcome_id").change(function(){
+                var outcome_id = $(this).val();
+                $.get("/outcome-outputs/"+outcome_id, function(data){
+                    $("#output_id").empty();
+                    $("#no-activities-message").remove();
+                    
+                    if($.isEmptyObject(data)) {
+                        $("#output_id").after("<span id=\'no-activities-message\' style=\'color: red;\'>No activities available for this program</span>");
+                    } else {
+                        // Add a default option
+                        $("#output_id").append(new Option(\'Select Activity \', \'\'));
+                                
+                        $.each(data, function(key, value){
+                            $("#output_id").append("<option value="+key+">"+value+"</option>");
+                        });
+                    }
+                });
+            });
+            //show activities
+            $("#output_id").change(function(){
+                var output_id = $(this).val();
+                $.get("/output-activities/"+output_id, function(data){
                     $("#activity_id").empty();
                     $("#no-activities-message").remove();
                     
@@ -402,7 +453,11 @@ class RequisitionController extends AdminController
 
                  $.get("/budgetlines/" + activity_id)
                     .done(function(data) {
-                    if ($.isEmptyObject(data)) {
+                    var budgetLines = data[0]; // Extract budget lines object
+                    var activity_budget = data[1]; // Extract activity budget
+
+                    $("#activity_budget").val(activity_budget);
+                    if ($.isEmptyObject(budgetLines)) {
                         alert("No budget lines available for the selected activity");
                         return;
                     }
@@ -411,7 +466,7 @@ class RequisitionController extends AdminController
                     $("#has-many-requisition_items").find(".has-many-requisition_items-forms").empty();
 
                     // Dynamically add requisition items for each budget line
-                    $.each(data, function(key, value) {
+                    $.each(budgetLines, function(key, value) {
                         $(".add").click(); // Simulate clicking the "Add" button to add a new requisition item
                         
                         // Wait for the new form to be added, then populate its fields
@@ -490,35 +545,15 @@ class RequisitionController extends AdminController
         return $form;
     }
 
-    // function to fetch activities under a program
-    public function getProgramActivities($id)
-    {
-        // $user = auth()->user()->id;
-        // dd($user);
-
-        $program = Program::find($id);
-        $activities = $program->outcomes // Get all outcomes for the program
-            ->flatMap(function ($outcome) {
-                return $outcome->outputs; // Get all outputs for each outcome
-            })
-            ->flatMap(function ($output) {
-                return $output->activities; // Get all activities for each output
-            })
-            ->pluck('name', 'id'); // Extract 'name' and 'id' from the activities
-
-        return $activities;
-    }
 
     // function to fetch budget lines under a chosen activity
     public function getActivitiesbudgetlines($id)
     {
-        // $activities = Activity::find($id);
-        // $budgetlines = $activities->budget_lines // Get all outcomes for the program
-        //     ->pluck('name', 'id'); // Extract 'name' and 'id' from the activities
+        $activity_budget = Activity::where('id', $id)->pluck('budget');
         $budgetlines = BudgetLines::where('activity_id', $id)->pluck('name', 'id'); // Returns {id: name}
         
 
-        return $budgetlines;
+        return [$budgetlines, $activity_budget];
     }
 
     // function to fetch activities under a program

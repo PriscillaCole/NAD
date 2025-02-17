@@ -40,7 +40,11 @@ Route::post('/upload-staff', [App\Http\Controllers\UploadStaff::class, 'uploadSt
 Route::get('/dashboardvs', [App\Http\Controllers\DashboardController::class, 'getLeaveDays']);
 Route::get('/dashboardwp', [App\Http\Controllers\DashboardController::class, 'showWeeklyPattern'])->name('weekly-pattern');
 Route::post('/comments', [App\Http\Controllers\CommentController::class, 'store'])->name('comments');
-Route::get('/program-activities/{id}', [App\Admin\Controllers\RequisitionController::class, 'getProgramActivities'])->name('program-activities');
+
+Route::get('/program-outcomes/{id}', [App\Http\Controllers\RequisitionController::class, 'getProgramOutcomes'])->name('program-outcomes');
+Route::get('/outcome-outputs/{id}', [App\Http\Controllers\RequisitionController::class, 'getOutcomeOutputs'])->name('outcome-outputs');
+Route::get('/output-activities/{id}', [App\Http\Controllers\RequisitionController::class, 'getOutputActivities'])->name('output-activities');
+
 Route::get('/budgetlines/{id}', [App\Admin\Controllers\RequisitionController::class, 'getActivitiesbudgetlines'])->name('budgetlines');
 Route::get('/requisition/{id}', [App\Admin\Controllers\AccountabilityController::class, 'getRequisitionItems'])->name('requisition');
 

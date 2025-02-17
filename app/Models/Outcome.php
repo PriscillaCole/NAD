@@ -23,4 +23,9 @@ class Outcome extends Model
     {
         return $this->hasMany(Output::class);
     }
+
+    public function requisitions()
+    {
+        return $this->hasMany(Requisition::class);
+    }
 }
