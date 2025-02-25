@@ -1,125 +1,137 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-   <head>
-   <title>NAD</title>
+<head>
+	<title>NAD</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--===============================================================================================-->	
+	<link rel="icon" type="image/png" href="{{asset('login')}}/images/icons/favicon.ico"/>
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="{{asset('vendor')}}/login/bootstrap/css/bootstrap.min.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="{{asset('login')}}/fonts/font-awesome-4.7.0/css/font-awesome.min.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="{{asset('login')}}/fonts/iconic/css/material-design-iconic-font.min.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="{{asset('vendor')}}/login/animate/animate.css">
+<!--===============================================================================================-->	
+	<link rel="stylesheet" type="text/css" href="{{asset('vendor')}}/login/css-hamburgers/hamburgers.min.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="{{asset('vendor')}}/login/animsition/css/animsition.min.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="{{asset('vendor')}}/login/select2/select2.min.css">
+<!--===============================================================================================-->	
+	<link rel="stylesheet" type="text/css" href="{{asset('vendor')}}/login/daterangepicker/daterangepicker.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="{{asset('login')}}/css/util.css">
+	<link rel="stylesheet" type="text/css" href="{{asset('login')}}/css/main.css">
+    {{-- <link rel="stylesheet" href="{{asset('login-template')}}/css/style.css">
+      <link rel="stylesheet" href="{{asset('login-template')}}/css/bootstrap.min.css"> --}}
+      
+<!--===============================================================================================-->
+</head>
+<body>
+	
+	<div class="limiter">
+		<div class="container-login100" style="background-image: url('{{asset('login-template')}}/images/disability-pictures-data.png');">
+			<div class="wrap-login100">
+                <div class="card-body p-4 p-lg-5 text-black">
+                    @if(session('success'))
+        
+                        <div id="errorBox" style="text-align:center;margin-top:20px;" class="alert alert-success col-md-12 alert-dismissible fade show" role="alert">
+                            <strong style="color:white;">{{ session('success') }}</strong>
+                            <button type="button" style="color:white;" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true" style="color:white;" >&times;</span>
+                            </button>
+                        </div>
+                    @endif
 
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-      {{-- <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700&display=swap" rel="stylesheet">
-      <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-Fo3rlrZj/k7ujTnHg4CGR2D7kSs0v4LLanw2qksYuRlEzO+tcaEPQogQ0KaoGN26/zrn20ImR1DfuLWnOo7aBA==" crossorigin="anonymous" referrerpolicy="no-referrer" />--}}
-      <link rel="stylesheet" href="{{asset('login-template')}}/css/style.css">
-      <link rel="stylesheet" href="{{asset('login-template')}}/css/bootstrap.min.css">
-      <style>
-        .custom-blue-btn {
-            background-color:#87CEEB; /* Light blue */
-            color: white;
-            border: none;
-        }
+                    @if($errors->any())
+                            @foreach ($errors->all() as $error)
+                                    <div id="errorBox" style="text-align:center;margin-top:20px;" class="alert alert-danger col-md-12 alert-dismissible fade show" role="alert">
+                                            <strong style="color:white;">{!!$error!!}</strong>
+                                            <button type="button" style="color:white;" class="close" data-dismiss="alert" aria-label="Close">
+                                            <span aria-hidden="true" style="color:white;" >&times;</span>
+                                            </button>
+                                    </div>
 
-        .custom-blue-btn:hover {
-            background-color:  #B0E0E6; /* Sky blue for hover effect */
-        }
-        .img-fluid {
-            margin-left: -81px;
-            max-width: 117%;
-            height: 100%;
-        }
+                                    <script>
 
-        body{
-            background-image: image("http://localhost/NAD/public/login-template/images/disability-pictures-data.png");
-        }
+                                        window.onload=function(){
 
-      </style> 
-   </head>
-   <body >
-       
-    <div class="container-fluid " style="height: 100%; witdth:100%;">
-        {{-- <div class="container " style="height: 100%; max-witdth:100% !important;"> --}}
-            
-            <div class="row g-0" style="height: 100%; witdth:100%;">
-                
-                <div class="col-md-8 col-lg-6 d-none d-md-block">
-                <img src="http://localhost/NAD/public/login-template/images/disability-pictures-data.png"
-                    alt="login form" class="img-fluid" />
+                                            $("#errorBox").delay(3000).fadeOut("slow");
+
+                                        }
+
+                                    </script>
+
+                            @endforeach
+                    @endif
                 </div>
-                <div class="col-md-3 col-lg-6 d-flex align-items-center">
-                    <div class="card-body p-4 p-lg-5 text-black">
-                        @if(session('success'))
-            
-                            <div id="errorBox" style="text-align:center;margin-top:20px;" class="alert alert-success col-md-12 alert-dismissible fade show" role="alert">
-                                <strong style="color:white;">{{ session('success') }}</strong>
-                                <button type="button" style="color:white;" class="close" data-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true" style="color:white;" >&times;</span>
-                                </button>
-                            </div>
-                        @endif
+				<form class="login100-form validate-form" action="{{ admin_url('auth/login') }}" method="POST">
+                    {{ csrf_field() }}
+        
+					<span class="login100-form-logo">
+                        <img style="width: 90%" src="{{asset('login-template')}}/images/logo-removebg-preview.png">
+						{{-- <i class="zmdi zmdi-landscape"></i> --}}
+					</span>
 
-                        @if($errors->any())
-                                @foreach ($errors->all() as $error)
-                                        <div id="errorBox" style="text-align:center;margin-top:20px;" class="alert alert-danger col-md-12 alert-dismissible fade show" role="alert">
-                                                <strong style="color:white;">{!!$error!!}</strong>
-                                                <button type="button" style="color:white;" class="close" data-dismiss="alert" aria-label="Close">
-                                                <span aria-hidden="true" style="color:white;" >&times;</span>
-                                                </button>
-                                        </div>
+					<span class="login100-form-title p-b-34 p-t-27">
+						Log in
+					</span>
 
-                                        <script>
+					<div class="wrap-input100 validate-input" data-validate = "Enter email">
+						<input class="input100" type="text" name="email" placeholder="Email">
+						<span class="focus-input100" data-placeholder="&#xf207;"></span>
+					</div>
 
-                                            window.onload=function(){
+					<div class="wrap-input100 validate-input" data-validate="Enter password">
+						<input class="input100" type="password" name="password" placeholder="Password">
+						<span class="focus-input100" data-placeholder="&#xf191;"></span>
+					</div>
 
-                                                $("#errorBox").delay(3000).fadeOut("slow");
+					<div class="contact100-form-checkbox">
+						<input class="input-checkbox100" id="ckb1" type="checkbox" name="remember-me">
+						<label class="label-checkbox100" for="ckb1">
+							Remember me
+						</label>
+					</div>
 
-                                            }
+					<div class="container-login100-form-btn">
+						<button class="login100-form-btn">
+							Login
+						</button>
+					</div>
 
-                                        </script>
+					<div class="text-center p-t-90">
+						<a class="txt1" href="{{ route('password.request') }}">
+							Forgot Password?
+						</a>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+	
 
-                                @endforeach
-                        @endif
-        
-                        <form action="{{ admin_url('auth/login') }}" method="POST" class="login-form">
-                            {{ csrf_field() }}
-        
-                        <div class="d-flex align-items-center mb-3 pb-1">
-                            <img  src="{{asset('login-template')}}/images/logo-removebg-preview.png">
-                            {{-- <span class="h1 fw-bold mb-0">Norwegian Association for Disabled</span> --}}
-                        </div>
-        
-                        <h5 class="fw-normal mb-3 pb-3" style="letter-spacing: 1px;">Sign into your account</h5>
-        
-                        <div data-mdb-input-init class="form-outline mb-4">
-                            <label class="form-label" for="form2Example17">Email address</label>
-                            <input type="email" id="form2Example17"  name="email" class="form-control form-control-lg" />
-                        </div>
-        
-                        <div data-mdb-input-init class="form-outline mb-4">
-                            <label class="form-label" for="form2Example27">Password</label>
-                            <input type="password" id="form2Example27" class="form-control form-control-lg" name="password" />
-                        </div>
-        
-                        <div class="pt-1 mb-4">
-                            <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                    
-                            <button data-mdb-button-init data-mdb-ripple-init class="btn btn-round btn-lg btn-block custom-blue-btn" value="login" type="submit">Login</button>
-                        </div>
-        
-                        <a class="small text-muted" href="{{ route('password.request') }}">Forgot password?</a>
-                        {{-- <p class="mb-5 pb-lg-2" style="color: #393f81;">Don't have an account? <a href="#!"
-                            style="color: #393f81;">Register here</a></p>
-                        <a href="#!" class="small text-muted">Terms of use.</a>
-                        <a href="#!" class="small text-muted">Privacy policy</a> --}}
-                        </form>
-        
-                    </div>
-                </div>
-            </div>
-            
-        {{-- </div> --}}
-    </div>
-    <script src="{{asset('login-template')}}/js/jquery.min.js"></script>
-    <script src="{{asset('login-template')}}/js/popper.js"></script>
-    <script src="{{asset('login-template')}}/js/bootstrap.min.js"></script>
-    <script src="{{asset('login-template')}}/js/main.js"></script> 
-  
-   </body>
+	<div id="dropDownSelect1"></div>
+	
+<!--===============================================================================================-->
+	<script src="{{asset('vendor')}}/login/jquery/jquery-3.2.1.min.js"></script>
+<!--===============================================================================================-->
+	<script src="{{asset('vendor')}}/login/animsition/js/animsition.min.js"></script>
+<!--===============================================================================================-->
+	<script src="{{asset('vendor')}}/login/bootstrap/js/popper.js"></script>
+	<script src="{{asset('vendor')}}/login/bootstrap/js/bootstrap.min.js"></script>
+<!--===============================================================================================-->
+	<script src="{{asset('vendor')}}/login/select2/select2.min.js"></script>
+<!--===============================================================================================-->
+	<script src="{{asset('vendor')}}/login/daterangepicker/moment.min.js"></script>
+	<script src="{{asset('vendor')}}/login/daterangepicker/daterangepicker.js"></script>
+<!--===============================================================================================-->
+	<script src="{{asset('vendor')}}/login/countdowntime/countdowntime.js"></script>
+<!--===============================================================================================-->
+	<script src="{{asset('login')}}/js/main.js"></script>
+
+</body>
 </html>
