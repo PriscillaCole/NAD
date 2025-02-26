@@ -141,12 +141,10 @@ trait ResetsPasswords
         if ($request->wantsJson()) {
             return new JsonResponse(['message' => trans($response)], 200);
         }
-    
-        return redirect('/')
-            ->with('status', trans($response))
-            ->with('success', 'Password reset successfully. Please log in.'); // Flash message
+
+        return redirect($this->redirectPath())
+                            ->with('status', trans($response));
     }
-    
 
     /**
      * Get the response for a failed password reset.

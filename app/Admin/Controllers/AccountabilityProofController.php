@@ -17,7 +17,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
-class AccountabilityController extends AdminController
+class AccountabilityProofController extends AdminController
 {
     /**
      * Title for current resource.
