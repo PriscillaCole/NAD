@@ -51,7 +51,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background-color: #ccdbf79c !important;
+            background: -webkit-linear-gradient(top, #d1d3f9, #3c8dbc);
+            /* background-color: #E6E6FA  !important; */
         }
         
         .project-select {
@@ -214,7 +215,7 @@
             <div class="col-md-12">
                 <div class="panel panel-default">
                     <div class="panel-heading">
-                        <span>Budget vs Spending</span>
+                        <span class="panel-title">Budget vs Spending</span>
                         <form method="GET" action="{{ request()->url() }}">
                         <select name="programId2" id="program-filter" class="form-control input-sm project-select" >
                             <option value="">{{ __('Select Project') }}</option>

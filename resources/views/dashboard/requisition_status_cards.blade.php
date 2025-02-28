@@ -6,6 +6,7 @@
             padding: 15px;
             border-radius: 8px;
             margin-bottom: 20px;
+            height: 123px;
         }
         
         .kpi-value {
@@ -17,6 +18,7 @@
         .kpi-label {
             font-size: 14px;
             color: #666;
+            padding-top: 10%;
         }
         
         .kpi-icon {
@@ -59,6 +61,9 @@
         .panel {
             border: none;
             box-shadow: none;
+        }
+        .panel-title{
+            color: white;
         }
 
         .panel-heading {

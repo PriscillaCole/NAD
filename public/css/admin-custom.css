@@ -1,0 +1,67 @@
+/* Modernized Laravel-Admin Dashboard Styles
+
+:root {
+    --primary-color: #4A90E2;
+    --secondary-color: #50E3C2;
+    --background-gradient: linear-gradient(135deg, #4A90E2, #50E3C2);
+    --text-color: #fff;
+    --card-bg: rgba(255, 255, 255, 0.15);
+    --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+body {
+    background: var(--background-gradient);
+    color: var(--text-color);
+    font-family: 'Poppins', sans-serif;
+}
+
+.wrapper {
+    background: transparent !important;
+}
+
+.content-header {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px var(--shadow-color);
+}
+
+.card {
+    background: var(--card-bg) !important;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px var(--shadow-color);
+    backdrop-filter: blur(10px);
+}
+
+.card-title {
+    font-weight: bold;
+    color: var(--text-color);
+}
+
+.sidebar {
+    background: rgba(0, 0, 0, 0.2) !important;
+}
+
+.sidebar-menu > li.active > a {
+    background: var(--primary-color) !important;
+    color: var(--text-color) !important;
+    border-radius: 8px;
+}
+
+.btn-primary {
+    background: var(--secondary-color) !important;
+    border: none;
+    transition: all 0.3s ease-in-out;
+}
+
+.btn-primary:hover {
+    background: var(--primary-color) !important;
+    transform: scale(1.05);
+} */
+
+
+.body{
+    font-family: Poppins-Regular;
+}
+
+/* background: -webkit-linear-gradient(top, #d1d3f9, #6266df); */

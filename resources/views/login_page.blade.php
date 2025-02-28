@@ -5,7 +5,7 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 <!--===============================================================================================-->	
-	<link rel="icon" type="image/png" href="{{asset('login')}}/images/icons/favicon.ico"/>
+	{{-- <link rel="icon" type="image/png" href="{{asset('login')}}/images/icons/favicon.ico"/> --}}
 <!--===============================================================================================-->
 	<link rel="stylesheet" type="text/css" href="{{asset('vendor')}}/login/bootstrap/css/bootstrap.min.css">
 <!--===============================================================================================-->
@@ -72,12 +72,12 @@
                     {{ csrf_field() }}
         
 					<span class="login100-form-logo">
-                        <img style="width: 90%" src="{{asset('login-template')}}/images/logo-removebg-preview.png">
+                        <img style="width: 100%" src="{{asset('login-template')}}/images/logo-removebg-preview.png">
 						{{-- <i class="zmdi zmdi-landscape"></i> --}}
 					</span>
 
 					<span class="login100-form-title p-b-34 p-t-27">
-						Log in
+						REQtrack
 					</span>
 
 					<div class="wrap-input100 validate-input" data-validate = "Enter email">
@@ -103,10 +103,16 @@
 						</button>
 					</div>
 
-					<div class="text-center p-t-90">
+					<div class="text-center p-t-60">
 						<a class="txt1" href="{{ route('password.request') }}">
 							Forgot Password?
 						</a>
+					</div>
+					<div class="text-center p-t-30" style="font-size: x-small;
+}">
+						{{-- <a class="txt1" href="{{ route('password.request') }}"> --}}
+							Powered by: Eight Tech Consults
+						{{-- </a> --}}
 					</div>
 				</form>
 			</div>

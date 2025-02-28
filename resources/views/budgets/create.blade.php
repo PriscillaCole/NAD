@@ -64,7 +64,8 @@
 
         /* Maintain the existing color scheme */
         .outcomes {
-            background-color: #FFE6E6 !important;
+            /* background-color: #FFE6E6 !important; */
+            background: -webkit-linear-gradient(top, #d1d3f9, #3c8dbc);
         }
 
         .outputs {

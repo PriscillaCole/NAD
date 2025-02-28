@@ -36,66 +36,27 @@
         </div>
         
         <!-- Right Panel - Accountability Report -->
-        {{-- <div class="col-md-6">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h5 class="panel-title">Accountability Report</h5>
-                </div>
-                <div class="panel-body">
-                    <div class="stacked-bars">
-                        <div class="bar-container">
-                            <div class="bar-label">
-                                <span>Rejected</span>
-                                <span class="count">16</span>
-                            </div>
-                            <div class="progress" style="height: 24px;">
-                                <div class="progress-bar" style="width: 10%; background-color: #EF4444;"></div>
-                            </div>
-                        </div>
-                        
-                        <div class="bar-container">
-                            <div class="bar-label">
-                                <span>Pending</span>
-                                <span class="count">45</span>
-                            </div>
-                            <div class="progress" style="height: 24px;">
-                                <div class="progress-bar" style="width: 30%; background-color: #FCD34D;"></div>
-                            </div>
-                        </div>
-                        
-                        <div class="bar-container">
-                            <div class="bar-label">
-                                <span>Accepted</span>
-                                <span class="count">2,113</span>
-                            </div>
-                            <div class="progress" style="height: 24px;">
-                                <div class="progress-bar" style="width: 90%; background-color: #4ADE80;"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div> --}}
+        
         <div class="col-md-6">
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h5 class="panel-title">Accountability Report</h5>
                 </div>
                 <div class="panel-body">
-                    <canvas id="stackedBarChart" height="32"  style="border-radius: 15px;"></canvas>
+                    <canvas id="stackedBarChart" height="32" style="border-radius: 15px;"></canvas>
                     <div class="legend mt-3" style="display: flex; align-items: center; gap: 20px;">
                         <div class="legend-item">
-                            <span class="dot" style="background: #EF4444;"></span>
+                            <span class="dot" style="background: #303053;"></span>
                             <span>Rejected</span>
                             <span class="count">{{$haltedCount}}</span>
                         </div>
                         <div class="legend-item">
-                            <span class="dot" style="background: #FCD34D;"></span>
+                            <span class="dot" style="background: #8383f3;"></span>
                             <span >Pending</span>
                             <span class="count">{{$pendingCount}}</span>
                         </div>
                         <div class="legend-item">
-                            <span class="dot" style="background: #4ADE80;"></span>
+                            <span class="dot" style="background: #bcbcee ;"></span>
                             <span >Accepted</span>
                             <span class="count">{{$acceptedCount}}</span>
                         </div>
@@ -176,18 +137,18 @@
                 datasets: [{
                     label: 'Rejected',
                     data: [rejectedPerc],
-                    backgroundColor: '#EF4444',
+                    backgroundColor: '#303053',
                     borderWidth: 0
                 }, {
                     label: 'Pending',
                     indexAxis:'y',
                     data: [pendingPerc],
-                    backgroundColor: '#FCD34D',
+                    backgroundColor: '#8383f3',
                     borderWidth: 0
                 }, {
                     label: 'Accepted',
                     data: [acceptedPerc],
-                    backgroundColor: '#4ADE80',
+                    backgroundColor: '#bcbcee',
                     borderWidth: 0
                 }]
             },
