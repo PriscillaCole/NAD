@@ -69,6 +69,9 @@ class HomeController extends AdminController
         
             
             });
+            // ->row(view('footer'));
+
+            
     }
 
     
