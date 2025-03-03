@@ -357,6 +357,95 @@
                             </div>
                         </div>
 
+                        <div id="budget-lines-{{ $activity->id }}">
+                            @foreach ($activity->budget_lines as $budget_line)
+                                <div class="panel panel-default activity" id="activity-{{ $budget_line->id }}">
+                                    <div class="panel-heading budgetlines">
+                                        <h6 class="panel-title">
+                                            <span class="entity-label">Budget Lines</span> 
+                                        </h6>
+                                    </div>
+                                    <div class="panel-body">
+                                        <!-- Budget Lines Fields -->
+                                        <div class="form-group">
+                                            <label class="col-sm-2 control-label">Budget Line Name</label>
+                                            <div class="col-sm-8">
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa fa-pencil fa-fw"></i>
+                                                    </span>
+                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][budget_lines][{{ $budget_line->id }}][name]" class="form-control" value="{{ $budget_line->name }}" required>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-2 control-label"> Unit Cost</label>
+                                            <div class="col-sm-8">
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa fa-pencil fa-fw"></i>
+                                                    </span>
+                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][budget_lines][{{ $budget_line->id }}][unitcost]" class="form-control" value="{{ $budget_line->unitcost }}" required>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-2 control-label">Quantity</label>
+                                            <div class="col-sm-8">
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa fa-pencil fa-fw"></i>
+                                                    </span>
+                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][budget_lines][{{ $budget_line->id }}][quantity]" class="form-control" value="{{ $budget_line->quantity }}" required>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-2 control-label">Frequency</label>
+                                            <div class="col-sm-8">
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa fa-pencil fa-fw"></i>
+                                                    </span>
+                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][budget_lines][{{ $budget_line->id }}][frequency]" class="form-control" value="{{ $budget_line->frequency }}" required>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-2 control-label">Budget Line Budget</label>
+                                            <div class="col-sm-8">
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa fa-pencil fa-fw"></i>
+                                                    </span>
+                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][budget_lines][{{ $budget_line->id }}][budget]" class="form-control" value="{{ $budget_line->budget }}" required>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <div class="col-sm-8 col-sm-offset-2" style="display: flex; justify-content: flex-end; align-items: center;">
+                                                <!-- Delete Button with Bin Icon -->
+                                                <button type="button" class="btn btn-danger btn-delete" onclick="deleteBudgetLine({{$budget_line->id}})">
+                                                    <i class="fa fa-trash"></i> Delete
+                                                </button>
+                                            </div>
+                                        </div>
+                    
+                                        <!-- More fields for Budget Lines -->
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-8 col-sm-offset-2" style="display: flex; justify-content: space-between; align-items: center;">
+                           <button type="button" class="btn btn-secondary btn-add" onclick="addBudgetLine({{$activity->id}}, {{$output->id}}, {{$outcome->id}})">Add Budget Line</button>
+    
+                            <!-- Delete Button with Bin Icon -->
+                            <button type="button" class="btn btn-danger btn-delete"  onclick="deleteActivity({{$activity->id}})">
+                                <i class="fa fa-trash"></i> Delete
+                            </button>
+                        </div>
+
                         <!-- Save Button -->
                         <div class="form-group text-right">
                             <div class="col-sm-8 col-sm-offset-2">

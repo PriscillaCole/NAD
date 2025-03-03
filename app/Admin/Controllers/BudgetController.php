@@ -33,11 +33,11 @@ class BudgetController extends AdminController
     $grid = new Grid(new Program());
 
     $grid->disableBatchActions();
+    $grid->disableCreateButton();
 
     $user = auth()->user();
     // disable create button for finance and CD
     if ($user->inRoles(['finance', 'director', 'adminstrator'])) {
-        $grid->disableCreateButton();
         $grid->actions(function ($actions) {
             $actions->disableEdit();
         });

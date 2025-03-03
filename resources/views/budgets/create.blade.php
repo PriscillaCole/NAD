@@ -145,6 +145,9 @@
                                 <button type="button" class="btn btn-success btn-add" onclick="addOutcome()">Add Outcome</button>
                             </div>
                         </div>
+                        <div id="contingency">
+                            <script></script>
+                        </div>
 
                         <!-- Save Button -->
                         <div class="form-group text-right">

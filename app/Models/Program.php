@@ -28,5 +28,10 @@ class Program extends Model
     
         return $this->belongsTo(User::class);
     }
+
+    public function contigencyBudget()
+    {
+        return $this->hasMany(Program::class);
+    }
     
 }
