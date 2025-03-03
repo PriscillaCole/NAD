@@ -9,9 +9,12 @@ use App\Http\Controllers\DashboardController;
 use Encore\Admin\Layout\Content;
 use Encore\Admin\Layout\Row;
 use Illuminate\Support\Facades\DB;
+use Encore\Admin\Controllers\AdminController;
 
-class HomeController extends Controller
+
+class HomeController extends AdminController
 {
+
     public function index(Content $content)
     {
         // Fetch the programId from the request (this assumes you're passing it via query string, i.e., ?programId=1)
@@ -23,11 +26,13 @@ class HomeController extends Controller
         $fund = DashboardController::yearExpense($year);
         $status = DashboardController::RequisitionStatuschart();
         
-
         $period = request()->query('period', 'month'); // Default to 'month' if not specified
         // $chartData = DashboardController::getAverageApprovalTimeData($period);
     
         return $content
+        
+            ->title('Dashboard') // Set the title here
+            ->description('Track budgets, expenses, and requisitions') 
             ->row(function (Row $row) {
                 $row->column(12, function (Column $column) {
                     $column->append(DashboardController::getRequisitionStatus());
@@ -64,6 +69,9 @@ class HomeController extends Controller
         
             
             });
+            // ->row(view('footer'));
+
+            
     }
 
     

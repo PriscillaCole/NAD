@@ -107,6 +107,12 @@ class ProgramController extends AdminController
             })->pluck('name', 'id')) // Replace 'name' with the field representing the user's name
             ->attribute('id', 'adminprogram_id')
             ->required();
+            // $form->hasMany('items', 'Requisition Items', function ($form) {
+            //     $form->text('description', 'Description');
+            //     $form->number('quantity', 'Quantity');
+            //     $form->decimal('unit_price', 'Unit Price')->default(0.00);
+            //     $form->decimal('total_price', 'Total Price')->default(0.00)->readonly();
+            // });
 
         return $form;
     }

@@ -4,8 +4,6 @@
 	<title>NAD</title>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-<!--===============================================================================================-->	
-	<link rel="icon" type="image/png" href="{{asset('login')}}/images/icons/favicon.ico"/>
 <!--===============================================================================================-->
 	<link rel="stylesheet" type="text/css" href="{{asset('vendor')}}/login/bootstrap/css/bootstrap.min.css">
 <!--===============================================================================================-->

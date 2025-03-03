@@ -6,6 +6,7 @@
             padding: 15px;
             border-radius: 8px;
             margin-bottom: 20px;
+            min-height: 144px;
         }
         
         .kpi-value {
@@ -17,6 +18,7 @@
         .kpi-label {
             font-size: 14px;
             color: #666;
+            padding-top: 10%;
         }
         
         .kpi-icon {
@@ -60,6 +62,9 @@
             border: none;
             box-shadow: none;
         }
+        .panel-title{
+            color: white;
+        }
 
         .panel-heading {
             background-color: white !important;
@@ -73,7 +78,7 @@
 </head>
 <body>
     <div class="container-fluid">
-        <div class="panel panel-default">
+        <div class="panel panel-default" style="margin-top: 20px;">
             <div class="panel-heading">
                 <h4 class="panel-title bold">Key Performance Indicators</h3>
                 

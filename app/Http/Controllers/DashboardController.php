@@ -107,7 +107,7 @@ class DashboardController extends Controller
         $requisition = Requisition::all()->count();
         $accountabilities = Accountability::all()->count();
 
-        $submitted = ($accountabilities / $requisition) * 100;
+        $submitted = round(($accountabilities / $requisition) * 100, 0);
 
         $pending = 100 - $submitted;
 
