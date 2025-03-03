@@ -98,7 +98,7 @@
                 <div class="panel-heading bg-primary" style="background-color: transparent; display: flex; justify-content: space-between; align-items: center; border-top: 4px solid #87cefa;">
                     <h3 class="panel-title" style="margin: 0;">Edit Budget</h3>
                     <div class="btn-group">
-                        <a href="http://127.0.0.1:8000/budgets" class="btn btn-sm btn-default" title="List">
+                        <a href="{{ url('budgets') }}" class="btn btn-sm btn-default" title="List">
                             <i class="fa fa-list"></i> List
                         </a>
                     </div>
