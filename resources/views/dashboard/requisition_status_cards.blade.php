@@ -6,7 +6,7 @@
             padding: 15px;
             border-radius: 8px;
             margin-bottom: 20px;
-            height: 123px;
+            min-height: 144px;
         }
         
         .kpi-value {
