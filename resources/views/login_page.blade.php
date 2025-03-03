@@ -111,7 +111,7 @@
 					<div class="text-center p-t-30" style="font-size: x-small;
 }">
 						{{-- <a class="txt1" href="{{ route('password.request') }}"> --}}
-							Powered by: Eight Tech Consults
+							Powered by: Eight Tech Consults Limited
 						{{-- </a> --}}
 					</div>
 				</form>
