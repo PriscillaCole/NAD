@@ -51,7 +51,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: -webkit-linear-gradient(top, #d1d3f9, #3c8dbc);
+            background: -webkit-linear-gradient(top, #3c8dbc, #b3b6fc);
             /* background-color: #E6E6FA  !important; */
         }
         
