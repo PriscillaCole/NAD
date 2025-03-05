@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\Activity;
 use App\Models\BudgetLines;
+use App\Models\ContingencyBudget;
 use App\Models\Program;
 use App\Models\Outcome;
 use App\Models\Output;
@@ -143,6 +144,12 @@ class ProgramsController extends Controller
             'outcomes.*.outputs.*.activities.*.budget_lines.*.quantity' => 'required|numeric|min:0',
             'outcomes.*.outputs.*.activities.*.budget_lines.*.frequency' => 'required|numeric|min:0',
             'outcomes.*.outputs.*.activities.*.budget_lines.*.budget' => 'required|numeric|min:0',
+
+            'contingency' => 'array',
+            'contingency.*.id' => 'nullable',
+            'contingency.*.name' => 'required',
+            'contingency.*.budget' => 'required',
+
         ]);
     
         // Start database transaction
@@ -252,6 +259,33 @@ class ProgramsController extends Controller
                         }
                     }
                 }
+            }
+
+            // Load existing relationships
+            $program->load('contingencyBudgets');
+    
+            // Get all current IDs for comparison
+            $currentOutcomeIds = $program->contingencyBudgets->pluck('id')->toArray();
+            $submittedOutcomeIds = collect($validated['contingency'])->pluck('id')->filter()->toArray();
+            
+            // Remove outcomes that are no longer present
+            ContingencyBudget::whereIn('id', array_diff($currentOutcomeIds, $submittedOutcomeIds))
+                ->where('program_id', $program->id)
+                ->delete();
+    
+
+            // Handle contingency budgets
+            foreach ($validated['contingency'] as $contingency){
+                $contingency = ContingencyBudget::updateOrCreate(
+                    [
+                        'id' => $contingency['id'] ?? null,
+                        'program_id' => $program->id
+                    ],
+                    [
+                        'name' => $contingency['name'],
+                        'budget' => $contingency['budget'],
+                    ]
+                );
             }
     
             \DB::commit();

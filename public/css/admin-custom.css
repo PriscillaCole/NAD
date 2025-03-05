@@ -60,8 +60,8 @@ body {
 } */
 
 
-.body{
-    font-family: Poppins-Regular;
+.body, .main-header, .main-sidebar, .content-wrapper, .box-header, .box-body, .box-footer{
+    font-family: 'Poppins', sans-serif !important;
 }
 
 /* background: -webkit-linear-gradient(top, #d1d3f9, #6266df); */

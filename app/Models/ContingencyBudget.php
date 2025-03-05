@@ -7,9 +7,17 @@ use Illuminate\Database\Eloquent\Model;
 
 
 
-class ContigencyBudget extends Model
+class ContingencyBudget extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'name',
+        'budget',
+        'program_id',
+        
+        
+    ];
 
     //relationship with requisition
     public function program()

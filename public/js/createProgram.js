@@ -603,16 +603,16 @@
     
 
     // Function to add a new contingecy under a Program
-    function addContigencyBudget(activityId, outputId, outcomeId, recalculateActivityBudget) {
-        const contingency = document.getElementById(`contingency`);
+    function addContigencyBudget() {
+        const contingencyContainer = document.getElementById(`contingency`);
         // const budgetLineCount = budgetLinesContainer.children.length + 1;
         const contingencyBudget = Date.now();
     
-        const budgetLineTemplate = `
-            <div class="panel panel-default budget-line" id="budget-line-${budgetLineId}">
+        const contingencyTemplate = `
+            <div class="panel panel-default budget-line" id="contingencyBudget-${contingencyBudget}">
                 <div class="panel-heading budgetlines">
                     <h6 class="panel-title">
-                        <span class="entity-label">Budget Line ${outcomeCounter}.${budgetLineCount}</span>
+                        <span class="entity-label">Contingency Budget</span>
                     </h6>
                 </div>
                 <div class="panel-body">
@@ -635,47 +635,15 @@
                                 <span class="input-group-addon">
                                     <i class="fa fa-pencil fa-fw"></i>
                                 </span>
-                                <input type="number" id="unit-cost-${budgetLineId}" name="contingency[${contingencyBudget}][budget]"  class="form-control unit-cost" placeholder="Budget" required>
+                                <input type="number" id="unit-cost-${contingencyBudget}" name="contingency[${contingencyBudget}][budget]"  class="form-control unit-cost" placeholder="Budget" required>
                             </div>
                         </div>
                     </div>
-                    // <div class="form-group">
-                    //     <label class="col-sm-2 control-label">Quantity</label>
-                    //     <div class="col-sm-8">
-                    //         <div class="input-group">
-                    //             <span class="input-group-addon">
-                    //                 <i class="fa fa-pencil fa-fw"></i>
-                    //             </span>
-                    //             <input type="number" id="quantity-${budgetLineId}" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][budget_lines][${budgetLineId}][quantity]"  class="form-control quantity" placeholder="Quantity" required>
-                    //         </div>
-                    //     </div>
-                    // </div>
-                    // <div class="form-group">
-                    //     <label class="col-sm-2 control-label">Frequency</label>
-                    //     <div class="col-sm-8">
-                    //         <div class="input-group">
-                    //             <span class="input-group-addon">
-                    //                 <i class="fa fa-pencil fa-fw"></i>
-                    //             </span>
-                    //             <input type="number" id="frequency-${budgetLineId}" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][budget_lines][${budgetLineId}][frequency]" class="form-control frequency" placeholder="Frequency" required>
-                    //         </div>
-                    //     </div>
-                    // </div>
-                    // <div class="form-group">
-                    //     <label class="col-sm-2 control-label">Budget Line Amount</label>
-                    //     <div class="col-sm-8">
-                    //         <div class="input-group">
-                    //             <span class="input-group-addon">
-                    //                 <i class="fa fa-pencil fa-fw"></i>
-                    //             </span>
-                    //             <input type="number" id="budget-${budgetLineId}" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][budget_lines][${budgetLineId}][budget]" class="form-control budget" placeholder="Enter Budget Line Amount" readonly required>
-                    //         </div>
-                    //     </div>
-                    // </div>
+                    
                     <div class="form-group">
                         <div class="col-sm-8 col-sm-offset-2" style="display: flex; justify-content: flex-end; align-items: center;">
                             <!-- Delete Button with Bin Icon -->
-                            <button type="button" class="btn btn-danger btn-delete" onclick="deleteBudgetLine(${budgetLineId})">
+                            <button type="button" class="btn btn-danger btn-delete" onclick="deleteContingency(${contingencyBudget})">
                                 <i class="fa fa-trash"></i> Delete
                             </button>
                         </div>
@@ -684,31 +652,11 @@
             </div>
         `;
     
-        budgetLinesContainer.insertAdjacentHTML('beforeend', budgetLineTemplate);
+        contingencyContainer.insertAdjacentHTML('beforeend', contingencyTemplate);
     
-        // Attach event listeners to recalculate budget
-        const unitCostInput = document.getElementById(`unit-cost-${budgetLineId}`);
-        const quantityInput = document.getElementById(`quantity-${budgetLineId}`);
-        const frequencyInput = document.getElementById(`frequency-${budgetLineId}`);
-        const budgetInput = document.getElementById(`budget-${budgetLineId}`);
-    
-        function recalculateBudget() {
-            const unitCost = parseFloat(unitCostInput.value) || 0;
-            const quantity = parseFloat(quantityInput.value) || 0;
-            const frequency = parseFloat(frequencyInput.value) || 0;
-            if (validateBudgetLine(budgetLineId, activityId)) {
-                 budgetInput.value = unitCost * quantity * frequency;
-            }
-            
-            // if (validateBudgetLine(budgetLineId, activityId)) {
-            //     validateActivityBudget(activityId, outputId);
-            //     validateOutputBudget(outputId, outcomeId);
-            // }
-        }
-    
-        unitCostInput.addEventListener('input', recalculateBudget);
-        quantityInput.addEventListener('input', recalculateBudget);
-        frequencyInput.addEventListener('input', recalculateBudget);
-        // Attach event listener to recalculate budget
-        budgetInput.addEventListener('input', recalculateActivityBudget);
+    }
+
+    // delete contingency budget
+    function deleteContingency(contingencyBudget) {
+        document.getElementById(`contingencyBudget-${contingencyBudget}`).remove();
     }

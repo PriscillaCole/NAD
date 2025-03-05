@@ -171,15 +171,15 @@
                         <div class="form-group">
                             <label for="description" class="col-sm-2 control-label">Program Budget</label>
                             <div class="col-sm-2">
-                                <input type="text" name="budget" class="form-control" value="{{ $program->budget }}" readonly />
+                                <input type="text" name="budget" class="form-control" value="{{ number_format($program->budget) }}" readonly />
                             </div>
                             <label for="description" class="col-sm-2 control-label">Used Budget</label>
                             <div class="col-sm-2">
-                                <input type="text" name="budget" class="form-control" value="{{ $totalUsed }}" readonly />
+                                <input type="text" name="budget" class="form-control" value="{{ number_format($totalUsed) }}" readonly />
                             </div>
                             <label for="description" class="col-sm-2 control-label">Remaining amount</label>
                             <div class="col-sm-2">
-                                <input type="text" name="budget" class="form-control" value="{{ $remainingBudget }}" readonly />
+                                <input type="text" name="budget" class="form-control" value="{{ number_format($remainingBudget) }}" readonly />
                             </div>
                         </div>
 
@@ -241,7 +241,7 @@
                                                     <span class="input-group-addon">
                                                         <i class="fa fa-pencil fa-fw"></i>
                                                     </span>
-                                                    <input type="number" name="outcomes[{{ $outcome->id }}][budget]" class="form-control" value="{{ $outcome->budget }}" readonly>
+                                                    <input type="number" name="outcomes[{{ $outcome->id }}][budget]" class="form-control" value="{{ number_format($outcome->budget) }}" readonly>
                                                 </div>
                                             </div>
                                             <label class="col-sm-2 control-label">Used Budget</label>
@@ -250,7 +250,7 @@
                                                     <span class="input-group-addon">
                                                         <i class="fa fa-pencil fa-fw"></i>
                                                     </span>
-                                                    <input type="number" name="outcomes[{{ $outcome->id }}][budget]" class="form-control" value="{{ $totalUsed }}" readonly>
+                                                    <input type="number" name="outcomes[{{ $outcome->id }}][budget]" class="form-control" value="{{ number_format($totalUsed) }}" readonly>
                                                 </div>
                                             </div>
                                             <label class="col-sm-2 control-label">Remaining Budget</label>
@@ -259,7 +259,7 @@
                                                     <span class="input-group-addon">
                                                         <i class="fa fa-pencil fa-fw"></i>
                                                     </span>
-                                                    <input type="number" name="outcomes[{{ $outcome->id }}][budget]" class="form-control" value="{{ $outcomeremainingBudget }}" readonly>
+                                                    <input type="number" name="outcomes[{{ $outcome->id }}][budget]" class="form-control" value="{{ number_format($outcomeremainingBudget) }}" readonly>
                                                 </div>
                                             </div>
                                         </div>
@@ -311,7 +311,7 @@
                                                                     <span class="input-group-addon">
                                                                         <i class="fa fa-pencil fa-fw"></i>
                                                                     </span>
-                                                                    <input type="number" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][budget]" class="form-control" value="{{ $output->budget }}" readonly>
+                                                                    <input type="number" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][budget]" class="form-control" value="{{ number_format($output->budget) }}" readonly>
                                                                 </div>
                                                             </div>
                                                             <label class="col-sm-2 control-label">Used Budget</label>
@@ -320,7 +320,7 @@
                                                                     <span class="input-group-addon">
                                                                         <i class="fa fa-pencil fa-fw"></i>
                                                                     </span>
-                                                                    <input type="number" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][budget]" class="form-control" value="{{ $totalUsed }}" readonly>
+                                                                    <input type="number" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][budget]" class="form-control" value="{{ number_format($totalUsed) }}" readonly>
                                                                 </div>
                                                             </div>
                                                             <label class="col-sm-2 control-label">Remaining Budget</label>
@@ -329,7 +329,7 @@
                                                                     <span class="input-group-addon">
                                                                         <i class="fa fa-pencil fa-fw"></i>
                                                                     </span>
-                                                                    <input type="number" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][budget]" class="form-control" value="{{ $outputremainingBudget }}" readonly>
+                                                                    <input type="number" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][budget]" class="form-control" value="{{ number_format($outputremainingBudget) }}" readonly>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -377,7 +377,7 @@
                                                                                     <span class="input-group-addon">
                                                                                         <i class="fa fa-pencil fa-fw"></i>
                                                                                     </span>
-                                                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][budget]" class="form-control" value="{{ $activity->budget }}" readonly>
+                                                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][budget]" class="form-control" value="{{ number_format($activity->budget) }}" readonly>
                                                                                 </div>
                                                                             </div>
                                                                             <label class="col-sm-2 control-label">Used Budget</label>
@@ -386,7 +386,7 @@
                                                                                     <span class="input-group-addon">
                                                                                         <i class="fa fa-pencil fa-fw"></i>
                                                                                     </span>
-                                                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][budget]" class="form-control" value="{{ $totalUsed }}" readonly>
+                                                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][budget]" class="form-control" value="{{ number_format($totalUsed) }}" readonly>
                                                                                 </div>
                                                                             </div>
                                                                             <label class="col-sm-2 control-label">Remaining Budget</label>
@@ -395,7 +395,7 @@
                                                                                     <span class="input-group-addon">
                                                                                         <i class="fa fa-pencil fa-fw"></i>
                                                                                     </span>
-                                                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][budget]" class="form-control" value="{{ $activityremainingBudget }}" readonly>
+                                                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][budget]" class="form-control" value="{{number_format($activityremainingBudget, 0) }}" readonly>
                                                                                 </div>
                                                                             </div>
                                                                         </div>
@@ -450,7 +450,7 @@
                                                                                                     <span class="input-group-addon">
                                                                                                         <i class="fa fa-pencil fa-fw"></i>
                                                                                                     </span>
-                                                                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][budget_lines][{{ $budget_line->id }}][frequency]" class="form-control" value="{{ $budget_line->frequency }}" readonly>
+                                                                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][budget_lines][{{ $budget_line->id }}][frequency]" class="form-control" value="{{ $budget_line->frequency}}" readonly>
                                                                                                 </div>
                                                                                             </div>
                                                                                         </div>
@@ -461,7 +461,7 @@
                                                                                                     <span class="input-group-addon">
                                                                                                         <i class="fa fa-pencil fa-fw"></i>
                                                                                                     </span>
-                                                                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][budget_lines][{{ $budget_line->id }}][budget]" class="form-control" value="{{ $budget_line->budget }}" readonly>
+                                                                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][budget_lines][{{ $budget_line->id }}][budget]" class="form-control" value="{{ number_format($budget_line->budget, 0) }}" readonly>
                                                                                                 </div>
                                                                                             </div>
                                                                                         </div>
@@ -487,6 +487,50 @@
                                 </div>
                             @endforeach
                         </div>
+
+                        <div style="height: 20px; border-bottom: 1px solid #eee; text-align: center;margin-top: 20px;margin-bottom: 20px;">
+                            <span style="font-size: 18px; background-color: #ffffff; padding: 0 10px;">
+                              Contingency Budget
+                            </span>
+                        </div>
+
+                          <div class="panel panel-default" style="margin-left: 20px; margin-right: 20px;">
+                            {{-- <div class="container"> --}}
+                                {{-- <h2 class="mb-4">Contingency Budgets</h2> --}}
+
+                                <table class="table table-bordered">
+                                    <thead class="thead-dark outcomes">
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Name</th>
+                                            <th>Amount (UGX)</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($program->contingencyBudgets as $number => $index )
+                                            <tr>
+                                                <td>{{ $number + 1 }}</td>
+                                                <td>{{ $index->name ?? 'N/A' }}</td>
+                                                <td>{{ number_format($index->budget, 0) }}</td>
+                                                {{-- <td>{{ $budget->description ?? 'No description' }}</td> --}}
+                                                 <td>
+                                                    {{-- <a href="{{ route('contingency-budgets.edit', $budget->id) }}" class="btn btn-sm btn-primary">Edit</a> --}}
+                                                    <form action="#" method="POST" style="display:inline;">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</button>
+                                                    </form>
+                                                </td> 
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+
+                                {{-- <a href="{{ route('contingency-budgets.create') }}" class="btn btn-success mt-3">Add Contingency Budget</a> --}}
+                            {{-- </div> --}}
+                            </div>
+
 
                     </form>
                 </div>
