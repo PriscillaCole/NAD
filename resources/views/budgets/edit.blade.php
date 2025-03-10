@@ -106,7 +106,7 @@
 
                 <!-- Form Body -->
                 <div class="panel-body">
-                    <form action="{{ url('programs/'. $program->id.'/edit') }}" method="POST" id="programEditForm" class="form-horizontal" enctype="multipart/form-data">
+                    <form action="{{ url('programs/'. $program->id.'/edit') }}" method="POST" onsubmit="removeFormattingBeforeSubmit()" id="programEditForm" class="form-horizontal" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
                         <!-- Program Name -->
@@ -127,6 +127,18 @@
                             <label for="description" class="col-sm-2 control-label">Program Description</label>
                             <div class="col-sm-8">
                                 <textarea name="description" class="form-control" readonly required>{{ $program->description }}</textarea>
+                            </div>
+                        </div>
+                        <!-- Program Budget -->
+                        <div class="form-group">
+                            <label for="name" class="col-sm-2 control-label">Program Budget (UGX)</label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-pencil fa-fw"></i>
+                                    </span>
+                                    <input type="text" class="form-control formatted-input" readonly value="{{ $program->budget }}" required />
+                                </div>
                             </div>
                         </div>
 
@@ -154,13 +166,13 @@
                                             </div>
                                         </div>
                                         <div class="form-group">
-                                            <label class="col-sm-2 control-label">Outcome Budget</label>
+                                            <label class="col-sm-2 control-label">Outcome Budget (UGX)</label>
                                             <div class="col-sm-8">
                                                 <div class="input-group">
                                                     <span class="input-group-addon">
                                                         <i class="fa fa-pencil fa-fw"></i>
                                                     </span>
-                                                    <input type="number" name="outcomes[{{ $outcome->id }}][budget]" class="form-control" value="{{ $outcome->budget }}" required>
+                                                    <input type="text" name="outcomes[{{ $outcome->id }}][budget]" oninput= "formatNumber(event)"  class="form-control formatted-input" value=" {{$outcome->budget }}" required>
                                                 </div>
                                             </div>
                                         </div>
@@ -188,13 +200,13 @@
                                                             </div>
                                                         </div>
                                                         <div class="form-group">
-                                                            <label class="col-sm-2 control-label">Output Budget</label>
+                                                            <label class="col-sm-2 control-label">Output Budget (UGX)</label>
                                                             <div class="col-sm-8">
                                                                 <div class="input-group">
                                                                     <span class="input-group-addon">
                                                                         <i class="fa fa-pencil fa-fw"></i>
                                                                     </span>
-                                                                    <input type="number" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][budget]" class="form-control" value="{{ $output->budget }}" required>
+                                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][budget]" oninput= "formatNumber(event)" class="form-control formatted-input" value=" {{$output->budget}}" required>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -217,18 +229,18 @@
                                                                                     <span class="input-group-addon">
                                                                                         <i class="fa fa-pencil fa-fw"></i>
                                                                                     </span>
-                                                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][name]" class="form-control" value="{{ $activity->name }}" required>
+                                                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][name]" class="form-control " value="{{ $activity->name }}" required>
                                                                                 </div>
                                                                             </div>
                                                                         </div>
                                                                         <div class="form-group">
-                                                                            <label class="col-sm-2 control-label">Activity Budget</label>
+                                                                            <label class="col-sm-2 control-label">Activity Budget (UGX)</label>
                                                                             <div class="col-sm-8">
                                                                                 <div class="input-group">
                                                                                     <span class="input-group-addon">
                                                                                         <i class="fa fa-pencil fa-fw"></i>
                                                                                     </span>
-                                                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][budget]" class="form-control" value="{{ $activity->budget }}" required>
+                                                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][budget]" oninput= "formatNumber(event)" class="form-control formatted-input" value=" {{($activity->budget) }}" required>
                                                                                 </div>
                                                                             </div>
                                                                         </div>
@@ -261,7 +273,7 @@
                                                                                                     <span class="input-group-addon">
                                                                                                         <i class="fa fa-pencil fa-fw"></i>
                                                                                                     </span>
-                                                                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][budget_lines][{{ $budget_line->id }}][unitcost]" class="form-control" value="{{ $budget_line->unitcost }}" required>
+                                                                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][budget_lines][{{ $budget_line->id }}][unitcost]" class="form-control formatted-input" value="{{ $budget_line->unitcost }}" required>
                                                                                                 </div>
                                                                                             </div>
                                                                                         </div>
@@ -288,13 +300,13 @@
                                                                                             </div>
                                                                                         </div>
                                                                                         <div class="form-group">
-                                                                                            <label class="col-sm-2 control-label">Budget Line Budget</label>
+                                                                                            <label class="col-sm-2 control-label">Budget Line Budget (UGX)</label>
                                                                                             <div class="col-sm-8">
                                                                                                 <div class="input-group">
                                                                                                     <span class="input-group-addon">
                                                                                                         <i class="fa fa-pencil fa-fw"></i>
                                                                                                     </span>
-                                                                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][budget_lines][{{ $budget_line->id }}][budget]" class="form-control" value="{{ $budget_line->budget }}" required>
+                                                                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][budget_lines][{{ $budget_line->id }}][budget]" oninput= "formatNumber(event)" class="form-control formatted-input" value=" {{($budget_line->budget) }}" required>
                                                                                                 </div>
                                                                                             </div>
                                                                                         </div>
@@ -370,7 +382,7 @@
 
                         <div id="contingency">
                             @foreach ($program->contingencyBudgets as $budget)
-                                <div class="panel panel-default activity" id="activity-{{ $budget->id }}">
+                                <div class="panel panel-default activity" id="activity-{{ ($budget->id) }}">
                                     <div class="panel-heading budgetlines">
                                         <h6 class="panel-title">
                                             <span class="entity-label">Contingency Budget</span> 
@@ -391,13 +403,13 @@
                                         </div>
                                         
                                         <div class="form-group">
-                                            <label class="col-sm-2 control-label">Contingency Budget</label>
+                                            <label class="col-sm-2 control-label">Contingency Budget (UGX)</label>
                                             <div class="col-sm-8">
                                                 <div class="input-group">
                                                     <span class="input-group-addon">
                                                         <i class="fa fa-pencil fa-fw"></i>
                                                     </span>
-                                                    <input type="text" name="contingency[${contingencyBudget}][budget]" class="form-control" value="{{ $budget->budget }}" required>
+                                                    <input type="text" name="contingency[${contingencyBudget}][budget]" class="form-control formatted-input" oninput= "formatNumber(event)" value=" {{($budget->budget) }}" required>
                                                 </div>
                                             </div>
                                         </div>
@@ -417,7 +429,7 @@
                         </div>
                         <div class="form-group">
                             <div class="col-sm-8 col-sm-offset-2" style="display: flex; justify-content: space-between; align-items: center;">
-                           <button type="button" class="btn btn-secondary btn-add" onclick="addContigencyBudget({{$activity->id}}, {{$output->id}}, {{$outcome->id}})">Add Contingency Budget</button>
+                           <button type="button" class="btn btn-secondary btn-add" onclick="addContigencyBudget()">Add Contingency Budget</button>
     
                         </div>
 
@@ -433,5 +445,44 @@
         </div>
     </div>
 </div>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".formatted-input").forEach(input => {
+        let rawValue = input.value.replace(/,/g, ''); // Remove existing commas (if any)
+
+        // Format the value initially for display
+        if (rawValue) {
+            let parts = rawValue.split('.');
+            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ','); // Add commas
+            input.value = parts.join('.'); // Display formatted value
+        }
+
+        // Store the raw value for submission
+        input.setAttribute("data-raw", rawValue);
+
+        // Add event listener for formatting on user input
+        input.addEventListener("input", function (event) {
+            let value = input.value.replace(/[^0-9.]/g, ''); // Remove non-numeric characters except dot
+            let parts = value.split('.');
+
+            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ','); // Add commas
+            input.value = parts.join('.'); // Display formatted value
+
+            // Store raw numeric value
+            input.setAttribute("data-raw", value);
+        });
+    });
+});
+
+// Ensure raw values are submitted
+function removeFormattingBeforeSubmit() {
+    document.querySelectorAll(".formatted-input").forEach(input => {
+        if (input.hasAttribute("data-raw")) {
+            input.value = input.getAttribute("data-raw"); // Replace formatted value with raw value before submission
+        }
+    });
+}
+
+</script>
 </body>
 </html>

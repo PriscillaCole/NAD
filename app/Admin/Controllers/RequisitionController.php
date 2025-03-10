@@ -27,6 +27,8 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use ZipArchive;
 
+use function App\Http\Controllers\formatAmount;
+
 class RequisitionController extends AdminController
 {
     /**
@@ -109,7 +111,9 @@ class RequisitionController extends AdminController
                 
             });
         
-        $grid->column('amount', __('Amount'));
+        $grid->column('amount', __('Amount (UGX)'))->display(function ($value) {
+            return number_format($value, 0, '.', ','); // Format with commas
+        });
         $grid->column('status', __('Status'))->display(
             function ($status) {
                 if ($status == 'pending') {
@@ -224,7 +228,6 @@ class RequisitionController extends AdminController
         
             //when saving the form, calculate the total amount of the requisition items and save it in the amount field
             $form->saving(function (Form $form) {
-                \Log::info('Saving form requisition_items:', $form->requisition_items);
                 $requisition_items = request()->input('requisition_items');
                 // dd($requisition_items);
         
@@ -323,7 +326,7 @@ class RequisitionController extends AdminController
                     ->required();
                     $form->decimal('quantity', __('Quantity'))->required();
                     $form->text('unit_of_measure', __('Unit of measure'))->required();
-                    $form->decimal('unit_price', __('Unit cost'))->required();
+                    $form->decimal('unit_price', __('Unit cost(UGX)'))->required();
                 
                 });
             }else{
@@ -344,7 +347,9 @@ class RequisitionController extends AdminController
                     $activity = Activity::find($id);
                     return $activity ? [$activity->id => $activity->name] : [];
                     })->attribute('id', 'activity_id')->required();
-                $form->text('', __('Activity budget'))->attribute('id', 'activity_budget')->readonly();
+                $form->text('', __('Activity budget(UGX)'))->attribute(
+                    'id', 'activity_budget',
+                    )->readonly();
                 // $form->date('setOff_date', __('Set Off Date'))->required();
                 // $form->date('return_date', __('Return Date'))->required();
 
@@ -361,13 +366,15 @@ class RequisitionController extends AdminController
                         ->readOnly();
                         $form->decimal('quantity', __('Quantity'))->required();
                         $form->text('unit_of_measure', __('Unit of measure'))->required();
-                        $form->decimal('unit_price', __('Unit cost'))->required();
+                        $form->decimal('unit_price', __('Unit cost(UGX)'))->attribute([
+                            'oninput' => "this.value = this.value.replace(/[^0-9.]/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');"
+                        ])->required();
                     
                     });
             }
             $form->file('concept_note', __('Concept note'))->required();
             $form->textarea('description', __('Description'));
-            $form->hidden('amount', __('Amount'));
+            $form->hidden('amount', __('Amount(UGX)'));
             
         Admin::script
         ('
@@ -454,8 +461,12 @@ class RequisitionController extends AdminController
                  $.get("/budgetlines/" + activity_id)
                     .done(function(data) {
                     var budgetLines = data[0]; // Extract budget lines object
-                    var activity_budget = data[1]; // Extract activity budget
+                    var activity_budget = Number(data[1]).toLocaleString(\'en-US\'); // Extract activity budget
 
+                    // // Format activity_budget with commas
+                    // var formattedBudget = Number(activity_budget).toLocaleString(\'en-US\');
+
+                    
                     $("#activity_budget").val(activity_budget);
                     if ($.isEmptyObject(budgetLines)) {
                         alert("No budget lines available for the selected activity");
@@ -550,6 +561,7 @@ class RequisitionController extends AdminController
     public function getActivitiesbudgetlines($id)
     {
         $activity_budget = Activity::where('id', $id)->pluck('budget');
+        
         $budgetlines = BudgetLines::where('activity_id', $id)->pluck('name', 'id'); // Returns {id: name}
         
 

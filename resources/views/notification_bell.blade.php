@@ -28,7 +28,7 @@
   </li>
 </ul>
 </li>
-<script>
+{{-- <script>
   function delete(event, notificationId, redirectUrl) {
       event.preventDefault(); // Prevent default link action
 
@@ -46,4 +46,4 @@
       })
       .catch(error => console.error('Error:', error));
   }
-</script>
+</script> --}}
