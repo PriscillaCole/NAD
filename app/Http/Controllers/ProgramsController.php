@@ -11,6 +11,7 @@ use App\Models\Output;
 use App\Models\Utils;
 use Illuminate\Http\Request;
 use Encore\Admin\Form;
+use Illuminate\Support\Facades\Log;
 use Laravel\Pail\ValueObjects\Origin\Console;
 
 class ProgramsController extends Controller
@@ -120,7 +121,9 @@ class ProgramsController extends Controller
     // function to update a program
     public function update(Request $request, $id)
     {
+        try {
         // dd($request->input());
+        Log::info(['request:',$request]);
         // Validate the incoming request
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -151,11 +154,13 @@ class ProgramsController extends Controller
             'contingency.*.budget' => 'required',
 
         ]);
+
+        Log::info(['validated:', $validated]);
     
         // Start database transaction
         \DB::beginTransaction();
     
-        try {
+        // try {
             // Update the program
             $program = Program::findOrFail($id);
             $program->update([
@@ -293,7 +298,7 @@ class ProgramsController extends Controller
             return redirect(admin_url('budgets'));
         } catch (\Exception $e) {
             \DB::rollBack();
-            \Log::error($e);
+            Log::error($e);
             return redirect()->back()->with('error', 'Failed to update program. ' . $e->getMessage());
         }
     }

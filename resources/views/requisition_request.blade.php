@@ -51,7 +51,9 @@
             text-align: left;
         }
         .table th {
-            background-color: #f4f4f4;
+            /* background-color: #f4f4f4; */
+            background:  -webkit-linear-gradient(top, #3c8dbc, #b3b6fc);
+            color: white;
         }
         @media print {
             .no-print {
@@ -164,21 +166,45 @@
         <div class="section">
         <h2>General Information</h2>
         <table class="table table-bordered">
-            <thead>
                 <tr>
-                 
                     <th>Staff ID</th>
-                    <th>Name</th>
-                    <th>Code</th>
-                    <th>Program</th>
-                    <th>Activity</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
                     <td>{{ $requisition->staff->staff_number}}</td>
+                </tr>
+                <tr>
+                    <th>Requested by</th>
                     <td>{{ $requisition->staff->name }}</td>
+                </tr>
+                <tr>
+                    <th>Code</th>
                     <td>{{ $requisition->code }}</td>
+                </tr>
+                @if($requisition->admin_program_id)
+                <tr>
+                    <th>Program</th>
+                    <td>{{ $requisition->admin_program->name }}</td>
+                </tr>
+                @else
+                <tr>
+                    <th>Outcome</th>
+                    <td>{{ $requisition->activity->output->outcome->name }}</td> 
+                </tr>
+                <tr>
+                    <th>Output</th>
+                    <td>{{ $requisition->activity->output->name }}</td> 
+                </tr>
+                
+                    {{-- <td>{{ $requisition->activity->name }}</td> --}}
+                @endif
+                    <th>Activity</th>
+                    @if($requisition->admin_program_id)
+                        {{-- <td>{{ $requisition->admin_program->name }}</td> --}}
+                    @else
+                        {{-- <td>{{ $requisition->activity->output->outcome->program->name }}</td>  --}}
+                        <td>{{ $requisition->activity->name }}</td>
+                    @endif
+                </tr>
+            {{-- <tbody>
+                <tr>
                     @if($requisition->admin_program_id)
                         <td>{{ $requisition->admin_program->name }}</td>
                     @else
@@ -188,7 +214,7 @@
                     
                     
                 </tr>
-            </tbody>
+            </tbody> --}}
         </table>
 
         </div>
@@ -204,8 +230,8 @@
                     <th>No.</th>
                     <th>Name</th>
                     <th>Quantity</th>
-                    <th>Unit Price</th>
-                    <th>Total Price</th>
+                    <th>Unit Price(UGX)</th>
+                    <th>Total Price(UGX)</th>
                 </tr>
             </thead>
             <tbody>
@@ -228,13 +254,13 @@
                             <td>{{ $item->budgetline->name }}</td>
                         @endif
                         <td>{{ $item->quantity }} {{$item->unit_of_measure}}</td>
-                        <td>{{ $item->unit_price }}</td>
-                        <td>{{ $total_price }}</td>
+                        <td>{{ number_format($item->unit_price) }}</td>
+                        <td>{{ number_format($total_price) }}</td>
                     </tr>
                 @endforeach
                 <tr>
-                    <td colspan="5"><b>Overall Estimated Cost:</b></td>
-                    <td>{{ $requisition->amount }}</td>
+                    <td colspan="5"><b>Overall Estimated Cost (UGX):</b></td>
+                    <td>{{ number_format($requisition->amount) }}</td>
                 </tr>
             </tbody>
         </table>
@@ -248,7 +274,7 @@
             <tr>
                 <th>No.</th>
                 <th>Roles</th>
-                <th>Staff Name</th>
+                <th>Reviewed by</th>
                 <th>Status</th>
             </tr>
         </thead>
@@ -364,7 +390,7 @@
                     @if($role->slug == 'finance' )
                         <a href="#" id="acceptBtn" class="btn btn-accept no-print">Accept</a>
                         <a href="#" id="rejectBtn" class="btn btn-reject no-print">Reject</a>
-                        <a href="#" id="haltBtn" class="btn btn-halt no-print">Halt</a>
+                        <a href="#" id="haltBtn" class="btn btn-halt no-print">On Hold</a>
                         <a href="/requisitions/{{$requisition->id}}/edit" id="amendBtn" class="btn btn-amend no-print">Amend</a>
                     @elseif($role->slug == 'director' && $requisition->status == 'accepted')
                         <a href="#" id="approveBtn" class="btn btn-approve no-print">Approve</a>

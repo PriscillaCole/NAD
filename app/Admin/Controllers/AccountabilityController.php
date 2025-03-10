@@ -14,6 +14,7 @@ use Encore\Admin\Grid;
 use Encore\Admin\Show;
 use Encore\Admin\Facades\Admin;
 use Carbon\Carbon;
+use FontLib\Table\Type\name;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -70,14 +71,17 @@ class AccountabilityController extends AdminController
         });
 
       
-        $grid->column('requisition_id', __('Requisition id'))->display(function($requisition_id){
+        $grid->column('requisition_id', __('Requisition'))->display(function($requisition_id){
             return Requisition::find($requisition_id)->code;
         });
         
         $grid->column('', __('Amount dispensed'))->display(function(){
-            return Requisition::find($this->requisition_id)->amount;
+            $amount = Requisition::find($this->requisition_id)->amount;
+            return  number_format($amount, 0, '.', ',');
         });
-        $grid->column('amount_used', __('Amount used'));
+        $grid->column('amount_used', __('Amount used'))->display(function($amount){
+            return  number_format($amount, 0, '.', ',');
+        });;
         $grid->column('status', __('Status'))->display(
             function ($status) {
                 if ($status == null) {
@@ -197,10 +201,11 @@ class AccountabilityController extends AdminController
                     return Requisition::find($requisition_id)->code;
                 });
 
-                $form->display('requisition.amount', __('Amount dispensed'))
+                $form->display('', __('Amount dispensed(UGX)'))
                 ->default(function() use ($form) {
-                   
-                    return $form->model()->requisition->amount;
+                    $amount = $form->model()->requisition->amount;
+                    
+                    return number_format($amount);
                 });
                 // $existingRequisition= $form->model()->requisition->id;
                 $form->hasMany('requisitionItemReceipts', 'Requisition items', function (Form\NestedForm $form)use ($existingRequisition)  {
@@ -252,16 +257,37 @@ class AccountabilityController extends AdminController
 
                 $form->hidden('staff_id')->default($staff_id);
                 
-                $form->decimal('amount_used', __('Total amount used'))
-                ->attribute('id', 'amount_used');
+                $form->decimal('', __('Total amount used(UGX)'))
+                ->default(function($returned_amount)use ($form) {
+                    $amount = $form->model()->amount_used;
+
+                    return number_format($amount);
+                })
+                ->attribute(['id'=>'amount_used',
+                    'name'=>'amount_used',
+                    'oninput' => "this.value = this.value.replace(/[^0-9.]/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');"
+                 ]);
                 // }
+                Log::info(['$form=>amount', $form->amount_used]);
     
-                $form->decimal('returned_amount', __('Amount returned to finance'))
+                $form->decimal('returned_amount', __('Amount returned to finance(UGX)'))
+                    ->value(function($returned_amount) {
+                        
+                        return number_format($returned_amount);
+                    })
                     ->attribute('id', 'returned_amount')
                     ->readonly();
             
-                $form->decimal('amount_to_be_returned', __('Amount returned to staff'))
-                    ->attribute('id', 'amount_to_be_returned')
+                $form->decimal('', __('Amount returned to staff'))
+                    ->default(function($amount_to_be_returned)use ($form) {
+                        $amount = $form->model()->amount_to_be_returned;
+
+                        return number_format($amount);
+                    })
+                    ->attribute(['id'=>'amount_to_be_returned',
+                        'name'=>'amount_to_be_returned',
+                        'oninput' => "this.value = this.value.replace(/[^0-9.]/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');"
+                    ])
                     ->readonly();
             
                 // File fields for proof of funds and narrative report
@@ -281,6 +307,10 @@ class AccountabilityController extends AdminController
         $form->saving(function (Form $form) {
             // Generate a unique token for this submission
             $token = request()->input('_token');
+
+            $form->model()->amount_used = str_replace(',', '', $form->amount_used); // Remove commas before saving
+            $form->model()->amount_to_be_returned = str_replace(',', '', $form->amount_to_be_returned); // Remove commas before saving
+            // $form->model()->amount_used = str_replace(',', '', $form->amount_used); // Remove commas before saving
             
             // Check if this token has been used
             if (Cache::has("form_token_{$token}")) {
@@ -290,7 +320,7 @@ class AccountabilityController extends AdminController
             // Store token in cache briefly to prevent duplicate submissions
             Cache::put("form_token_{$token}", true, now()->addMinutes(5));
             
-            \Log::info('Form saving', [
+            Log::info('Form saving', [
                 'model' => $form->model()->toArray(),
                 'token' => $token
             ]);
@@ -365,187 +395,7 @@ class AccountabilityController extends AdminController
         });
         ');
     
-            // Admin::script('
-            //     $(document).ready(function() {
-            //         $("#requisitionId").change(function() {
-            //             var requisition_id = $(this).val();
-            //             if (requisition_id) {
-            //                 $.ajax({
-            //                     url: "/requisition/" + requisition_id,
-            //                     type: "GET",
-            //                     dataType: "json",
-            //                     success: function(data) {
-            //                         if (data.total_amount) {
-            //                             $("#amount_dispensed").val(data.total_amount);
-            //                             $("#amount_used").val("");
-            //                             $("#returned_amount").val("");
-            //                             $("#amount_to_be_returned").val("");
-                                        
-            //                             // if ($.isEmptyObject(data.items)) {
-            //                             //     alert("No budget lines available for the selected activity");
-            //                             //     return;
-            //                             // }
-
-            //                             // Clear existing requisition items
-            //                             $("#has-many-requisitionItemReceipts .has-many-requisitionItemReceipts-forms").empty();
-
-            //                             // Dynamically add requisition items for each budget line
-            //                             $.each(data.items, function(key, value) {
-            //                                 $(".add").click(); // Add a new requisition item field
-
-            //                                 setTimeout(function() {
-            //                                     var lastForm = $("#has-many-requisitionItemReceipts .has-many-requisitionItemReceipts-forms").children().last();
-            //                                     var requisitionItemField = lastForm.find("[id^=requisition_item_id]");
-                                                
-            //                                     // Ensure unique options are added
-            //                                     // requisitionItemField.empty(); // Clear any previous options
-            //                                     requisitionItemField.append(new Option(value.budget_line, key, true, true)); 
-            //                                     requisitionItemField.trigger("change"); // Trigger change event
-            //                                 }, 100);
-                                            
-            //                             });
-            //                             // $(".add").disable();
-            //                         }
-            //                     }
-            //                 });
-            //             }
-            //         });
-
-            //         $("#amount_used").on("input", function() {
-            //             var amount_used = parseFloat($(this).val()) || 0;
-            //             var amount_dispensed = parseFloat($("#amount_dispensed").val()) || 0;
-
-            //             var returned_amount = amount_dispensed > amount_used ? (amount_dispensed - amount_used) : 0;
-            //             var amount_to_be_returned = amount_used > amount_dispensed ? (amount_used - amount_dispensed) : 0;
-
-            //             $("#returned_amount").val(returned_amount.toFixed(2));
-            //             $("#amount_to_be_returned").val(amount_to_be_returned.toFixed(2));
-            //         });
-            //     });
-            // ');
-
-        //     Admin::script('
-        //     $(document).ready(function() {
-        //         $("#requisition_id").change(function() {
-        //             var requisition_id = $(this).val();
-        //             if (requisition_id) {
-        //                 $.ajax({
-        //                     url: "/requisition/" + requisition_id,
-        //                     type: "GET",
-        //                     dataType: "json",
-        //                     success: function(data) {
-        //                         if (data.total_amount) {
-        //                             $("#amount_dispensed").val(data.total_amount);
-        //                             $("#amount_used").val("");
-        //                             $("#returned_amount").val("");
-        //                             $("#amount_to_be_returned").val("");
-    
-                                    
-        //                                 // if ($.isEmptyObject(data)) {
-        //                                 //     alert("No budget lines available for the selected activity");
-        //                                 //     return;
-        //                                 // }
-
-        //                                 // Clear existing requisition items
-        //                                 $("#has-many-requisitionItemReceipts").find(".has-many-forms").empty();
-
-        //                                 // Dynamically add requisition items for each budget line
-        //                                 $.each(data.items, function(key, item) {
-        //                                     $(".add").click(); // Simulate clicking the "Add" button to add a new requisition item
-                                            
-        //                                     // Wait for the new form to be added, then populate its fields
-        //                                     setTimeout(function() {
-        //                                         var lastForm = $("#has-many-requisitionItemReceipts").find(".has-many-requisitionItemReceipts-forms").children().last();
-        //                                         var requisitionItemReceiptsField = $("[id^=requisition_item_id]");
-                                                
-        //                                             requisitionItemReceiptsField.append(new Option(item.budget_line, key, true, true)); // Add and select the option
-        //                                             requisitionItemReceiptsField.trigger("change"); // Trigger change for any dependencies
-                                                
-        //                                         // Optionally, set other default values here (e.g., quantity, unit_of_measure)
-        //                                     }, 100); // Add a small delay to ensure the form is rendered
-        //                                 });
-        //                         }
-        //                     }
-        //                 });
-                    
-        //             }
-        //             // error: function(jqXHR, textStatus, errorThrown) {
-        //             //     console.error("AJAX Error:", textStatus, errorThrown);
-        //             // }
-        //         });
-                    
-    
-        //         $("#amount_used").on("input", function() {
-        //             var amount_used = parseFloat($(this).val()) || 0;
-        //             var amount_dispensed = parseFloat($("#amount_dispensed").val()) || 0;
-    
-        //             var returned_amount = amount_dispensed > amount_used ? (amount_dispensed - amount_used) : 0;
-        //             var amount_to_be_returned = amount_used > amount_dispensed ? (amount_used - amount_dispensed) : 0;
-    
-        //             $("#returned_amount").val(returned_amount.toFixed(2));
-        //             $("#amount_to_be_returned").val(amount_to_be_returned.toFixed(2));
-        //         });
-        //     });
-        // ');
-
-        // Admin::script('
-        //     $("#requisitionId").change(function() {
-        //         var requisition_id = $(this).val();
-        //         if (requisition_id) {
-        //             $.ajax({
-        //                 url: "/requisition/" + requisition_id,
-        //                 type: "GET",
-        //                 dataType: "json",
-        //                 success: function(data) {
-        //                     if (data.total_amount) {
-        //                         $("#amount_dispensed").val(data.total_amount);
-        //                         $("#amount_used").val("");
-        //                         $("#returned_amount").val("");
-        //                         $("#amount_to_be_returned").val("");
-                                
-        //                         // Clear existing requisition items
-        //                         $("#has-many-requisitionItemReceipts .has-many-requisitionItemReceipts-forms").empty();
-
-        //                         // Function to add a single item with proper delay
-        //                         function addItem(key, value, index) {
-        //                             return new Promise((resolve) => {
-        //                                 if(index === 0) {
-        //                                     // First item doesnt need click as form already has one empty row
-        //                                     var firstForm = $("#has-many-requisitionItemReceipts .has-many-requisitionItemReceipts-forms").children().first();
-        //                                     var firstField = firstForm.find("select[id^=requisition_item_id]");
-        //                                     firstField.empty().append(new Option(value.budget_line, key, true, true));
-        //                                     firstField.trigger(\'change\');
-        //                                     resolve();
-        //                                 } else {
-        //                                     $(".add").click();
-        //                                     setTimeout(() => {
-        //                                         var lastForm = $("#has-many-requisitionItemReceipts .has-many-requisitionItemReceipts-forms").children().last();
-        //                                         var requisitionItemField = lastForm.find("select[id^=requisition_item_id]");
-        //                                         requisitionItemField.empty().append(new Option(value.budget_line, key, true, true));
-        //                                         requisitionItemField.trigger(\'change\');
-        //                                         resolve();
-        //                                     }, 200);
-        //                                 }
-        //                             });
-        //                         }
-
-        //                         // Process items sequentially
-        //                         async function processItems() {
-        //                             let index = 0;
-        //                             for (let [key, value] of Object.entries(data.items)) {
-        //                                 await addItem(key, value, index);
-        //                                 index++;
-        //                             }
-        //                         }
-
-        //                         processItems();
-        //                     }
-        //                 }
-        //             });
-        //         }
-        //     });
-        // ');
-
+            
         return $form;
     }
 

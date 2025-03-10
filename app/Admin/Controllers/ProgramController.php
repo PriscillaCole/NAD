@@ -81,10 +81,14 @@ class ProgramController extends AdminController
 
         $show->field('name', __('Name'));
         $show->field('description', __('Description'));
+        $show->field('budget', __('Budget (UGX)'))->as(function($budget) {
+            return number_format($budget, 0, '.', ',');
+        });
         $show->field('user_id', __('Program manager'))->as(function ($userId) {
             $user = User::find($userId); // Fetch the user by their ID
             return $user ? $user->name : 'N/A'; // Return the user's name or 'N/A' if the user doesn't exist
         });
+        
 
         return $show;
     }
@@ -100,19 +104,32 @@ class ProgramController extends AdminController
        
         $form->text('name', __('Name'));
         $form->textarea('description', __('Description'));
-        $form->text('budget', __('Budget'));
+        if($form->isCreating()){
+            $form->text('budget', __('Budget (UGX)'))
+            ->attribute([
+                'oninput' => "this.value = this.value.replace(/[^0-9.]/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');"
+            ]);
+        }else {
+            $form->text('budget', __('Budget (UGX)'))
+            ->value(function ($value) {
+                return !is_null($value) ? number_format($value, 0, '.', ',') : ''; // Avoid error on create
+            })
+            ->attribute([
+                'oninput' => "this.value = this.value.replace(/[^0-9.]/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');"
+            ]);
+        }
+        
         $form->select('user_id', __('Choose a Program manager'))
             ->options(User::whereHas('roles', function ($query) {
                 $query->where('name', 'staff'); // Adjust 'name' to the correct column if needed
             })->pluck('name', 'id')) // Replace 'name' with the field representing the user's name
             ->attribute('id', 'adminprogram_id')
             ->required();
-            // $form->hasMany('items', 'Requisition Items', function ($form) {
-            //     $form->text('description', 'Description');
-            //     $form->number('quantity', 'Quantity');
-            //     $form->decimal('unit_price', 'Unit Price')->default(0.00);
-            //     $form->decimal('total_price', 'Total Price')->default(0.00)->readonly();
-            // });
+
+        $form->saving(function ($form) {
+            $form->budget = str_replace(',', '', $form->budget); // Remove commas before saving
+        });
+            
 
         return $form;
     }

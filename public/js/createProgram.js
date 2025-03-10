@@ -35,7 +35,7 @@
                             <span class="input-group-addon">
                                 <i class="fa fa-pencil fa-fw"></i>
                             </span>
-                            <input type="number" name="outcomes[${outcomeId}][budget]" class="form-control" placeholder="Enter Outcome Budget" required>
+                            <input type="text" name="outcomes[${outcomeId}][budget]" oninput="formatNumber(event)" class="form-control" placeholder="Enter Outcome Budget" required>
                             </div>
                         </div>
                     </div>
@@ -94,7 +94,7 @@
                         <span class="input-group-addon">
                                 <i class="fa fa-pencil fa-fw"></i>
                             </span>
-                            <input type="number" name="outcomes[${outcomeId}][outputs][${outputId}][budget]" class="form-control" placeholder="Enter Output Budget" required>
+                            <input type="text" name="outcomes[${outcomeId}][outputs][${outputId}][budget]" oninput= "formatNumber(event)" class="form-control" placeholder="Enter Output Budget" required>
                         </div>
                         </div>
                     </div>
@@ -150,7 +150,7 @@
                           <span class="input-group-addon">
                                 <i class="fa fa-pencil fa-fw"></i>
                             </span>
-                            <input type="number" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][budget]" class="form-control" placeholder="Enter Activity Budget" required>
+                            <input type="text" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][budget]" oninput= "formatNumber(event)" class="form-control" placeholder="Enter Activity Budget" required>
                         </div>
                         </div>
                     </div>
@@ -301,7 +301,7 @@
                                 <span class="input-group-addon">
                                     <i class="fa fa-pencil fa-fw"></i>
                                 </span>
-                                <input type="number" id="unit-cost-${budgetLineId}" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][budget_lines][${budgetLineId}][unitcost]"  class="form-control unit-cost" placeholder="Unit Cost" required>
+                                <input type="text" id="unit-cost-${budgetLineId}" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][budget_lines][${budgetLineId}][unitcost]" oninput= "formatNumber(event)"  class="form-control unit-cost" placeholder="Unit Cost" required>
                             </div>
                         </div>
                     </div>
@@ -312,7 +312,7 @@
                                 <span class="input-group-addon">
                                     <i class="fa fa-pencil fa-fw"></i>
                                 </span>
-                                <input type="number" id="quantity-${budgetLineId}" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][budget_lines][${budgetLineId}][quantity]"  class="form-control quantity" placeholder="Quantity" required>
+                                <input type="text" id="quantity-${budgetLineId}" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][budget_lines][${budgetLineId}][quantity]"  class="form-control quantity" placeholder="Quantity" required>
                             </div>
                         </div>
                     </div>
@@ -323,7 +323,7 @@
                                 <span class="input-group-addon">
                                     <i class="fa fa-pencil fa-fw"></i>
                                 </span>
-                                <input type="number" id="frequency-${budgetLineId}" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][budget_lines][${budgetLineId}][frequency]" class="form-control frequency" placeholder="Frequency" required>
+                                <input type="text" id="frequency-${budgetLineId}" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][budget_lines][${budgetLineId}][frequency]" class="form-control frequency" placeholder="Frequency" required>
                             </div>
                         </div>
                     </div>
@@ -334,7 +334,7 @@
                                 <span class="input-group-addon">
                                     <i class="fa fa-pencil fa-fw"></i>
                                 </span>
-                                <input type="number" id="budget-${budgetLineId}" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][budget_lines][${budgetLineId}][budget]" class="form-control budget" placeholder="Enter Budget Line Amount" readonly required>
+                                <input type="text" id="budget-${budgetLineId}" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][budget_lines][${budgetLineId}][budget]" oninput= "formatNumber(event)" class="form-control budget" placeholder="Enter Budget Line Amount" readonly required>
                             </div>
                         </div>
                     </div>
@@ -635,7 +635,7 @@
                                 <span class="input-group-addon">
                                     <i class="fa fa-pencil fa-fw"></i>
                                 </span>
-                                <input type="number" id="unit-cost-${contingencyBudget}" name="contingency[${contingencyBudget}][budget]"  class="form-control unit-cost" placeholder="Budget" required>
+                                <input type="text" id="unit-cost-${contingencyBudget}" name="contingency[${contingencyBudget}][budget]" oninput= "formatNumber(event)" class="form-control unit-cost" placeholder="Budget" required>
                             </div>
                         </div>
                     </div>
@@ -660,3 +660,42 @@
     function deleteContingency(contingencyBudget) {
         document.getElementById(`contingencyBudget-${contingencyBudget}`).remove();
     }
+
+
+    // function formatNumber(event){
+    //     let input = event.target;
+    //     let value = input.value.replace(/[^0-9.]/g, '');
+    //     let parts = value.split('.');
+
+    //     parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+
+    //     //reasemble the value withthe decimal parts if it exists
+    //     input.value = parts.join(',');
+
+    //     document.getElementById('rawInput').value = value;
+    // }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".formatted-input").forEach(input => {
+            input.addEventListener("input", formatNumber);
+        });
+    });
+    
+    function formatNumber(event) {
+        let input = event.target;
+        let value = input.value.replace(/[^0-9.]/g, ''); // Remove non-numeric characters except dot
+        let parts = value.split('.');
+    
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ','); // Add commas for readability
+        input.value = parts.join('.'); // Display formatted value
+    
+        // Store raw numeric value in a data attribute
+        input.setAttribute("data-raw", value);
+    }
+    
+    function removeFormattingBeforeSubmit() {
+        document.querySelectorAll(".formatted-input").forEach(input => {
+            input.value = input.getAttribute("data-raw"); // Restore raw value before submission
+        });
+    }
+    

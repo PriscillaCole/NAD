@@ -63,10 +63,11 @@ class BudgetController extends AdminController
         // Use the relationship to fetch the user's name
         return $this->user ? $this->user->name : 'No Project Manager';
     });
-    $grid->column('budget', __('Budget'));
-    
+    $grid->column('budget', __('Budget (UGX)'))->display(function ($value) {
+        return number_format($value, 0, '.', ','); // Format with commas
+    });
     // Add the remaining budget column with corrected relationship chain
-    $grid->column('remaining_budget', __('Remaining Budget'))->display(function () {
+    $grid->column('remaining_budget', __('Remaining Budget (UGX)'))->display(function () {
         // Get the program's initial budget
         $totalBudget = $this->budget;
         
@@ -94,7 +95,7 @@ class BudgetController extends AdminController
         $color = $remainingBudget < 0 ? 'red' : 'green';
         
         // Format the number as currency
-        return "<span style='color: {$color};'>" . number_format($remainingBudget, 2) . "</span>";
+        return "<span style='color: {$color};'>" . number_format($remainingBudget) . "</span>";
         
     });
     
