@@ -148,9 +148,9 @@
                     @if ($requisition->status == 'pending')
                         <span class="label label-warning">Pending</span>
                     @elseif ($requisition->status == 'approved')
-                        <span class="label label-success">Approved</span>
+                        <span class="label label-success">Authorized</span>
                     @elseif ($requisition->status == 'accepted')
-                        <span class="label label-primary">Accepted</span>
+                        <span class="label label-primary">Approved</span>
                     @elseif ($requisition->status == 'rejected')
                         <span class="label label-danger">Rejected</span>
                     @elseif ($requisition->status == 'amended')
@@ -388,12 +388,12 @@
             @if(auth()->user()->roles->isNotEmpty())
                 @foreach(auth()->user()->roles as $role)
                     @if($role->slug == 'finance' )
-                        <a href="#" id="acceptBtn" class="btn btn-accept no-print">Accept</a>
+                        <a href="#" id="acceptBtn" class="btn btn-accept no-print">Approve</a>
                         <a href="#" id="rejectBtn" class="btn btn-reject no-print">Reject</a>
                         <a href="#" id="haltBtn" class="btn btn-halt no-print">On Hold</a>
                         <a href="/requisitions/{{$requisition->id}}/edit" id="amendBtn" class="btn btn-amend no-print">Amend</a>
                     @elseif($role->slug == 'director' && $requisition->status == 'accepted')
-                        <a href="#" id="approveBtn" class="btn btn-approve no-print">Approve</a>
+                        <a href="#" id="approveBtn" class="btn btn-approve no-print">Authorize</a>
                         <a href="#" id="rejectBtn" class="btn btn-reject no-print">Reject</a>
                         <a href="#" id="haltBtn" class="btn btn-halt no-print">Halt</a>
                         <a href="/requisitions/{{$requisition->id}}/edit" id="amendBtn" class="btn btn-amend no-print">Amend</a>
