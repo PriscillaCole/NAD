@@ -13,11 +13,11 @@
                 <div class="panel-body">
                     <div class="progress" style="height: 24px; margin-bottom: 10px; background-color: #f0f0f0;">
                         <div class="progress-bar" role="progressbar" 
-                             style="width: {{$pending}}%; background-color: #6366F1;">
+                             style="width: {{ $pending > 0 ? $pending : 1 }}%; background-color: #6366F1;">
                             <span class="progress-label">Pending({{$pending}}%)</span>
                         </div>
                         <div class="progress-bar" role="progressbar" 
-                             style="width: {{$submitted}}%; background-color: #A5B4FC;">
+                             style="width: {{ $submitted > 0 ? $submitted : 1 }}%; background-color: #A5B4FC;">
                             <span class="progress-label">Submitted({{$submitted}}%)</span>
                         </div>
                     </div>
@@ -52,15 +52,15 @@
                     @endphp
                     <div class="progress" style="height: 24px; margin-bottom: 10px; background-color: #f0f0f0;">
                         <div class="progress-bar" role="progressbar" 
-                             style="width: {{$rejectedPerc}}%; background-color: #303053;">
+                             style="width: {{ $rejectedPerc > 0 ? $rejectedPerc : 1 }}%; background-color: #303053;">
                             <span class="progress-label">Pending({{$rejectedPerc}}%)</span>
                         </div>
                         <div class="progress-bar" role="progressbar" 
-                             style="width: {{$pendingPerc}}%; background-color: #8383f3;">
+                             style="width: {{ $pendingPerc > 0 ? $pendingPerc : 1 }}%; background-color: #8383f3;">
                             <span class="progress-label">Submitted({{$pendingPerc}}%)</span>
                         </div>
                         <div class="progress-bar" role="progressbar" 
-                             style="width: {{$acceptedPerc}}%; background-color: #A5B4FC;">
+                             style="width: {{ $acceptedPerc > 0 ? $acceptedPerc : 1 }}%; background-color: #A5B4FC;">
                             <span class="progress-label">Submitted({{$acceptedPerc}}%)</span>
                         </div>
                     </div>
