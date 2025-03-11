@@ -88,9 +88,9 @@ class RequisitionController extends AdminController
             //status filter
             $filter->equal('status', 'Status')->select([
                 'pending' => 'Pending',
-                'approved' => 'Approved',
+                'approved' => 'Authorized',
                 'rejected' => 'Rejected',
-                'accepted' => 'Accepted',
+                'accepted' => 'Approved',
                 'amended' => 'Amended'
             ]);
         });
