@@ -43,7 +43,28 @@
                     <h5 class="panel-title">Accountability Report</h5>
                 </div>
                 <div class="panel-body">
-                    <canvas id="stackedBarChart" height="32" style="border-radius: 15px;"></canvas>
+                    @php
+                        $total = $haltedCount + $pendingCount + $acceptedCount;
+                        $rejectedPerc = ($haltedCount / $total) * 100;
+                        $pendingPerc = ($pendingCount / $total) * 100;
+                        $acceptedPerc = ($acceptedCount / $total) * 100;
+        
+                    @endphp
+                    <div class="progress" style="height: 24px; margin-bottom: 10px; background-color: #f0f0f0;">
+                        <div class="progress-bar" role="progressbar" 
+                             style="width: {{$rejectedPerc}}%; background-color: #303053;">
+                            <span class="progress-label">Pending({{$rejectedPerc}}%)</span>
+                        </div>
+                        <div class="progress-bar" role="progressbar" 
+                             style="width: {{$pendingPerc}}%; background-color: #8383f3;">
+                            <span class="progress-label">Submitted({{$pendingPerc}}%)</span>
+                        </div>
+                        <div class="progress-bar" role="progressbar" 
+                             style="width: {{$acceptedPerc}}%; background-color: #A5B4FC;">
+                            <span class="progress-label">Submitted({{$acceptedPerc}}%)</span>
+                        </div>
+                    </div>
+                    {{-- <canvas id="stackedBarChart" height="32" style="border-radius: 15px;"></canvas> --}}
                     <div class="legend mt-3" style="display: flex; align-items: center; gap: 20px;">
                         <div class="legend-item">
                             <span class="dot" style="background: #303053;"></span>
