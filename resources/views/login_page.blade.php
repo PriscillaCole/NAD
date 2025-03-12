@@ -4,6 +4,11 @@
 	<title>NAD</title>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicon.png') }}">
+
+    <link rel="shortcut icon" href="{{ asset('favicon.png') }}">
+    
 <!--===============================================================================================-->
 	<link rel="stylesheet" type="text/css" href="{{asset('vendor')}}/login/bootstrap/css/bootstrap.min.css">
 <!--===============================================================================================-->
