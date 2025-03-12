@@ -170,8 +170,10 @@ class AccountabilityController extends AdminController
                     
                     
                     $form->file('Invoice', __('Invoice'))
+                    ->help('upload fies of jpg,jpeg,png formats ')
                     ->rules('file|mimes:pdf,jpg,jpeg,png|max:5120') // 5MB max
-                    ->removable();
+                    ->removable()
+                    ->required();
     
                     // $form->file('payment_proof', __('Proof of Payment'))
                     // ->rules('file|mimes:pdf,jpg,jpeg,png|max:5120') // 5MB max
@@ -182,6 +184,8 @@ class AccountabilityController extends AdminController
                     
                     $form->text('amount', 'Amount');
                 });
+                // Log::info('Received form data', $form()->all());
+            
 
             }else{
                 $form->display('requisition_id', __('Requisition ID'))
@@ -295,29 +299,43 @@ class AccountabilityController extends AdminController
                     $form->file('narrative_report', __('Narrative Report'));
             }
 
-        
+            $form->saving(function (Form $form) {
+                Log::info('Form saving started', ['data' => request()->all()]);
+                // Log::info('Received form data', $form()->all());
+            
+                $token = request()->input('_token');
+            
+                // Check if the token is already used
+                if (Cache::has("form_token_{$token}")) {
+                    Log::warning('Duplicate form submission detected', ['token' => $token]);
+                    return back()->withErrors(['error' => 'Form already submitted']);
+                }
+            
+                // Store token to prevent duplicates
+                Cache::put("form_token_{$token}", true, now()->addMinutes(5));
+            });
 
-        $form->saving(function (Form $form) {
-            // Generate a unique token for this submission
-            $token = request()->input('_token');
+        // $form->saving(function (Form $form) {
+        //     // Generate a unique token for this submission
+        //     $token = request()->input('_token');
 
-            $form->model()->amount_used = str_replace(',', '', $form->amount_used); // Remove commas before saving
-            $form->model()->amount_to_be_returned = str_replace(',', '', $form->amount_to_be_returned); // Remove commas before saving
-            // $form->model()->amount_used = str_replace(',', '', $form->amount_used); // Remove commas before saving
+        //     // $form->model()->amount_used = str_replace(',', '', $form->amount_used); // Remove commas before saving
+        //     // $form->model()->amount_to_be_returned = str_replace(',', '', $form->amount_to_be_returned); // Remove commas before saving
+        //     // // $form->model()->amount_used = str_replace(',', '', $form->amount_used); // Remove commas before saving
             
-            // Check if this token has been used
-            if (Cache::has("form_token_{$token}")) {
-                return response()->json(['error' => 'Form already submitted'], 422);
-            }
+        //     // Check if this token has been used
+        //     if (Cache::has("form_token_{$token}")) {
+        //         return response()->json(['error' => 'Form already submitted'], 422);
+        //     }
             
-            // Store token in cache briefly to prevent duplicate submissions
-            Cache::put("form_token_{$token}", true, now()->addMinutes(5));
+        //     // Store token in cache briefly to prevent duplicate submissions
+        //     Cache::put("form_token_{$token}", true, now()->addMinutes(5));
             
-            Log::info('Form saving', [
-                'model' => $form->model()->toArray(),
-                'token' => $token
-            ]);
-        });
+        //     Log::info('Form saving', [
+        //         'model' => $form->model()->toArray(),
+        //         'token' => $token
+        //     ]);
+        // });
         
         $form->saved(function (Form $form) {
             // Clear the token after successful save

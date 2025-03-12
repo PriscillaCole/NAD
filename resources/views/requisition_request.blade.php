@@ -364,7 +364,7 @@
         <div class="field" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
             @if ($requisition->status != null)
                 <div style="text-align: center;">
-                    <label for="signature">Mwebaza Rolaine, Head of Finance</label><br>
+                    <label for="signature">Mwebaza Rolaine, Head of Financecfg</label><br>
                     <img src="{{ asset('storage/signatures/hofs.png') }}" alt="signature" style="width: 200px; height: 100px;">
                 </div>
                 @if($requisition->status == 'approved')
@@ -380,9 +380,6 @@
 
         </div>
     
-
-        
-
         <!-- check the role of the logged in user -->
         @if(auth()->user()!=null)
             @if(auth()->user()->roles->isNotEmpty())
@@ -410,7 +407,7 @@
                 <span class="close">&times;</span>
                 <h3>Enter Comment</h3>
                 <form id="reasonForm">
-                    <textarea id="reason" rows="4" style="width: 100%;" placeholder="Enter reason here..."></textarea>
+                    <textarea id="reason" rows="4" style="width: 100%;" placeholder="Enter comment here..."></textarea>
                     <br><br>
                     <button type="button" id="submitReason" class="btn btn-approve">
                         <span id="spinner" class="spinner" style="display: none;">
@@ -438,14 +435,17 @@
 
         if (approveBtn) {
             approveBtn.onclick = function() {
-                saveAccept('approved');
+                modal.style.display = "block";
+                submitReason.onclick = function() {
+                    sendReason('approved');
+                }
             }
         } else {
             acceptBtn.onclick = function() {
-                //modal.style.display = "block";
-                //submitReason.onclick = function() {
-                    saveAccept('accepted');
-                // }
+                modal.style.display = "block";
+                submitReason.onclick = function() {
+                    sendReason('accepted');
+                }
             }
         }
         

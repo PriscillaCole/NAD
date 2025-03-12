@@ -119,13 +119,13 @@ class RequisitionController extends AdminController
                 if ($status == 'pending') {
                     return "<span class='label label-warning'>pending</span>";
                 } elseif ($status == 'approved') {
-                    return "<span class='label label-success'>approved</span>";
+                    return "<span class='label label-success'>Authorized</span>";
                 } elseif ($status == 'rejected') {
-                    return "<span class='label label-danger'>rejected</span>";
+                    return "<span class='label label-danger'>Rejected</span>";
                 } elseif ($status == 'amended') {
-                    return "<span class='label label-info'>amended</span>";
+                    return "<span class='label label-info'>Amended</span>";
                 }elseif ($status == 'accepted') {
-                    return "<span class='label label-primary'>accepted</span>";
+                    return "<span class='label label-primary'>Approved</span>";
                 }
             }
         );

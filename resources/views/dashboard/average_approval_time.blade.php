@@ -293,15 +293,40 @@
                     }]
                 },
                 options: {
-                    responsive: true,
-                    scales: {
-                        yAxes: [{
-                            ticks: {
-                                beginAtZero: true
-                            }
-                        }]
+            responsive: true,
+            scales: {
+                yAxes: [{
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'UGX'
+                    },
+                    ticks: {
+                        beginAtZero: true,
+                        callback: function(value) {
+                            return 'UGX' + value.toLocaleString();
+                        }
                     }
+                }],
+                xAxes: [{
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Activity'
+                    }
+                }]
+            },
+            tooltips: {
+        callbacks: {
+            label: function(tooltipItem, data) {
+                let label = data.datasets[tooltipItem.datasetIndex].label || '';
+                if (label) {
+                    label += ': ';
                 }
+                label += 'UGX ' + tooltipItem.yLabel.toLocaleString();
+                return label;
+            }
+        }
+    }
+        }
             });
         }
 
