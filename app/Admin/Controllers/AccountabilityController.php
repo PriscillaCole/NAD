@@ -134,19 +134,7 @@ class AccountabilityController extends AdminController
         $staff_id = Staff::where('user_id', $user->id)->first()->id;
     
         // if($form->isCreating()){ 
-            Admin::script('
-                $("form").on("submit", function(e) {
-                    console.log("Form submitted", $(this).serialize());
-                });
-                
-                $(document).ajaxError(function(event, xhr, settings, error) {
-                    console.error("AJAX Error:", {
-                        status: xhr.status,
-                        response: xhr.responseText,
-                        error: error
-                    });
-                });
-            ');
+            
             $pendingRequisition = Requisition::where('staff_id', $staff_id)
                 ->where('status', 'approved')
                 ->whereDoesntHave('accountability') // Check if there's no accountability
@@ -201,12 +189,17 @@ class AccountabilityController extends AdminController
                     return Requisition::find($requisition_id)->code;
                 });
 
-                $form->display('', __('Amount dispensed(UGX)'))
+                $form->text('', __('Amount dispensed(UGX)'))
                 ->default(function() use ($form) {
                     $amount = $form->model()->requisition->amount;
                     
-                    return number_format($amount);
-                });
+                    // return number_format($amount);
+                    return $amount;
+                })
+                ->attribute('id', 'amount_dispensed');
+
+                Log::info('form->amount_dispensed');
+
                 // $existingRequisition= $form->model()->requisition->id;
                 $form->hasMany('requisitionItemReceipts', 'Requisition items', function (Form\NestedForm $form)use ($existingRequisition)  {
                         $requisition = Requisition::findOrfail($existingRequisition);
@@ -257,7 +250,7 @@ class AccountabilityController extends AdminController
 
                 $form->hidden('staff_id')->default($staff_id);
                 
-                $form->decimal('', __('Total amount used(UGX)'))
+                $form->decimal('amount_used', __('Total amount used(UGX)'))
                 ->default(function($returned_amount)use ($form) {
                     $amount = $form->model()->amount_used;
 
@@ -278,7 +271,7 @@ class AccountabilityController extends AdminController
                     ->attribute('id', 'returned_amount')
                     ->readonly();
             
-                $form->decimal('', __('Amount returned to staff'))
+                $form->decimal('amount_to_be_returned', __('Amount returned to staff'))
                     ->default(function($amount_to_be_returned)use ($form) {
                         $amount = $form->model()->amount_to_be_returned;
 
@@ -333,6 +326,7 @@ class AccountabilityController extends AdminController
         });
 
         Admin::script('
+        var amount = "";
         $(document).ready(function() {
             $("#requisitionId").change(function() {
                 var requisition_id = $(this).val();
@@ -343,7 +337,7 @@ class AccountabilityController extends AdminController
                         dataType: "json",
                         success: function(data) {
                             if (data.total_amount) {
-                                $("#amount_dispensed").val(data.total_amount);
+                                var amount = $("#amount_dispensed").val(data.total_amount);
                                 $("#amount_used").val("");
                                 $("#returned_amount").val("");
                                 $("#amount_to_be_returned").val("");
@@ -382,9 +376,14 @@ class AccountabilityController extends AdminController
                 }
             });
         
+            
+
             $("#amount_used").on("input", function() {
-                var amount_used = parseFloat($(this).val()) || 0;
+                var amount_used = $(this).val();
                 var amount_dispensed = parseFloat($("#amount_dispensed").val()) || 0;
+                // var amount_dispensed = {{ $form->requisition->amount ?? 0 }};
+
+                console.log(amount_dispensed);
         
                 var returned_amount = amount_dispensed > amount_used ? (amount_dispensed - amount_used) : 0;
                 var amount_to_be_returned = amount_used > amount_dispensed ? (amount_used - amount_dispensed) : 0;
@@ -392,6 +391,8 @@ class AccountabilityController extends AdminController
                 $("#returned_amount").val(returned_amount.toFixed(2));
                 $("#amount_to_be_returned").val(amount_to_be_returned.toFixed(2));
             });
+
+           
         });
         ');
     
