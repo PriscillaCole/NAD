@@ -30,7 +30,7 @@
                     </div>
                     <div style="margin-top: -113px;">
                         <h3 style="font-size: 24px; margin: 0;">{{$data[0]?? 0}}%</h3>
-                        <p style="color: #2e1a1a; font-size: 14px;">Budget: ${{$budget ?? 0}}</p>
+                        <p style="color: #2e1a1a; font-size: 14px;">Budget: ${{number_format($budget ?? 0)}}</p>
                     </div>
                 </div>
             </div>
