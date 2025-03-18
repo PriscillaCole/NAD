@@ -635,7 +635,7 @@
                                 <span class="input-group-addon">
                                     <i class="fa fa-pencil fa-fw"></i>
                                 </span>
-                                <input type="text" id="unit-cost-${contingencyBudget}" name="contingency[${contingencyBudget}][budget]" oninput= "formatNumber(event)" class="form-control unit-cost" placeholder="Budget" required>
+                                <input type="text" id="unit-cost-${contingencyBudget}" name="contingency[${contingencyBudget}][budget]" oninput= "formatNumber(event)" class="form-control formatted-input" placeholder="Budget" required>
                             </div>
                         </div>
                     </div>

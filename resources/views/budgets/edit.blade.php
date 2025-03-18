@@ -397,7 +397,8 @@
                                                     <span class="input-group-addon">
                                                         <i class="fa fa-pencil fa-fw"></i>
                                                     </span>
-                                                    <input type="text" name="contingency[${contingencyBudget}][name]" class="form-control" value="{{ $budget->name }}" required>
+                                                    
+                                                    <input type="text" name="contingency[${contingencyBudget}][name]" class="form-control " value="{{ $budget->name }}" required>
                                                 </div>
                                             </div>
                                         </div>
@@ -409,6 +410,7 @@
                                                     <span class="input-group-addon">
                                                         <i class="fa fa-pencil fa-fw"></i>
                                                     </span>
+                                                    
                                                     <input type="text" name="contingency[${contingencyBudget}][budget]" class="form-control formatted-input" oninput= "formatNumber(event)" value=" {{($budget->budget) }}" required>
                                                 </div>
                                             </div>

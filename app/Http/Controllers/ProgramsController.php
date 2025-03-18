@@ -11,6 +11,7 @@ use App\Models\Output;
 use App\Models\Utils;
 use Illuminate\Http\Request;
 use Encore\Admin\Form;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Laravel\Pail\ValueObjects\Origin\Console;
 
@@ -123,7 +124,7 @@ class ProgramsController extends Controller
     {
         try {
         // dd($request->input());
-        Log::info(['request:',$request]);
+        // Log::info(['request:',$request]);
         // Validate the incoming request
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -158,7 +159,7 @@ class ProgramsController extends Controller
         Log::info(['validated:', $validated]);
     
         // Start database transaction
-        \DB::beginTransaction();
+        DB::beginTransaction();
     
         // try {
             // Update the program
