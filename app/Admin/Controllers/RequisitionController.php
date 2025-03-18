@@ -331,7 +331,7 @@ class RequisitionController extends AdminController
                 });
             }else{
                 $form->text('code', __('RequisitionID'))->default('REQ-'.rand(1000, 9999))->readonly();
-                $form->select('program_id', __('Program'))->options(Program::where('user_id', $staff_id)->pluck('name', 'id'))->attribute('id', 'program_id')->required();
+                $form->select('program_id', __('Program'))->options(Program::where('user_id', $user->id)->pluck('name', 'id'))->attribute('id', 'program_id')->required();
                 $form->select('outcome_id', __('Outcome'))->options(function ($id) {
                     // Preload the selected activity for editing
                     $outcome = Outcome::find($id);
