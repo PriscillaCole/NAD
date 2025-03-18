@@ -35,7 +35,7 @@
                             <span class="input-group-addon">
                                 <i class="fa fa-pencil fa-fw"></i>
                             </span>
-                            <input type="text" name="outcomes[${outcomeId}][budget]" oninput="formatNumber(event)" class="form-control" placeholder="Enter Outcome Budget" required>
+                            <input type="text" name="outcomes[${outcomeId}][budget]" oninput="formatNumber(event)" class="form-control formatted-input" placeholder="Enter Outcome Budget" required>
                             </div>
                         </div>
                     </div>
@@ -94,7 +94,7 @@
                         <span class="input-group-addon">
                                 <i class="fa fa-pencil fa-fw"></i>
                             </span>
-                            <input type="text" name="outcomes[${outcomeId}][outputs][${outputId}][budget]" oninput= "formatNumber(event)" class="form-control" placeholder="Enter Output Budget" required>
+                            <input type="text" name="outcomes[${outcomeId}][outputs][${outputId}][budget]" oninput= "formatNumber(event)" class="form-control formatted-input" placeholder="Enter Output Budget" required>
                         </div>
                         </div>
                     </div>
@@ -150,7 +150,7 @@
                           <span class="input-group-addon">
                                 <i class="fa fa-pencil fa-fw"></i>
                             </span>
-                            <input type="text" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][budget]" oninput= "formatNumber(event)" class="form-control" placeholder="Enter Activity Budget" required>
+                            <input type="text" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][budget]" oninput= "formatNumber(event)" class="form-control formatted-input" placeholder="Enter Activity Budget" required>
                         </div>
                         </div>
                     </div>
@@ -301,7 +301,7 @@
                                 <span class="input-group-addon">
                                     <i class="fa fa-pencil fa-fw"></i>
                                 </span>
-                                <input type="text" id="unit-cost-${budgetLineId}" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][budget_lines][${budgetLineId}][unitcost]" oninput= "formatNumber(event)"  class="form-control unit-cost" placeholder="Unit Cost" required>
+                                <input type="text" id="unit-cost-${budgetLineId}" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][budget_lines][${budgetLineId}][unitcost]" oninput= "formatNumber(event)"  class="form-control unit-cost formatted-input" placeholder="Unit Cost" required>
                             </div>
                         </div>
                     </div>
@@ -312,7 +312,7 @@
                                 <span class="input-group-addon">
                                     <i class="fa fa-pencil fa-fw"></i>
                                 </span>
-                                <input type="text" id="quantity-${budgetLineId}" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][budget_lines][${budgetLineId}][quantity]"  class="form-control quantity" placeholder="Quantity" required>
+                                <input type="text" id="quantity-${budgetLineId}" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][budget_lines][${budgetLineId}][quantity]"  class="form-control quantity formatted-input" placeholder="Quantity" required>
                             </div>
                         </div>
                     </div>
@@ -323,7 +323,7 @@
                                 <span class="input-group-addon">
                                     <i class="fa fa-pencil fa-fw"></i>
                                 </span>
-                                <input type="text" id="frequency-${budgetLineId}" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][budget_lines][${budgetLineId}][frequency]" class="form-control frequency" placeholder="Frequency" required>
+                                <input type="text" id="frequency-${budgetLineId}" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][budget_lines][${budgetLineId}][frequency]" class="form-control frequency formatted-input" placeholder="Frequency" required>
                             </div>
                         </div>
                     </div>
@@ -334,7 +334,7 @@
                                 <span class="input-group-addon">
                                     <i class="fa fa-pencil fa-fw"></i>
                                 </span>
-                                <input type="text" id="budget-${budgetLineId}" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][budget_lines][${budgetLineId}][budget]" oninput= "formatNumber(event)" class="form-control budget" placeholder="Enter Budget Line Amount" readonly required>
+                                <input type="text" id="budget-${budgetLineId}" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][budget_lines][${budgetLineId}][budget]" oninput= "formatNumber(event)" class="form-control budget formatted-input" placeholder="Enter Budget Line Amount" readonly required>
                             </div>
                         </div>
                     </div>
