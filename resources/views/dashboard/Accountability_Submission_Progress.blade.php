@@ -53,15 +53,15 @@
                     <div class="progress" style="height: 24px; margin-bottom: 10px; background-color: #f0f0f0;">
                         <div class="progress-bar" role="progressbar" 
                              style="width: {{ $rejectedPerc > 0 ? $rejectedPerc : 1 }}%; background-color: #303053;">
-                            <span class="progress-label">Pending({{$rejectedPerc}}%)</span>
+                            <span class="progress-label">Rejected({{$rejectedPerc}}%)</span>
                         </div>
                         <div class="progress-bar" role="progressbar" 
                              style="width: {{ $pendingPerc > 0 ? $pendingPerc : 1 }}%; background-color: #8383f3;">
-                            <span class="progress-label">Submitted({{$pendingPerc}}%)</span>
+                            <span class="progress-label">Pending({{$pendingPerc}}%)</span>
                         </div>
                         <div class="progress-bar" role="progressbar" 
                              style="width: {{ $acceptedPerc > 0 ? $acceptedPerc : 1 }}%; background-color: #A5B4FC;">
-                            <span class="progress-label">Submitted({{$acceptedPerc}}%)</span>
+                            <span class="progress-label">Accepted({{$acceptedPerc}}%)</span>
                         </div>
                     </div>
                     {{-- <canvas id="stackedBarChart" height="32" style="border-radius: 15px;"></canvas> --}}
