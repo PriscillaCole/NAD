@@ -312,7 +312,7 @@
                                 <span class="input-group-addon">
                                     <i class="fa fa-pencil fa-fw"></i>
                                 </span>
-                                <input type="text" id="quantity-${budgetLineId}" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][budget_lines][${budgetLineId}][quantity]"  class="form-control quantity formatted-input" placeholder="Quantity" required>
+                                <input type="text" id="quantity-${budgetLineId}" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][budget_lines][${budgetLineId}][quantity]" oninput= "formatNumber(event)"  class="form-control quantity formatted-input" placeholder="Quantity" required>
                             </div>
                         </div>
                     </div>
@@ -323,7 +323,7 @@
                                 <span class="input-group-addon">
                                     <i class="fa fa-pencil fa-fw"></i>
                                 </span>
-                                <input type="text" id="frequency-${budgetLineId}" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][budget_lines][${budgetLineId}][frequency]" class="form-control frequency formatted-input" placeholder="Frequency" required>
+                                <input type="text" id="frequency-${budgetLineId}" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][budget_lines][${budgetLineId}][frequency]" oninput= "formatNumber(event)" class="form-control frequency formatted-input" placeholder="Frequency" required>
                             </div>
                         </div>
                     </div>
@@ -358,18 +358,47 @@
         const frequencyInput = document.getElementById(`frequency-${budgetLineId}`);
         const budgetInput = document.getElementById(`budget-${budgetLineId}`);
     
-        function recalculateBudget() {
-            const unitCost = parseFloat(unitCostInput.value) || 0;
-            const quantity = parseFloat(quantityInput.value) || 0;
-            const frequency = parseFloat(frequencyInput.value) || 0;
-            if (validateBudgetLine(budgetLineId, activityId)) {
-                 budgetInput.value = unitCost * quantity * frequency;
-            }
+        // function recalculateBudget() {
+        //     const unitCost = parseFloat(unitCostInput.value) || 0;
+        //     console.log(unitCost);
+        //     const quantity = parseFloat(quantityInput.value) || 0;
+        //     console.log(quantity);
+        //     const frequency = parseFloat(frequencyInput.value) || 0;
+        //     console.log(frequency);
+        //     if (validateBudgetLine(budgetLineId, activityId)) {
+        //          budgetInput.value = unitCost * quantity * frequency;
+        //          console.log(budgetInput.value);
+        //          console.log(unitCost * quantity * frequency);
+        //     }
             
-            // if (validateBudgetLine(budgetLineId, activityId)) {
-            //     validateActivityBudget(activityId, outputId);
-            //     validateOutputBudget(outputId, outcomeId);
-            // }
+        //     // if (validateBudgetLine(budgetLineId, activityId)) {
+        //     //     validateActivityBudget(activityId, outputId);
+        //     //     validateOutputBudget(outputId, outcomeId);
+        //     // }
+        // }
+
+        function recalculateBudget() {
+            const unitCostInput = document.getElementById(`unit-cost-${budgetLineId}`);
+            const quantityInput = document.getElementById(`quantity-${budgetLineId}`);
+            const frequencyInput = document.getElementById(`frequency-${budgetLineId}`);
+            const budgetInput = document.getElementById(`budget-${budgetLineId}`);
+        
+            let unitCost = parseFloat(unitCostInput.getAttribute("data-raw")) || 0;
+            console.log(unitCost);
+            let quantity = parseFloat(quantityInput.getAttribute("data-raw")) || 0;
+            console.log(quantity);
+            let frequency = parseFloat(frequencyInput.getAttribute("data-raw")) || 0;
+            console.log(frequency);
+        
+            if (validateBudgetLine(budgetLineId, activityId)) {
+                const calculatedBudget = unitCost * quantity * frequency;
+                budgetInput.value = formatNumberDisplay(calculatedBudget); //format for display
+                budgetInput.setAttribute("data-raw", calculatedBudget); //store raw number.
+            }
+        }
+        
+        function formatNumberDisplay(number) {
+            return number.toLocaleString('en-US'); // Format as US currency
         }
     
         unitCostInput.addEventListener('input', recalculateBudget);

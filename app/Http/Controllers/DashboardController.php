@@ -270,7 +270,7 @@ class DashboardController extends Controller
         // $heatmap = DashboardController::getBudgetUtilization();
         // $heatmap = DashboardController::getProgramHierarchy($programId);
         
-        // Log::info([$heatmap]);
+        Log::info([$chartData]);
 
         // dd($chartData);
         

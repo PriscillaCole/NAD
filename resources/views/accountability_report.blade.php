@@ -54,8 +54,13 @@
             text-align: left;
         }
         th {
-            background-color: #f1f1f1;
+            /* background-color: #f4f4f4; */
+            background: -webkit-linear-gradient(top, #3c8dbc, #b3b6fc);
+            color: white;
         }
+        /* th {
+            background-color: #f1f1f1;
+        } */
         .file-list {
             list-style: none;
             padding: 0;
@@ -150,6 +155,16 @@
             text-decoration: none;
             cursor: pointer;
         }
+        img {
+    display: block;
+    margin: 0 auto;
+    border-radius: 50%;
+    width: 200px;
+    height: 100px;
+    object-fit: cover;
+    object-position: center;
+    margin-bottom: 20px;
+}
       
         @media print {
             .print-button {
@@ -167,6 +182,7 @@
 </head>
 <body>
     <div class="container">
+        <img src="{{ asset('login-template/images/logo.webp') }}" alt="Logo" >
         <h1>Accountability Report</h1>
 
         <div class="section">
@@ -213,7 +229,7 @@
                         </tr>
                         <tr>
                             <td colspan="4">
-                                <strong>Money Dispensed:</strong> {{$accountability->requisition->amount}} Ugx
+                                <strong>Money Dispensed : </strong>{{ number_format($accountability->requisition->amount)}} Ugx
                             </td>
                         </tr>
                     </tbody>
@@ -324,7 +340,7 @@
 
         <div class="section">
             <h2>Other Receipt Files</h2>
-            <p>Total Amount Used: {{$accountability->amount_used}} Ugx</p> 
+            <p>Total Amount Used: {{ number_format($accountability->amount_used)}} Ugx</p> 
 
             @if($accountability->receiptFiles->isNotEmpty())
                 <ul class="file-list" id="receipt_files">
@@ -346,7 +362,7 @@
             <div class="field">
                 <label for="created_at">Created At</label>
                 <p id="created_at" class="timestamp">{{ $accountability->created_at }}</p>
-                @if ($accountability->status == 'closed');
+                @if ($accountability->status == 'closed')
                 <label for="closed by">Closed by</label>
                 <p id="closed_by" class="timestamp">
                     @if ($accountability->staff)
@@ -373,12 +389,12 @@
             $loginUrl = url('/') . '?redirect_to=' . urlencode($redirectUrl);
         @endphp  
 
-        <div class="field">
+        {{-- <div class="field">
             <label for="accountability_link">Link to accountability Form:</label>
             <!-- Hidden input field for the link -->
             <input type="hidden" id="accountability_link" value="{{ $loginUrl }}" />
             <button onclick="copyLink()">Copy Link</button>
-        </div>
+        </div> --}}
 
         <script>
             function copyLink() {

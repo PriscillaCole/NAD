@@ -364,7 +364,7 @@
         <div class="field" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
             @if ($requisition->status != null)
                 <div style="text-align: center;">
-                    <label for="signature">Mwebaza Rolaine, Head of Financecfg</label><br>
+                    <label for="signature">Mwebaza Rolaine, Head of Finance</label><br>
                     <img src="{{ asset('storage/signatures/hofs.png') }}" alt="signature" style="width: 200px; height: 100px;">
                 </div>
                 @if($requisition->status == 'approved')
