@@ -131,6 +131,17 @@ class DashboardController extends Controller
             
         if ($programId2){
             $program = Program::findOrFail($programId2);
+            // Get the program's initial budget
+            if (!is_null($program->third_budget)) {
+                $totalBudget = $program->third_budget;
+            } elseif (!is_null($program->second_budget)) {
+                $totalBudget = $program->second_budget;
+            } elseif (!is_null($program->budget)) {
+                $totalBudget = $program->budget;
+            } else {
+                return "<span style='color: gray;'>No Budget</span>";
+            }
+
             $totalUsed = $program->outcomes()
                             ->with(['outputs.activities.requisitions.accountability'])
                             ->get()
@@ -150,17 +161,17 @@ class DashboardController extends Controller
                             ->sum('amount_used');
                         
                             // Calculate remaining budget
-                            $remainingBudget = $program->budget - $totalUsed;
+                            $remainingBudget = $totalBudget - $totalUsed;
             // $programs = Program::all();
-            $balance = round(($remainingBudget / $program->budget) * 100);
-            $used = round(($totalUsed / $program->budget) * 100);
+            $balance = round(($remainingBudget / $totalBudget) * 100);
+            $used = round(($totalUsed / $totalBudget) * 100);
 
             Log::info([$remainingBudget, $totalUsed]);
             Log::info([$used, $balance]);
             return [
                 'data' => [$used, $balance],
                 'programs' => $programs,
-                'budget' => $program->budget
+                'budget' => $totalBudget
             ];
         }else{
             

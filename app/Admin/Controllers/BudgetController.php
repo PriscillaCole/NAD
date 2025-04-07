@@ -63,13 +63,34 @@ class BudgetController extends AdminController
         // Use the relationship to fetch the user's name
         return $this->user ? $this->user->name : 'No Project Manager';
     });
-    $grid->column('budget', __('Budget (UGX)'))->display(function ($value) {
-        return number_format($value, 0, '.', ','); // Format with commas
+    $grid->column('budget', 'Latest Budget (UGX)')->display(function () {
+        $budgets = [
+            $this->third_budget,
+            $this->second_budget,
+            $this->budget
+        ];
+    
+        foreach ($budgets as $amount) {
+            if (!is_null($amount)) {
+                return number_format($amount, 0, '.', ',');
+            }
+        }
+    
+        return '-';
     });
     // Add the remaining budget column with corrected relationship chain
     $grid->column('remaining_budget', __('Remaining Budget (UGX)'))->display(function () {
         // Get the program's initial budget
-        $totalBudget = $this->budget;
+        if (!is_null($this->third_budget)) {
+            $totalBudget = $this->third_budget;
+        } elseif (!is_null($this->second_budget)) {
+            $totalBudget = $this->second_budget;
+        } elseif (!is_null($this->budget)) {
+            $totalBudget = $this->budget;
+        } else {
+            return "<span style='color: gray;'>No Budget</span>";
+        }
+    
         
         // Calculate total amount used following the relationship chain
         $totalUsed = $this->outcomes()

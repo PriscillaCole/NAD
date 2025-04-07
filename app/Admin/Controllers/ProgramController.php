@@ -13,6 +13,7 @@ use Encore\Admin\Show;
 use Carbon\Carbon;
 use Encore\Admin\Actions\RowAction;
 use Encore\Admin\Layout\Content;
+use Illuminate\Support\Facades\Log;
 
 class ProgramController extends AdminController
 {
@@ -81,7 +82,13 @@ class ProgramController extends AdminController
 
         $show->field('name', __('Name'));
         $show->field('description', __('Description'));
-        $show->field('budget', __('Budget (UGX)'))->as(function($budget) {
+        $show->field('budget', __('First Budget (UGX)'))->as(function($budget) {
+            return number_format($budget, 0, '.', ',');
+        });
+        $show->field('second_budget', __('Second Budget (UGX)'))->as(function($budget) {
+            return number_format($budget, 0, '.', ',');
+        });
+        $show->field('third_budget', __('Third Budget (UGX)'))->as(function($budget) {
             return number_format($budget, 0, '.', ',');
         });
         $show->field('user_id', __('Program manager'))->as(function ($userId) {
@@ -110,13 +117,33 @@ class ProgramController extends AdminController
                 'oninput' => "this.value = this.value.replace(/[^0-9.]/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');"
             ]);
         }else {
-            $form->text('budget', __('Budget (UGX)'))
+            $form->text('budget', __('First Budget (UGX)'))
             ->value(function ($value) {
                 return !is_null($value) ? number_format($value, 0, '.', ',') : ''; // Avoid error on create
             })
             ->attribute([
                 'oninput' => "this.value = this.value.replace(/[^0-9.]/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');"
             ]);
+
+                $form->text('second_budget', __('Second Budget (UGX)'))
+                    ->value(function ($value) {
+                        return !is_null($value) ? number_format($value, 0, '.', ',') : ''; // Avoid error on create
+                    })
+                    ->attribute([
+                        'oninput' => "this.value = this.value.replace(/[^0-9.]/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');"
+                    ]);
+                // $form->text('note_for_review_2')->rules('required');
+           
+                $form->text('third_budget', __('Third Budget (UGX)'))
+                    ->value(function ($value) {
+                        return !is_null($value) ? number_format($value, 0, '.', ',') : ''; // Avoid error on create
+                    })
+                    ->attribute([
+                        'oninput' => "this.value = this.value.replace(/[^0-9.]/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');"
+                    ]);
+                // $form->text('note_for_review_3')->rules('required');
+           
+            
         }
         
         $form->select('user_id', __('Choose a Program manager'))
@@ -128,8 +155,18 @@ class ProgramController extends AdminController
 
         $form->saving(function ($form) {
             $form->budget = str_replace(',', '', $form->budget); // Remove commas before saving
-        });
+
+            if (!empty($form->second_budget)) {
+                $form->second_budget = str_replace(',', '', $form->second_budget);
+            }
+
+            if (!empty($form->third_budget)) {
+                $form->third_budget = str_replace(',', '', $form->third_budget);
+            }
+            Log::info($form->review_cycle);
+            $form->ignore(['review_cycle']);
             
+        }); 
 
         return $form;
     }

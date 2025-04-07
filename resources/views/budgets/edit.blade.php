@@ -137,7 +137,19 @@
                                     <span class="input-group-addon">
                                         <i class="fa fa-pencil fa-fw"></i>
                                     </span>
-                                    <input type="text" class="form-control formatted-input" readonly value="{{ $program->budget }}" required />
+                                    <?php
+                                        // Get the program's initial budget
+                                        if (!is_null($program->third_budget)) {
+                                            $totalBudget = $program->third_budget;
+                                        } elseif (!is_null($program->second_budget)) {
+                                            $totalBudget = $program->second_budget;
+                                        } elseif (!is_null($program->budget)) {
+                                            $totalBudget = $program->budget;
+                                        } else {
+                                            return "<span style='color: gray;'>No Budget</span>";
+                                        }
+                                    ?>
+                                    <input type="text" class="form-control formatted-input" readonly value="{{ $totalBudget }}" required />
                                 </div>
                             </div>
                         </div>

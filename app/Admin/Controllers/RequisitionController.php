@@ -2,6 +2,7 @@
 
 namespace App\Admin\Controllers;
 
+use App\Models\Accountability;
 use App\Models\Activity;
 use App\Models\AdminActivity;
 use App\Models\AdminBudget_lines;
@@ -188,8 +189,20 @@ class RequisitionController extends AdminController
     {
         $show = new Show(Requisition::findOrFail($id));
         $requisition = Requisition::findOrFail($id);
+        $activityid = $requisition->activity->id;
 
-        return view('requisition_request', compact('requisition'));
+        // Sum of accountabilities for all requisitions under this activity
+        $activity_budget = $requisition->activity->budget;
+       
+        $usedAmount = Accountability::whereHas('requisition', function ($query) use ($activityid) {
+            $query->where('activity_id', $activityid);
+        })->sum('amount_used');
+
+        Log::info($usedAmount);
+        Log::info($activity_budget);
+        $remaining = $activity_budget - $usedAmount;
+
+        return view('requisition_request', compact('requisition', 'remaining'));
 
     }
 
@@ -350,9 +363,10 @@ class RequisitionController extends AdminController
                 $form->text('', __('Activity budget(UGX)'))->attribute(
                     'id', 'activity_budget',
                     )->readonly();
-                // $form->date('setOff_date', __('Set Off Date'))->required();
-                // $form->date('return_date', __('Return Date'))->required();
-
+                $form->text('', __('Remaining budget(UGX)'))->attribute(
+                    'id', 'remaining_budget',
+                    )->readonly();
+            
                     //add requisition items
                     $form->hasMany('requisition_items', 'Requisition items', function (Form\NestedForm $form) {
                         $form->select('budget_line_id', __('Budget Line'))
@@ -462,12 +476,14 @@ class RequisitionController extends AdminController
                     .done(function(data) {
                     var budgetLines = data[0]; // Extract budget lines object
                     var activity_budget = Number(data[1]).toLocaleString(\'en-US\'); // Extract activity budget
+                    var remaining_budget = Number(data[2]).toLocaleString(\'en-US\'); // Extract activity remaining budget
 
                     // // Format activity_budget with commas
                     // var formattedBudget = Number(activity_budget).toLocaleString(\'en-US\');
 
                     
                     $("#activity_budget").val(activity_budget);
+                    $("#remaining_budget").val(remaining_budget);
                     if ($.isEmptyObject(budgetLines)) {
                         alert("No budget lines available for the selected activity");
                         return;
@@ -560,12 +576,21 @@ class RequisitionController extends AdminController
     // function to fetch budget lines under a chosen activity
     public function getActivitiesbudgetlines($id)
     {
-        $activity_budget = Activity::where('id', $id)->pluck('budget');
+        $activity_budget = Activity::where('id', $id)->value('budget');
         
         $budgetlines = BudgetLines::where('activity_id', $id)->pluck('name', 'id'); // Returns {id: name}
         
+        // Sum of accountabilities for all requisitions under this activity
+        $usedAmount = Accountability::whereHas('requisition', function ($query) use ($id) {
+            $query->where('activity_id', $id);
+        })->sum('amount_used');
 
-        return [$budgetlines, $activity_budget];
+        Log::info($usedAmount);
+        Log::info($activity_budget);
+        $remaining = $activity_budget - $usedAmount;
+        Log::info($remaining);
+
+        return [$budgetlines, $activity_budget, $remaining];
     }
 
     // function to fetch activities under a program

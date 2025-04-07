@@ -143,6 +143,17 @@
                             </div>
                         </div>
                         <?php
+                            // Get the program's initial budget
+                            if (!is_null($program->third_budget)) {
+                                $totalBudget = $program->third_budget;
+                            } elseif (!is_null($program->second_budget)) {
+                                $totalBudget = $program->second_budget;
+                            } elseif (!is_null($program->budget)) {
+                                $totalBudget = $program->budget;
+                            } else {
+                                return "<span style='color: gray;'>No Budget</span>";
+                            }
+
                         $totalUsed = $program->outcomes()
                         ->with(['outputs.activities.requisitions.accountability'])
                         ->get()
@@ -162,7 +173,7 @@
                         ->sum('amount_used');
                     
                         // Calculate remaining budget
-                        $remainingBudget = $program->budget - $totalUsed;
+                        $remainingBudget = $totalBudget - $totalUsed;
                         $color = $remainingBudget < 0 ? 'red' : 'green';
                         
                         // Format the number as currency
@@ -171,7 +182,7 @@
                         <div class="form-group">
                             <label for="description" class="col-sm-2 control-label">Program Budget (UGX)</label>
                             <div class="col-sm-2">
-                                <input type="text" name="budget" class="form-control" value="{{ number_format($program->budget) }}" readonly />
+                                <input type="text" name="budget" class="form-control" value="{{ number_format($totalBudget) }}" readonly />
                             </div>
                             <label for="description" class="col-sm-2 control-label">Used Budget (UGX)</label>
                             <div class="col-sm-2">

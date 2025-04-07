@@ -203,6 +203,10 @@
                         <td>{{ $requisition->activity->name }}</td>
                     @endif
                 </tr>
+                <tr>
+                    <th>Activity Remaining Budget</th>
+                    <td>UGX {{ number_format($remaining) }}</td>
+                </tr>
             {{-- <tbody>
                 <tr>
                     @if($requisition->admin_program_id)
