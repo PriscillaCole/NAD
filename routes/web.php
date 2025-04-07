@@ -88,11 +88,16 @@ Route::post('/notifications/mark-as-read/{id}', function($id) {
     }
 });
 
-Route::get('migrate', function () {
-    //do run laravel migration command
-    // Artisan::call('migrate');
-    Artisan::call('migrate', ['--force' => true]);
-    //returning the output
+Route::get('migrate', function(){
+    $migrations = [
+        'database/migrations/2025_04_07_093338_add_review_cycle_to_programs_table.php',
+        
+    ];
+
+    foreach ($migrations as $migration) {
+        Artisan::call('migrate', ['--path' => $migration, '--force' => true]);
+    }
+
     return Artisan::output();
 });
 
