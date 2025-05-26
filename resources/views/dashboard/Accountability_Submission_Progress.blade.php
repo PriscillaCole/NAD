@@ -45,9 +45,10 @@
                 <div class="panel-body">
                     @php
                         $total = $haltedCount + $pendingCount + $acceptedCount;
-                        $rejectedPerc = round(($haltedCount / $total) * 100, 0);
-                        $pendingPerc = round(($pendingCount / $total) * 100, 0);
-                        $acceptedPerc = round(($acceptedCount / $total) * 100, 0);
+                        $rejectedPerc = $total == 0 ? 0 : round(($haltedCount / $total) * 100, 0);
+                        $pendingPerc  = $total == 0 ? 0 : round(($pendingCount / $total) * 100, 0);
+                        $acceptedPerc = $total == 0 ? 0 : round(($acceptedCount / $total) * 100, 0);
+
         
                     @endphp
                     <div class="progress" style="height: 24px; margin-bottom: 10px; background-color: #f0f0f0;">
