@@ -24,12 +24,173 @@ use ZipArchive;
 class RequisitionController extends Controller
 {
     
+    // public function downloadDocuments($id)
+    // {
+    //     // $requisition = Requisition::findOrFail($id)->first();
+    //     $requisition = Requisition::findOrFail($id);
+    //     $activityid = $requisition->activity->id;
+
+    //     // Sum of accountabilities for all requisitions under this activity
+    //     $activity_budget = $requisition->activity->budget;
+       
+    //     $usedAmount = Accountability::whereHas('requisition', function ($query) use ($activityid) {
+    //         $query->where('activity_id', $activityid);
+    //     })->sum('amount_used');
+
+    //     Log::info($usedAmount);
+    //     Log::info($activity_budget);
+    //     $remaining = $activity_budget - $usedAmount;
+
+    //     $accountability= Accountability::where('requisition_id', $id)->first();
+
+    //     // Create unique temporary directory with timestamp
+    //     $tempDirName = 'temp_' . uniqid() . '_' . time();
+    //     $tempDir = storage_path('app/temp/' . $tempDirName);
+    //     $zipPath = null;
+
+    //     try {
+    //         // Ensure the temp directory exists with proper permissions
+    //         if (!File::exists($tempDir)) {
+    //             File::makeDirectory($tempDir, 0755, true);
+    //         }
+
+    //         // Set proper permissions on the directory
+    //         chmod($tempDir, 0755);
+            
+    //         // Generate PDFs
+    //         $requisitionPdf = PDF::loadView('requisition_request', ['requisition' => $requisition, 'remaining'=>$remaining]);
+    //         $requisitionPath = $tempDir . '/requisition_form.pdf';
+    //         $requisitionPdf->save($requisitionPath);
+    //         chmod($requisitionPath, 0644); // Set file permissions
+    //         // //concept note
+    //         // $requisitionPdf = PDF::loadView('requisition_request', ['requisition' => $requisition, 'remaining'=>$remaining]);
+    //         // $requisitionPath = $tempDir . '/requisition_form.pdf';
+    //         // $conceptpath = storage_path('app/public/' .$requisition->concept_note);
+    //         // $requisitionPdf->save($requisitionPath);
+    //         // chmod($requisitionPath, 0644); // Set file permissions
+            
+    //         $accountabilityPdf = PDF::loadView('accountability_report', ['accountability' => $accountability]);
+    //         $accountabilityPath = $tempDir . '/accountability_form.pdf';
+    //         $accountabilityPdf->save($accountabilityPath);
+    //         chmod($accountabilityPath, 0644); // Set file permissions
+            
+    //         // Create ZIP file path
+    //         $zipFileName = 'requisition_' . $requisition->code . '_documents_' . time() . '.zip';
+    //         $zipPath = storage_path('app/temp/' . $zipFileName);
+            
+    //         // Create and open ZIP file
+    //         $zip = new ZipArchive();
+    //         $zipResult = $zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE);
+            
+    //         if ($zipResult !== true) {
+    //             throw new \Exception('Failed to create ZIP file: ' . $zipResult);
+    //         }
+            
+    //         // Add files to ZIP
+    //         Log::info([$accountabilityPath]);
+    //         $zip->addFile($requisitionPath, 'requisition_form.pdf');
+    //         $zip->addFile($accountabilityPath, 'accountability_form.pdf');
+            
+    //         // Create receipts directory in ZIP
+    //         $zip->addEmptyDir('receipts');
+    //         $zip->addEmptyDir('Invoices');
+    //         $zip->addEmptyDir('payment_proof');
+            
+    //         // Add receipts if they exist
+    //         if ($accountability && $accountability->requisitionItemReceipts) {
+    //             foreach ($accountability->requisitionItemReceipts as $receipt) {
+                    
+    //                 $tempDir = storage_path('app/temp/' . $tempDirName);
+    //                 // $receiptPath = storage_path('app/public/' . $receipt->receipt_file);
+    //                 $receiptPath = storage_path('app/public/' .$receipt->receipt_file);
+    //                 $invoicePath = storage_path('app/public/' . $receipt->Invoice);
+    //                 $proofPath = storage_path('app/public/'. $receipt->payment_proof);
+                    
+    //                 Log::info([$receiptPath]);
+    //                 if (file_exists($receiptPath)) {
+    //                     $zip->addFile($receiptPath, 'receipts/' . basename($receipt->receipt_file));
+    //                     Log::info('Added receipt file to zip');
+    //                 } else {
+    //                     Log::warning('Receipt file not found: ' . $receiptPath);
+    //                 }
+            
+    //                 if (file_exists($invoicePath)) {
+    //                     $zip->addFile($invoicePath, 'Invoices/' . basename($receipt->Invoice));
+    //                     Log::info('Added invoice file to zip');
+    //                 } else {
+    //                     Log::warning('Invoice file not found: ' . $invoicePath);
+    //                 }
+            
+    //                 if (file_exists($proofPath)) {
+    //                     $zip->addFile($proofPath, 'payment_proof/' . basename($receipt->payment_proof));
+    //                     Log::info('Added proof file to zip');
+    //                 } else {
+    //                     Log::warning('Payment proof file not found: ' . $proofPath);
+    //                 }
+    //             }
+    //         }
+            
+    //         // Close ZIP file
+    //         $zip->close();
+            
+    //         // Set proper permissions on the ZIP file
+    //         // chmod($zipPath, 0644);
+            
+    //         // Set headers for download
+    //         $headers = [
+    //             'Content-Type' => 'application/zip',
+    //             'Content-Disposition' => 'attachment; filename="' . $zipFileName . '"',
+    //             'Cache-Control' => 'no-cache, no-store, must-revalidate',
+    //             'Pragma' => 'no-cache',
+    //             'Expires' => '0'
+    //         ];
+            
+    //         // Return file for download and cleanup afterwards
+    //         return response()->download($zipPath, $zipFileName, $headers)->deleteFileAfterSend(true);
+            
+    //     } catch (\Exception $e) {
+    //         // Log the error with details
+    //         \Log::error('Download Documents Error: ' . $e->getMessage(), [
+    //             'temp_dir' => $tempDir,
+    //             'zip_path' => $zipPath,
+    //             // 'user_id' => auth()->user()->id(),
+    //             'requisition_id' => $id
+    //         ]);
+            
+    //         // Clean up
+    //         if (File::exists($tempDir)) {
+    //             File::deleteDirectory($tempDir);
+    //         }
+    //         if ($zipPath && File::exists($zipPath)) {
+    //             unlink($zipPath);
+    //         }
+            
+    //         throw $e;
+    //     }
+    // }
+
     public function downloadDocuments($id)
     {
-        // $requisition = Requisition::findOrFail($id)->first();
+        // Clear any output buffers that might interfere
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
+        
         $requisition = Requisition::findOrFail($id);
+        $activityid = $requisition->activity->id;
 
-        $accountability= Accountability::where('requisition_id', $id)->first();
+        // Sum of accountabilities for all requisitions under this activity
+        $activity_budget = $requisition->activity->budget;
+    
+        $usedAmount = Accountability::whereHas('requisition', function ($query) use ($activityid) {
+            $query->where('activity_id', $activityid);
+        })->sum('amount_used');
+
+        Log::info($usedAmount);
+        Log::info($activity_budget);
+        $remaining = $activity_budget - $usedAmount;
+
+        $accountability = Accountability::where('requisition_id', $id)->first();
 
         // Create unique temporary directory with timestamp
         $tempDirName = 'temp_' . uniqid() . '_' . time();
@@ -46,15 +207,15 @@ class RequisitionController extends Controller
             chmod($tempDir, 0755);
             
             // Generate PDFs
-            $requisitionPdf = PDF::loadView('requisition_request', ['requisition' => $requisition]);
+            $requisitionPdf = PDF::loadView('requisition_request', ['requisition' => $requisition, 'remaining'=>$remaining]);
             $requisitionPath = $tempDir . '/requisition_form.pdf';
             $requisitionPdf->save($requisitionPath);
-            chmod($requisitionPath, 0644); // Set file permissions
+            chmod($requisitionPath, 0644);
             
             $accountabilityPdf = PDF::loadView('accountability_report', ['accountability' => $accountability]);
             $accountabilityPath = $tempDir . '/accountability_form.pdf';
             $accountabilityPdf->save($accountabilityPath);
-            chmod($accountabilityPath, 0644); // Set file permissions
+            chmod($accountabilityPath, 0644);
             
             // Create ZIP file path
             $zipFileName = 'requisition_' . $requisition->code . '_documents_' . time() . '.zip';
@@ -81,28 +242,26 @@ class RequisitionController extends Controller
             // Add receipts if they exist
             if ($accountability && $accountability->requisitionItemReceipts) {
                 foreach ($accountability->requisitionItemReceipts as $receipt) {
-                    
-                    $tempDir = storage_path('app/temp/' . $tempDirName);
-                    $receiptPath = storage_path('app/public/' .$receipt->receipt_file);
-                    $invoicePath = storage_path('app/public/' . $receipt->Invoice);
-                    $proofPath = storage_path('app/public/'. $receipt->payment_proof);
+                    $receiptPath = storage_path('app\public\\' . $receipt->receipt_file);
+                    $invoicePath = storage_path('app\public\\' . $receipt->Invoice);
+                    $proofPath = storage_path('app\public\\' . $receipt->payment_proof);
                     
                     Log::info([$receiptPath]);
-                    if (file_exists($receiptPath)) {
+                    if (file_exists($receiptPath) && is_readable($receiptPath)) {
                         $zip->addFile($receiptPath, 'receipts/' . basename($receipt->receipt_file));
                         Log::info('Added receipt file to zip');
                     } else {
                         Log::warning('Receipt file not found: ' . $receiptPath);
                     }
             
-                    if (file_exists($invoicePath)) {
+                    if (file_exists($invoicePath)&& is_readable($invoicePath)) {
                         $zip->addFile($invoicePath, 'Invoices/' . basename($receipt->Invoice));
                         Log::info('Added invoice file to zip');
                     } else {
                         Log::warning('Invoice file not found: ' . $invoicePath);
                     }
             
-                    if (file_exists($proofPath)) {
+                    if (file_exists($proofPath) && is_readable($proofPath)) {
                         $zip->addFile($proofPath, 'payment_proof/' . basename($receipt->payment_proof));
                         Log::info('Added proof file to zip');
                     } else {
@@ -114,28 +273,31 @@ class RequisitionController extends Controller
             // Close ZIP file
             $zip->close();
             
-            // Set proper permissions on the ZIP file
-            // chmod($zipPath, 0644);
+            // Verify the ZIP file was created and has content
+            if (!file_exists($zipPath) || filesize($zipPath) == 0) {
+                throw new \Exception('ZIP file was not created properly or is empty');
+            }
             
-            // Set headers for download
-            $headers = [
+            // Clear any output that might have been generated
+            while (ob_get_level()) {
+                ob_end_clean();
+            }
+            
+            // Set headers and return download response
+            return response()->download($zipPath, $zipFileName, [
                 'Content-Type' => 'application/zip',
-                'Content-Disposition' => 'attachment; filename="' . $zipFileName . '"',
+                'Content-Length' => filesize($zipPath),
                 'Cache-Control' => 'no-cache, no-store, must-revalidate',
                 'Pragma' => 'no-cache',
                 'Expires' => '0'
-            ];
-            
-            // Return file for download and cleanup afterwards
-            return response()->download($zipPath, $zipFileName, $headers)->deleteFileAfterSend(true);
+            ])->deleteFileAfterSend(true);
             
         } catch (\Exception $e) {
-            // Log the error with details
-            \Log::error('Download Documents Error: ' . $e->getMessage(), [
+            Log::error('Download Documents Error: ' . $e->getMessage(), [
                 'temp_dir' => $tempDir,
                 'zip_path' => $zipPath,
-                // 'user_id' => auth()->user()->id(),
-                'requisition_id' => $id
+                'requisition_id' => $id,
+                'trace' => $e->getTraceAsString()
             ]);
             
             // Clean up
@@ -146,10 +308,10 @@ class RequisitionController extends Controller
                 unlink($zipPath);
             }
             
-            throw $e;
+            // Return a proper error response instead of throwing
+            return response()->json(['error' => 'Failed to generate documents: ' . $e->getMessage()], 500);
         }
     }
-
    
     // function to fetch activities under a program
     public function getProgramOutcomes($id)

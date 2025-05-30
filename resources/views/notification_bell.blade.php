@@ -13,7 +13,7 @@
        
       @foreach ($notifications as $notification) 
       <li >
-        <a id="notify" href="{{ $notification->form_link }}" title="{{ $notification->message }}"  onclick="delete(event, {{ $notification->id }}, `{{ $notification->form_link }}`)">
+        <a id="notify" href="{{ $notification->form_link }}" title="{{ $notification->message }}"  onclick="markAsReadAndRedirect(event, {{ $notification->id }}, `{{ $notification->form_link }}`)">
    
           @if ($notification->receiver_id == null)
           <i class="fa fa-users text-success"></i> 
@@ -28,11 +28,11 @@
   </li>
 </ul>
 </li>
-{{-- <script>
-  function delete(event, notificationId, redirectUrl) {
+<script>
+  
+  function markAsReadAndRedirect(event, notificationId, redirectUrl) {
       event.preventDefault(); // Prevent default link action
-
-      fetch(`/notifications/mark-as-read/${notificationId}`, {
+      fetch(`notifications/mark-as-read/${notificationId}`, {
           method: 'POST',
           headers: {
               'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -46,4 +46,4 @@
       })
       .catch(error => console.error('Error:', error));
   }
-</script> --}}
+</script>

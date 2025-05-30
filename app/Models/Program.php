@@ -12,6 +12,8 @@ class Program extends Model
     protected $fillable = [
         'name',
         'budget',
+        'third_budget',
+        'second_budget',
         'description',
         'user_id',
         
@@ -32,6 +34,25 @@ class Program extends Model
     public function contingencyBudgets()
     {
         return $this->hasMany(ContingencyBudget::class);
+    }
+
+    // boot function to send emails 
+    public static function boot()
+    {
+        parent::boot();
+
+        static::created(function ($model) {
+            Notification::send_notification($model, 'Program', request()->segment(count(request()->segments())));
+        });
+
+
+        static::updated(function ($model) {
+            //send email to the country director
+            error_log($model->status);
+            Notification::update_notification($model, 'Requisition', request()->segment(count(request()->segments())));
+        });
+
+      
     }
     
 }

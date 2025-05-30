@@ -130,46 +130,60 @@ class RequisitionController extends AdminController
                 }
             }
         );
+        
         // $id = $grid->column('id');
         // $downloadLink = admin_url('/requisitions/download/'. $id);
+        // $grid->column('id', __('Requisition Documents'))->display(function ($id)
+        // {
+        //     $requisition = Requisition::find($id);
+
+        //     // if ($requisition && $requisition->status == 'approved') {
+        //         $token = csrf_token();
+        //         $downloadLink = admin_url('/requisitions/download/'. $id);
+        //         return "<b>Download documents</b>";
+        //     // } else
+        //     // {          
+        //     //     return '<b> No accountability</b>';
+        //     // }
+        // })
+        // ->link(function ($value, $row) {
+        //     // Generate the download link using the row's ID
+        //     return admin_url('/requisitions/download/'. $row->id);
+        // }, '', function () {
+        //     // Add download attribute to force download instead of opening new tab
+        //     return [
+        //         'class' => 'btn btn-sm btn-primary',
+        //         'download' => true  // This forces download
+        //     ];
+        // });
+
         $grid->column('id', __('Requisition Documents'))->display(function ($id)
         {
             $requisition = Requisition::find($id);
-        
-            // if ($requisition && $requisition->status == 'approved') {
-                $token = csrf_token();
-                $downloadLink = admin_url('/requisitions/download/'. $id);
-                return "<b>
-                          Download documents
-                        </b>";
-            // } else
-            // {          
-            //     return '<b> No accountability</b>';
-            // }
-        })
-        ->link(function () {
-            // Use the dynamically generated link
-            return $this->value; // This is the link returned by the `display()` method
-        }, '_blank', function () {
-            // Optional attributes or classes for the link
-            return ['class' => 'btn btn-sm btn-primary']; // Example: add a button style
-        });;
-        // $grid->column('id', __('Inspection Report'))->display(function ($id) {
-        //     $downloadLink = admin_url('/requisitions/download/' . $id);
+
+            if ($requisition && $requisition->status == 'approved') {
+                 $downloadLink = admin_url('/requisitions/download/'. $id);
+                 $token = csrf_token();
             
-        //     return $downloadLink; // Return the dynamic link for each row
-        // })->link(function () {
-        //     // Use the dynamically generated link
-        //     return $this->value; // This is the link returned by the `display()` method
-        // }, '_blank', function () {
-        //     // Optional attributes or classes for the link
-        //     return ['class' => 'btn btn-sm btn-primary']; // Example: add a button style
-        // });
+            return "
+                    <form method='POST' action='{$downloadLink}' style='display: inline;'>
+                        <input type='hidden' name='_token' value='{$token}'>
+                        <button type='submit' class='btn btn-sm btn-primary'>
+                            <b>Download documents</b>
+                        </button>
+                    </form>";
+            }
+            else
+            {          
+                return '<b> No accountability</b>';
+            }
+           
+        });
         
         
 
-// or pass in a specified href
-// $grid->column('homepage')->link($href);
+    // or pass in a specified href
+        // $grid->column('homepage')->link($href);
         $grid->column('created_at', __('Created at'))->display(function ($created_at) {
             //return human readable format
             return (Carbon::parse($created_at)->diffForHumans());
@@ -290,7 +304,8 @@ class RequisitionController extends AdminController
                         $budget_lines[] = $item['budget_line_id'];
                         
                         // Calculate the total amount of the requisition
-                        $total_amount += $item['quantity'] * $item['unit_price']; // Fixed unit_price to unit_cost to match the form field
+                        $total_amount += $item['quantity'] * $item['unit_price'] * $item['frequency']; // Fixed unit_price to unit_cost to match the form field
+                        Log::info($total_amount);
                     }
                 
                     // If a duplicate category was found, show an error message and return back with input
@@ -338,6 +353,7 @@ class RequisitionController extends AdminController
                     ->attribute('id', 'admin_budget_line_id')
                     ->required();
                     $form->decimal('quantity', __('Quantity'))->required();
+                    $form->decimal('frequency', __('Frequency'))->required();
                     $form->text('unit_of_measure', __('Unit of measure'))->required();
                     $form->decimal('unit_price', __('Unit cost(UGX)'))->required();
                 
@@ -380,13 +396,15 @@ class RequisitionController extends AdminController
                         ->readOnly();
                         $form->decimal('quantity', __('Quantity'))->required();
                         $form->text('unit_of_measure', __('Unit of measure'))->required();
+                        $form->decimal('frequency', __('Frequency'))->required();
                         $form->decimal('unit_price', __('Unit cost(UGX)'))->attribute([
                             'oninput' => "this.value = this.value.replace(/[^0-9.]/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');"
                         ])->required();
                     
                     });
             }
-            $form->file('concept_note', __('Concept note'))->required();
+            $form->file('concept_note', __('Concept note'))->required()
+            ->help('Upload concept note in pdf format');
             $form->textarea('description', __('Description'));
             $form->hidden('amount', __('Amount(UGX)'));
             
@@ -414,7 +432,7 @@ class RequisitionController extends AdminController
                     $("#no-activities-message").remove();
                     
                     if($.isEmptyObject(data)) {
-                        $("#outcome_id").after("<span id=\'no-activities-message\' style=\'color: red;\'>No activities available for this program</span>");
+                        $("#outcome_id").after("<span id=\'no-activities-message\' style=\'color: red;\'>No outcomes available for this program</span>");
                     } else {
                         // Add a default option
                         $("#outcome_id").append(new Option(\'Select Activity \', \'\'));
@@ -434,7 +452,7 @@ class RequisitionController extends AdminController
                     $("#no-activities-message").remove();
                     
                     if($.isEmptyObject(data)) {
-                        $("#output_id").after("<span id=\'no-activities-message\' style=\'color: red;\'>No activities available for this program</span>");
+                        $("#output_id").after("<span id=\'no-activities-message\' style=\'color: red;\'>No outputs available for this outcome</span>");
                     } else {
                         // Add a default option
                         $("#output_id").append(new Option(\'Select Activity \', \'\'));
@@ -453,7 +471,7 @@ class RequisitionController extends AdminController
                     $("#no-activities-message").remove();
                     
                     if($.isEmptyObject(data)) {
-                        $("#activity_id").after("<span id=\'no-activities-message\' style=\'color: red;\'>No activities available for this program</span>");
+                        $("#activity_id").after("<span id=\'no-activities-message\' style=\'color: red;\'>No activities available for this output</span>");
                     } else {
                         // Add a default option
                         $("#activity_id").append(new Option(\'Select Activity \', \'\'));
@@ -520,7 +538,7 @@ class RequisitionController extends AdminController
                     $("#no-activities-message").remove();
                     
                     if($.isEmptyObject(data)) {
-                        $("#adminactivity_id").after("<span id=\'no-activities-message\' style=\'color: red;\'>No activities available for this program</span>");
+                        $("#adminactivity_id").after("<span id=\'no-activities-message\' style=\'color: red;\'>No budgetlines available for this activity</span>");
                     } else {
                         // Add a default option
                         $("#adminactivity_id").append(new Option(\'Select Activity \', \'\'));

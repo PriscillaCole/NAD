@@ -17,6 +17,7 @@ class RequisitionItem extends Model
         'quantity',
         'unit_price',
         'unit_of_measure',
+        'frequency',
         'total_price',
     ];
 

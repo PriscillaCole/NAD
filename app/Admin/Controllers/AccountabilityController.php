@@ -223,34 +223,41 @@ class AccountabilityController extends AdminController
                         if($staff_id != $requisition->staff->id){
                            
                             $form->file('Invoice', __('Invoice'))
+                            ->help('upload fies of jpg,jpeg,png formats ')
                             ->rules('file|mimes:pdf,jpg,jpeg,png|max:5120') // 5MB max
                             ->removable()
                             ->readonly();
                             $form->text('amount', 'Amount');
             
                             $form->file('payment_proof', __('Proof of Payment'))
+                            ->help('upload fies of jpg,jpeg,png formats ')
                             ->rules('file|mimes:pdf,jpg,jpeg,png|max:5120') // 5MB max
                             ->removable();
                         }
                         if ($staff_id == $requisition->staff->id){
                             
                             $form->file('Invoice', __('Invoice'))
+                            ->help('upload fies of jpg,jpeg,png formats ')
                             ->rules('file|mimes:pdf,jpg,jpeg,png|max:5120') // 5MB max
                             ->removable();
             
                             $form->display('payment_proof', __('Proof of Payment'))
+                            ->help('upload fies of jpg,jpeg,png formats ')
                             ->rules('file|mimes:pdf,jpg,jpeg,png|max:5120') // 5MB max
                             // ->removable()
                             ->default('No proof of payment yet')
                             ->readonly();
                             $form->file('receipt_file', __('Receipt'))
+                            ->help('upload fies of jpg,jpeg,png formats ')
                             ->rules('file|mimes:pdf,jpg,jpeg,png|max:5120') // 5MB max
                             ->removable();
                             
                             $form->text('amount', 'Amount');
                         }
                     
-                });
+                })
+                ->disableDelete()  // disables the "Remove" (trash icon) button
+                ->disableCreate();
 
                 $form->hidden('staff_id')->default($staff_id);
                 
@@ -292,11 +299,15 @@ class AccountabilityController extends AdminController
                 if($user->isRole('finance')) {
                     $form->file('proof_of_funds_to_be_returned', __('Receipt for funds returned to staff'));
                     }else{
-                        $form->file('proof_of_funds_returned', __('Receipt for funds returned to finance'));
+                        $form->file('proof_of_funds_returned', __('Receipt for funds returned to finance'))
+                        ->help('upload files of jpg,jpeg,png formats ')
+                        ->rules('file|mimes:pdf,jpg,jpeg,png|max:5120');
                         
                     }
             
-                    $form->file('narrative_report', __('Narrative Report'));
+                    $form->file('narrative_report', __('Narrative Report'))
+                    ->help('upload files of pdf,doc formats ')
+                    ->rules('file|mimes:pdf|max:5120');
             }
 
             $form->saving(function (Form $form) {

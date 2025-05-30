@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Program</title>
+    <title>Program budget</title>
     {{-- <style>
         .ml-4 { margin-left: 1.5rem; }
         .ml-5 { margin-left: 3rem; }

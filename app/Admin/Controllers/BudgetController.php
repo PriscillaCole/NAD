@@ -170,8 +170,8 @@ class BudgetController extends AdminController
         $program = Program::findOrFail($id);
 
         return $content
-            ->title('Edit Program') // Page title
-            ->description('Edit the program details') // Page description
+            ->title('Program budget') // Page title
+            ->description('Make a budget for the program') // Page description
             ->body(view('budgets.edit', compact('program'))); // Custom view for editing
     }
 

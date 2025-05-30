@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Models\Staff;
 use Encore\Admin\Facades\Admin;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Log;
 
 class Notification extends Model
 {
@@ -26,6 +27,7 @@ class Notification extends Model
         'link',
         'model',
         'model_id',
+        'deleted_at'
     ];
 
     //relationship between notification and user
@@ -49,6 +51,7 @@ class Notification extends Model
             ->get()
             ->unique('id')
             ->values();
+
 
         foreach ($notifications as $notification) 
         {
@@ -96,29 +99,57 @@ class Notification extends Model
     //function to send notifications after creation
     public static function send_notification($model, $model_name, $entity)
     {
-        $user = Staff::find($model->staff_id);
-        $name = $user ? $user->name : null;
-        $receiver = Notification::get_users_by_role(5);
-        
-        
-        // Log::info('Requisition ID: ' . $model);
-       
-        // Check if $entity is a string
-        if (is_string($entity)) {
-            foreach ($receiver as $user) {
-                $notification = new Notification();
-                $notification->role_id = 5;
-                $notification->receiver_id = $user->id;
-                $notification->message = "New {$entity} has been submitted by" . $name .' ';
-                $notification->link = admin_url("auth/login");
-                $notification->form_link = admin_url("{$entity}/{$model->id}");
-                $notification->model = $model_name;
-                $notification->model_id = $model->id;
-                $notification->save();
+        if($model_name == 'Program'){
             
-                self::sendMail($notification);
+            $user = Staff::where('user_id', $model->user_id)->first();
+            $name = $user ? $user->name : null;
+            Log::info($user);
+            // $receiver = Notification::get_users_by_id(5);
+            
+            // Log::info('Requisition ID: ' . $model);
+        
+            // Check if $entity is a string
+            if (is_string($entity)) {
+                // foreach ($receiver as $user) {
+                    $notification = new Notification();
+                    $notification->role_id = null;
+                    $notification->receiver_id = $user->id;
+                    $notification->message = "New {$model_name} has been assigned to " . $name .' ';
+                    $notification->link = admin_url("auth/login"); //budgets/62/edit
+                    $notification->form_link = admin_url("budgets/{$model->id}/edit");
+                    $notification->model = $model_name;
+                    $notification->model_id = $model->id;
+                    $notification->save();
+                
+                    self::sendMail($notification);
+                // }
             }
+        } else{
+
+            $user = Staff::find($model->staff_id);
+            $name = $user ? $user->name : null;
+            $receiver = Notification::get_users_by_role(5);
+            
+            
+            // Log::info('Requisition ID: ' . $model);
+        
+            // Check if $entity is a string
+            if (is_string($entity)) {
+                foreach ($receiver as $user) {
+                    $notification = new Notification();
+                    $notification->role_id = 5;
+                    $notification->receiver_id = $user->id;
+                    $notification->message = "New {$model_name} has been submitted by" . $name .' ';
+                    $notification->link = admin_url("auth/login");
+                    $notification->form_link = admin_url("{$entity}/{$model->id}");
+                    $notification->model = $model_name;
+                    $notification->model_id = $model->id;
+                    $notification->save();
+                
+                    self::sendMail($notification);
+                }
             }
+        }
     }
 
     public static function Notify_Admin($model, $model_name, $entity, $receiver)

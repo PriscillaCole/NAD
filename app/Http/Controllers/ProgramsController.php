@@ -149,10 +149,10 @@ class ProgramsController extends Controller
             'outcomes.*.outputs.*.activities.*.budget_lines.*.frequency' => 'required|numeric|min:0',
             'outcomes.*.outputs.*.activities.*.budget_lines.*.budget' => 'required|numeric|min:0',
 
-            'contingency' => 'array',
-            'contingency.*.id' => 'nullable',
-            'contingency.*.name' => 'required',
-            'contingency.*.budget' => 'required',
+            'contingency' => 'sometimes|nullable|array',
+            'contingency.*.id' => 'sometimes|nullable',
+            'contingency.*.name' => 'sometimes|required',
+            'contingency.*.budget' => 'sometimes|required',
 
         ]);
 
@@ -266,34 +266,37 @@ class ProgramsController extends Controller
                     }
                 }
             }
+            $contingencies = $validated['contingency'] ?? [];   // default to empty array
 
-            // Load existing relationships
-            $program->load('contingencyBudgets');
-    
-            // Get all current IDs for comparison
-            $currentOutcomeIds = $program->contingencyBudgets->pluck('id')->toArray();
-            $submittedOutcomeIds = collect($validated['contingency'])->pluck('id')->filter()->toArray();
-            
-            // Remove outcomes that are no longer present
-            ContingencyBudget::whereIn('id', array_diff($currentOutcomeIds, $submittedOutcomeIds))
-                ->where('program_id', $program->id)
-                ->delete();
-    
+            if (!empty($contingencies)) {
+                Log::info(['hellllll: ',$validated['contingency']]);
+                // Load existing relationships
+                $program->load('contingencyBudgets');
+        
+                // Get all current IDs for comparison
+                $currentOutcomeIds = $program->contingencyBudgets->pluck('id')->toArray();
+                $submittedOutcomeIds = collect($validated['contingency'])->pluck('id')->filter()->toArray();
+                
+                // Remove outcomes that are no longer present
+                ContingencyBudget::whereIn('id', array_diff($currentOutcomeIds, $submittedOutcomeIds))
+                    ->where('program_id', $program->id)
+                    ->delete();
+        
 
-            // Handle contingency budgets
-            foreach ($validated['contingency'] as $contingency){
-                $contingency = ContingencyBudget::updateOrCreate(
-                    [
-                        'id' => $contingency['id'] ?? null,
-                        'program_id' => $program->id
-                    ],
-                    [
-                        'name' => $contingency['name'],
-                        'budget' => $contingency['budget'],
-                    ]
-                );
+                // Handle contingency budgets
+                foreach ($validated['contingency'] as $contingency){
+                    $contingency = ContingencyBudget::updateOrCreate(
+                        [
+                            'id' => $contingency['id'] ?? null,
+                            'program_id' => $program->id
+                        ],
+                        [
+                            'name' => $contingency['name'],
+                            'budget' => $contingency['budget'],
+                        ]
+                    );
+                }
             }
-    
             \DB::commit();
             admin_toastr('Budget Updated successfully!', 'success');
             return redirect(admin_url('budgets'));

@@ -234,6 +234,7 @@
                     <th>No.</th>
                     <th>Name</th>
                     <th>Quantity</th>
+                    <th>Frequency</th>
                     <th>Unit Price(UGX)</th>
                     <th>Total Price(UGX)</th>
                 </tr>
@@ -258,6 +259,7 @@
                             <td>{{ $item->budgetline->name }}</td>
                         @endif
                         <td>{{ $item->quantity }} {{$item->unit_of_measure}}</td>
+                        <td>{{ $item->frequency }} </td>
                         <td>{{ number_format($item->unit_price) }}</td>
                         <td>{{ number_format($total_price) }}</td>
                     </tr>
