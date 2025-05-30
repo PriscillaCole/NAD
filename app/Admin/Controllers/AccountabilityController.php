@@ -49,8 +49,10 @@ class AccountabilityController extends AdminController
             $grid->disableCreateButton();
             $grid->actions(function ($actions) {
                 $actions->disableEdit();
+                $actions->disableDelete();
             });
         }
+        
         // $grid->actions(function ($actions) {
         //     if ($actions->row->status == 'closed') {
         //         $actions->disableEdit();

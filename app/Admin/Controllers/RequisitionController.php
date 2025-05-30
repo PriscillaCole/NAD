@@ -56,12 +56,14 @@ class RequisitionController extends AdminController
             $grid->disableCreateButton();
             $grid->actions(function ($actions) {
                 $actions->disableEdit();
+                    $actions->disableDelete();
             });
         }
         
             $grid->actions(function ($actions) {
                 if ($actions->row->status == 'approved') {
                     $actions->disableEdit();
+                    $actions->disableDelete();
                 }
             });
         

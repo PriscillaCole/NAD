@@ -242,30 +242,47 @@ class RequisitionController extends Controller
             // Add receipts if they exist
             if ($accountability && $accountability->requisitionItemReceipts) {
                 foreach ($accountability->requisitionItemReceipts as $receipt) {
-                    $receiptPath = storage_path('app\public\\' . $receipt->receipt_file);
-                    $invoicePath = storage_path('app\public\\' . $receipt->Invoice);
-                    $proofPath = storage_path('app\public\\' . $receipt->payment_proof);
+                    // $receiptPath = public_path('storage/' . $receipt->receipt_file);
+                    // $invoicePath = public_path('storage/' . $receipt->Invoice);
+                    // $proofPath = public_path('storage/' . $receipt->payment_proof);
                     
-                    Log::info([$receiptPath]);
-                    if (file_exists($receiptPath) && is_readable($receiptPath)) {
-                        $zip->addFile($receiptPath, 'receipts/' . basename($receipt->receipt_file));
-                        Log::info('Added receipt file to zip');
+                    // Log::info([$receiptPath]);
+                    if (!empty($receipt->receipt_file)) {
+                        $receiptPath = public_path('storage/' . $receipt->receipt_file);
+                        if (file_exists($receiptPath) && is_readable($receiptPath)) {
+                            $zip->addFile($receiptPath, 'receipts/' . basename($receipt->receipt_file));
+                            Log::info('Added receipt file to zip: ' . $receiptPath);
+                        } else {
+                            Log::warning('Receipt file not found or not readable: ' . $receiptPath);
+                        }
                     } else {
-                        Log::warning('Receipt file not found: ' . $receiptPath);
+                        Log::info('Skipping receipt file due to empty path for item: ' . ($receipt->id ?? 'N/A'));
                     }
             
-                    if (file_exists($invoicePath)&& is_readable($invoicePath)) {
-                        $zip->addFile($invoicePath, 'Invoices/' . basename($receipt->Invoice));
-                        Log::info('Added invoice file to zip');
+                    // For Invoice
+                    if (!empty($receipt->Invoice)) {
+                        $invoicePath = public_path('storage/' . $receipt->Invoice);
+                        if (file_exists($invoicePath) && is_readable($invoicePath)) {
+                            $zip->addFile($invoicePath, 'Invoices/' . basename($receipt->Invoice));
+                            Log::info('Added invoice file to zip: ' . $invoicePath);
+                        } else {
+                            Log::warning('Invoice file not found or not readable: ' . $invoicePath);
+                        }
                     } else {
-                        Log::warning('Invoice file not found: ' . $invoicePath);
+                        Log::info('Skipping invoice file due to empty path for item: ' . ($receipt->id ?? 'N/A'));
                     }
-            
-                    if (file_exists($proofPath) && is_readable($proofPath)) {
-                        $zip->addFile($proofPath, 'payment_proof/' . basename($receipt->payment_proof));
-                        Log::info('Added proof file to zip');
+
+                    // For payment_proof
+                    if (!empty($receipt->payment_proof)) {
+                        $proofPath = public_path('storage/' . $receipt->payment_proof);
+                        if (file_exists($proofPath) && is_readable($proofPath)) {
+                            $zip->addFile($proofPath, 'payment_proof/' . basename($receipt->payment_proof));
+                            Log::info('Added proof file to zip: ' . $proofPath);
+                        } else {
+                            Log::warning('Payment proof file not found or not readable: ' . $proofPath);
+                        }
                     } else {
-                        Log::warning('Payment proof file not found: ' . $proofPath);
+                        Log::info('Skipping payment proof file due to empty path for item: ' . ($receipt->id ?? 'N/A'));
                     }
                 }
             }
