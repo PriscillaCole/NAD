@@ -106,7 +106,7 @@
 
                 <!-- Form Body -->
                 <div class="panel-body">
-                    <form action="{{ url('adminBudget/'. $adminprogram->id.'/edit') }}" method="POST" id="programEditForm" class="form-horizontal" enctype="multipart/form-data">
+                    <form action="{{ url('adminBudget/'. $adminprogram->id.'/edit') }}" method="POST" id="programEditForm" class="form-horizontal" onsubmit="removeFormattingBeforeSubmit()" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
                         <!-- Program Name -->
@@ -131,10 +131,33 @@
                         </div>
 
                         <!-- Program budget -->
-                        <div class="form-group">
+                        {{-- <div class="form-group">
                             <label for="description" class="col-sm-2 control-label">Program Budget</label>
                             <div class="col-sm-8">
                                 <textarea name="budget" class="form-control" readonly required>{{ $adminprogram->budget }}</textarea>
+                            </div>
+                        </div> --}}
+                        <div class="form-group">
+                            <label for="name" class="col-sm-2 control-label">Program Budget (UGX)</label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-pencil fa-fw"></i>
+                                    </span>
+                                    <?php
+                                        // Get the program's initial budget
+                                        if (!is_null($adminprogram->third_budget)) {
+                                            $totalBudget = $adminprogram->third_budget;
+                                        } elseif (!is_null($adminprogram->second_budget)) {
+                                            $totalBudget = $proadminprogramgram->second_budget;
+                                        } elseif (!is_null($adminprogram->budget)) {
+                                            $totalBudget = $adminprogram->budget;
+                                        } else {
+                                            return "<span style='color: gray;'>No Budget</span>";
+                                        }
+                                    ?>
+                                    <input type="text" class="form-control formatted-input" readonly value="{{ $totalBudget }}" required />
+                                </div>
                             </div>
                         </div>
 
@@ -196,13 +219,46 @@
                                                             </div>
                                                         </div>
                                                         <div class="form-group">
+                                                            <label class="col-sm-2 control-label"> Unit Cost</label>
+                                                            <div class="col-sm-8">
+                                                                <div class="input-group">
+                                                                    <span class="input-group-addon">
+                                                                        <i class="fa fa-pencil fa-fw"></i>
+                                                                    </span>
+                                                                    <input type="text" name="outcomes[{{ $adminActivity->id }}][outputs][{{ $adminBudgetLine->id }}][unitcost]" class="form-control formatted-input" value="{{ $adminBudgetLine->unit_cost }}" required>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label class="col-sm-2 control-label">Quantity</label>
+                                                            <div class="col-sm-8">
+                                                                <div class="input-group">
+                                                                    <span class="input-group-addon">
+                                                                        <i class="fa fa-pencil fa-fw"></i>
+                                                                    </span>
+                                                                    <input type="text" name="outcomes[{{ $adminActivity->id }}][outputs][{{ $adminBudgetLine->id }}][quantity]" class="form-control" value="{{ $adminBudgetLine->quantity }}" required>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label class="col-sm-2 control-label">Frequency</label>
+                                                            <div class="col-sm-8">
+                                                                <div class="input-group">
+                                                                    <span class="input-group-addon">
+                                                                        <i class="fa fa-pencil fa-fw"></i>
+                                                                    </span>
+                                                                    <input type="text" name="outcomes[{{ $adminActivity->id }}][outputs][{{ $adminBudgetLine->id }}][frequency]" class="form-control" value="{{ $adminBudgetLine->frequency }}" required>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group">
                                                             <label class="col-sm-2 control-label">Output Budget</label>
                                                             <div class="col-sm-8">
                                                                 <div class="input-group">
                                                                     <span class="input-group-addon">
                                                                         <i class="fa fa-pencil fa-fw"></i>
                                                                     </span>
-                                                                    <input type="number" name="outcomes[{{ $adminActivity->id }}][outputs][{{ $adminBudgetLine->id }}][budget]" class="form-control" value="{{ $adminBudgetLine->total_cost }}" required>
+                                                                    <input readonly type="text" name="outcomes[{{ $adminActivity->id }}][outputs][{{ $adminBudgetLine->id }}][budget]" class="form-control formatted-input" value="{{ $adminBudgetLine->total_cost }}" required>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -257,5 +313,44 @@
         </div>
     </div>
 </div>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".formatted-input").forEach(input => {
+            let rawValue = input.value.replace(/,/g, ''); // Remove existing commas (if any)
+
+            // Format the value initially for display
+            if (rawValue) {
+                let parts = rawValue.split('.');
+                parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ','); // Add commas
+                input.value = parts.join('.'); // Display formatted value
+            }
+
+            // Store the raw value for submission
+            input.setAttribute("data-raw", rawValue);
+
+            // Add event listener for formatting on user input
+            input.addEventListener("input", function (event) {
+                let value = input.value.replace(/[^0-9.]/g, ''); // Remove non-numeric characters except dot
+                let parts = value.split('.');
+
+                parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ','); // Add commas
+                input.value = parts.join('.'); // Display formatted value
+
+                // Store raw numeric value
+                input.setAttribute("data-raw", value);
+            });
+        });
+    });
+
+    // Ensure raw values are submitted
+    function removeFormattingBeforeSubmit() {
+        document.querySelectorAll(".formatted-input").forEach(input => {
+            if (input.hasAttribute("data-raw")) {
+                input.value = input.getAttribute("data-raw"); // Replace formatted value with raw value before submission
+            }
+        });
+    }
+
+</script>
 </body>
 </html>

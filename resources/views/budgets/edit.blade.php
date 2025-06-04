@@ -461,41 +461,41 @@
 </div>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-    document.querySelectorAll(".formatted-input").forEach(input => {
-        let rawValue = input.value.replace(/,/g, ''); // Remove existing commas (if any)
+        document.querySelectorAll(".formatted-input").forEach(input => {
+            let rawValue = input.value.replace(/,/g, ''); // Remove existing commas (if any)
 
-        // Format the value initially for display
-        if (rawValue) {
-            let parts = rawValue.split('.');
-            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ','); // Add commas
-            input.value = parts.join('.'); // Display formatted value
-        }
+            // Format the value initially for display
+            if (rawValue) {
+                let parts = rawValue.split('.');
+                parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ','); // Add commas
+                input.value = parts.join('.'); // Display formatted value
+            }
 
-        // Store the raw value for submission
-        input.setAttribute("data-raw", rawValue);
+            // Store the raw value for submission
+            input.setAttribute("data-raw", rawValue);
 
-        // Add event listener for formatting on user input
-        input.addEventListener("input", function (event) {
-            let value = input.value.replace(/[^0-9.]/g, ''); // Remove non-numeric characters except dot
-            let parts = value.split('.');
+            // Add event listener for formatting on user input
+            input.addEventListener("input", function (event) {
+                let value = input.value.replace(/[^0-9.]/g, ''); // Remove non-numeric characters except dot
+                let parts = value.split('.');
 
-            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ','); // Add commas
-            input.value = parts.join('.'); // Display formatted value
+                parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ','); // Add commas
+                input.value = parts.join('.'); // Display formatted value
 
-            // Store raw numeric value
-            input.setAttribute("data-raw", value);
+                // Store raw numeric value
+                input.setAttribute("data-raw", value);
+            });
         });
     });
-});
 
-// Ensure raw values are submitted
-function removeFormattingBeforeSubmit() {
-    document.querySelectorAll(".formatted-input").forEach(input => {
-        if (input.hasAttribute("data-raw")) {
-            input.value = input.getAttribute("data-raw"); // Replace formatted value with raw value before submission
-        }
-    });
-}
+    // Ensure raw values are submitted
+    function removeFormattingBeforeSubmit() {
+        document.querySelectorAll(".formatted-input").forEach(input => {
+            if (input.hasAttribute("data-raw")) {
+                input.value = input.getAttribute("data-raw"); // Replace formatted value with raw value before submission
+            }
+        });
+    }
 
 </script>
 </body>

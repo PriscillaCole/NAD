@@ -11,6 +11,10 @@ class AdminBudget_lines extends Model
 
     protected $fillable = [
         'name',
+        'units',
+        'unit_cost',
+        'quantity',
+        'frequency',
         'total_cost'
         
     ];

@@ -24,6 +24,11 @@ class Program extends Model
         return $this->hasMany(Outcome::class);
     }
 
+    public function adminActivities()
+    {
+        return $this->hasMany(AdminActivity::class, 'admin_program_id');
+    }
+
 
     public function user()
     {

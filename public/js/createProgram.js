@@ -358,24 +358,6 @@
         const frequencyInput = document.getElementById(`frequency-${budgetLineId}`);
         const budgetInput = document.getElementById(`budget-${budgetLineId}`);
     
-        // function recalculateBudget() {
-        //     const unitCost = parseFloat(unitCostInput.value) || 0;
-        //     console.log(unitCost);
-        //     const quantity = parseFloat(quantityInput.value) || 0;
-        //     console.log(quantity);
-        //     const frequency = parseFloat(frequencyInput.value) || 0;
-        //     console.log(frequency);
-        //     if (validateBudgetLine(budgetLineId, activityId)) {
-        //          budgetInput.value = unitCost * quantity * frequency;
-        //          console.log(budgetInput.value);
-        //          console.log(unitCost * quantity * frequency);
-        //     }
-            
-        //     // if (validateBudgetLine(budgetLineId, activityId)) {
-        //     //     validateActivityBudget(activityId, outputId);
-        //     //     validateOutputBudget(outputId, outcomeId);
-        //     // }
-        // }
 
         function recalculateBudget() {
             const unitCostInput = document.getElementById(`unit-cost-${budgetLineId}`);

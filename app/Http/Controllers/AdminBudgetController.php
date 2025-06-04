@@ -106,7 +106,6 @@ class AdminBudgetController extends Controller
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
                 'description' => 'nullable|string|max:1000',
-                'budget' => 'required|numeric|min:0',
                 'outcomes' => 'nullable|array',
                 'outcomes.*.id' => 'nullable|integer',
                 'outcomes.*.name' => 'required|string|max:255',
@@ -114,6 +113,10 @@ class AdminBudgetController extends Controller
                 'outcomes.*.outputs' => 'nullable|array',
                 'outcomes.*.outputs.*.id' => 'nullable|integer',
                 'outcomes.*.outputs.*.name' => 'required|string|max:255',
+                'outcomes.*.outputs.*.unit' => 'required|string|max:255',
+                'outcomes.*.outputs.*.frequency' => 'required|numeric|min:0',
+                'outcomes.*.outputs.*.quantity' => 'required|numeric|min:0',
+                'outcomes.*.outputs.*.unitcost' => 'required|numeric|min:0',
                 'outcomes.*.outputs.*.budget' => 'nullable|numeric|min:0',
             ]);
     
@@ -122,13 +125,14 @@ class AdminBudgetController extends Controller
             \DB::beginTransaction();
     
             // Find the existing program
-            $adminProgram = AdminProgram::findOrFail($id);
+            $adminProgram = Program::findOrFail($id);
             $adminProgram->update([
                 'name' => $validated['name'],
                 'description' => $validated['description'],
-                'budget' => $validated['budget'],
             ]);
-    
+            // Load existing relationships
+            $adminProgram->load('adminActivities.adminBudgetLines');
+            
             // Get current outcome IDs for comparison
             $currentOutcomeIds = $adminProgram->adminActivities->pluck('id')->toArray();
             $submittedOutcomeIds = collect($validated['outcomes'])->pluck('id')->filter()->toArray();
@@ -137,15 +141,18 @@ class AdminBudgetController extends Controller
             AdminActivity::whereIn('id', array_diff($currentOutcomeIds, $submittedOutcomeIds))
                 ->where('admin_program_id', $adminProgram->id)
                 ->delete();
+                Log::info(['welll', $adminProgram->id ]);
     
             // Handle outcomes
             foreach ($validated['outcomes'] ?? [] as $outcomeData) {
-                $outcome = AdminActivity::updateOrCreate(
+                $outcome = $adminProgram->adminActivities()->updateOrCreate(
+                // $outcome = AdminActivity::updateOrCreate(
                     [
                         'id' => $outcomeData['id'] ?? null,
                         'admin_program_id' => $adminProgram->id
                     ],
                     [
+                        'admin_program_id' => $adminProgram->id,
                         'name' => $outcomeData['name'],
                         'budget' => $outcomeData['budget'] ?? null,
                     ]
@@ -162,32 +169,34 @@ class AdminBudgetController extends Controller
     
                 // Handle outputs
                 foreach ($outcomeData['outputs'] ?? [] as $outputData) {
-                    AdminBudget_lines::updateOrCreate(
+                    $outcome->adminBudgetLines()->updateOrCreate(
+                    // AdminBudget_lines::updateOrCreate(
                         [
                             'id' => $outputData['id'] ?? null,
                             'admin_activity_id' => $outcome->id
                         ],
                         [
                             'name' => $outputData['name'],
-                            'budget' => $outputData['budget'] ?? null,
+                            'units' => $outputData['unit'],
+                            'unit_cost' => $outputData['unitcost'],
+                            'quantity' => $outputData['quantity'],
+                            'frequency' => $outputData['frequency'],
+                            'total_cost' => $outputData['budget'] ?? null,
                         ]
                     );
                 }
             }
     
             \DB::commit();
-            admin_toastr('Program updated successfully!', 'success');
-            return redirect('/requisitions');
+            admin_toastr('Budget updated successfully!', 'success');
+            return redirect('/adminBudget');
         } catch (\Exception $e) {
             \DB::rollBack();
             \Log::error($e);
-            admin_toastr('Failed to update program. Please try again. ' . $e->getMessage(), 'error');
+            admin_toastr('Failed to update Budget. Please try again. ' . $e->getMessage(), 'error');
             return back()->withInput();
         }
     }
     
-
-
-
 
 }

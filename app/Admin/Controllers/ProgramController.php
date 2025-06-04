@@ -145,7 +145,12 @@ class ProgramController extends AdminController
            
             
         }
-        
+        $form->radio('type', __('Budget type'))
+            ->options([
+                '1' => 'Activity Budget',
+                '2' => 'Admin Budget',
+            ])
+            ->required();
         $form->select('user_id', __('Choose a Program manager'))
             ->options(User::whereHas('roles', function ($query) {
                 $query->where('name', 'staff'); // Adjust 'name' to the correct column if needed

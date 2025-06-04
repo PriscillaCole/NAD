@@ -17,7 +17,7 @@ class AdminActivity extends Model
 
     public function adminPrograms()
     {
-        return $this->belongsTo(AdminProgram::class);
+        return $this->belongsTo(Program::class);
     }
      public function adminBudgetLines()
      {

@@ -24,7 +24,7 @@ function addOutcome() {
                         <span class="input-group-addon">
                             <i class="fa fa-pencil fa-fw"></i>
                         </span>
-                        <input type="text" name="outcomes[${outcomeId}][name]" class="form-control" placeholder="Enter Outcome Name" required>
+                        <input type="text" name="outcomes[${outcomeId}][name]"  class="form-control" placeholder="Enter Outcome Name" required>
                         </div>
                     </div>
                 </div>
@@ -35,7 +35,7 @@ function addOutcome() {
                         <span class="input-group-addon">
                             <i class="fa fa-pencil fa-fw"></i>
                         </span>
-                        <input type="number" name="outcomes[${outcomeId}][budget]" class="form-control" placeholder="Enter Outcome Budget" required>
+                        <input type="text" name="outcomes[${outcomeId}][budget]" oninput="formatNumber(event)" class="form-control formatted-input" placeholder="Enter Outcome Budget" required>
                         </div>
                     </div>
                 </div>
@@ -87,14 +87,59 @@ function addOutput(outcomeId) {
                     </div>
                     </div>
                 </div>
-                 <div class="form-group">
+                <div class="form-group">
+                    <label class="col-sm-2 control-label"> Unit Cost</label>
+                    <div class="col-sm-8">
+                        <div class="input-group">
+                            <span class="input-group-addon">
+                                <i class="fa fa-pencil fa-fw"></i>
+                            </span>
+                            <input type="text" id="unitcost-${outcomeId}" name="outcomes[${outcomeId}][outputs][${outputId}][unitcost]" oninput="formatNumber(event)" class="form-control formatted-input" placeholder="Enter Output Unitcost" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Quantity</label>
+                    <div class="col-sm-8">
+                        <div class="input-group">
+                            <span class="input-group-addon">
+                                <i class="fa fa-pencil fa-fw"></i>
+                            </span>
+                            <input type="text" id="quantity-${outcomeId}" name="outcomes[${outcomeId}][outputs][${outputId}][quantity]" oninput="formatNumber(event)" class="form-control formatted-input" placeholder="Enter Quantity" required>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Frequency</label>
+                    <div class="col-sm-8">
+                        <div class="input-group">
+                            <span class="input-group-addon">
+                                <i class="fa fa-pencil fa-fw"></i>
+                            </span>
+                            <input type="text" id="frequency-${outcomeId}" name="outcomes[${outcomeId}][outputs][${outputId}][frequency]" oninput="formatNumber(event)" class="form-control formatted-input" class="form-control" placeholder="Enter Frequency" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label"> Unit </label>
+                    <div class="col-sm-8">
+                        <div class="input-group">
+                            <span class="input-group-addon">
+                                <i class="fa fa-pencil fa-fw"></i>
+                            </span>
+                            <input type="text" name="outcomes[${outcomeId}][outputs][${outputId}][unit]" class="form-control" placeholder="Enter Units"  required>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
                     <label class="col-sm-2 control-label">Output Budget</label>
                     <div class="col-sm-8">
                      <div class="input-group">
                     <span class="input-group-addon">
                             <i class="fa fa-pencil fa-fw"></i>
                         </span>
-                        <input type="number" name="outcomes[${outcomeId}][outputs][${outputId}][budget]" class="form-control" placeholder="Enter Output Budget" required>
+                        <input readonly type="text" id="budget-${outcomeId}" name="outcomes[${outcomeId}][outputs][${outputId}][budget]" oninput="formatNumber(event)" class="form-control formatted-input" placeholder="Enter Output Budget" required>
                     </div>
                     </div>
                 </div>
@@ -115,6 +160,44 @@ function addOutput(outcomeId) {
     `;
 
     outputsContainer.insertAdjacentHTML('beforeend', outputTemplate);
+
+    // Attach event listeners to recalculate budget
+    const unitCostInput = document.getElementById(`unitcost-${outcomeId}`);
+    const quantityInput = document.getElementById(`quantity-${outcomeId}`);
+    const frequencyInput = document.getElementById(`frequency-${outcomeId}`);
+    const budgetInput = document.getElementById(`budget-${outcomeId}`);
+    
+    function recalculateBudget() {
+        const unitCostInput = document.getElementById(`unitcost-${outcomeId}`);
+        const quantityInput = document.getElementById(`quantity-${outcomeId}`);
+        const frequencyInput = document.getElementById(`frequency-${outcomeId}`);
+        const budgetInput = document.getElementById(`budget-${outcomeId}`);
+    
+        let unitCost = parseFloat(unitCostInput.getAttribute("data-raw")) || 0;
+        console.log('unitCost', unitCostInput.getAttribute("data-raw"));
+        let quantity = parseFloat(quantityInput.getAttribute("data-raw")) || 1;
+        console.log('quantity', quantityInput.getAttribute("data-raw"));
+        let frequency = parseFloat(frequencyInput.getAttribute("data-raw")) || 1;
+        console.log('frequency', frequency);
+        
+    
+        // if (validateBudgetLine(outcomeId, activityId)) {
+            const calculatedBudget = unitCost * quantity * frequency;
+            console.log('calculatedBudget', calculatedBudget);
+            budgetInput.value = formatNumberDisplay(calculatedBudget); //format for display
+            budgetInput.setAttribute("data-raw", calculatedBudget); //store raw number.
+        // }
+    }
+    
+    function formatNumberDisplay(number) {
+        return number.toLocaleString('en-US'); // Format as US currency
+    }
+
+    unitCostInput.addEventListener('input', recalculateBudget);
+    quantityInput.addEventListener('input', recalculateBudget);
+    frequencyInput.addEventListener('input', recalculateBudget);
+    // Attach event listener to recalculate budget
+    // budgetInput.addEventListener('input', recalculateActivityBudget);
 }
 
 // Function to add a new Activity under an Output
@@ -384,6 +467,29 @@ outputBudgetInput.value = outputTotal;
 return true;
 }
 
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".formatted-input").forEach(input => {
+        input.addEventListener("input", formatNumber);
+    });
+});
+
+function formatNumber(event) {
+        let input = event.target;
+        let value = input.value.replace(/[^0-9.]/g, ''); // Remove non-numeric characters except dot
+        let parts = value.split('.');
+    
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ','); // Add commas for readability
+        input.value = parts.join('.'); // Display formatted value
+    
+        // Store raw numeric value in a data attribute
+        input.setAttribute("data-raw", value);
+    }
+    
+function removeFormattingBeforeSubmit() {
+    document.querySelectorAll(".formatted-input").forEach(input => {
+        input.value = input.getAttribute("data-raw"); // Restore raw value before submission
+    });
+}
 
 document.addEventListener('DOMContentLoaded', function() {
     // Add collapsed class to all panels initially
