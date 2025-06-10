@@ -54,7 +54,7 @@ class Program extends Model
         static::updated(function ($model) {
             //send email to the country director
             error_log($model->status);
-            Notification::update_notification($model, 'Requisition', request()->segment(count(request()->segments())));
+            Notification::send_notification($model, 'Program', request()->segment(count(request()->segments())));
         });
 
       

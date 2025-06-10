@@ -61,7 +61,7 @@ function addOutcome() {
 }
 
 // Function to add a new Output under an Outcome
-function addOutput(outcomeId) {
+function addOutput(outcomeId, recalculateActivityBudget) {
     const outputsContainer = document.getElementById(`outputs-${outcomeId}`);
     const outputCount = outputsContainer.children.length + 1;
     const outputId = Date.now();
@@ -94,7 +94,7 @@ function addOutput(outcomeId) {
                             <span class="input-group-addon">
                                 <i class="fa fa-pencil fa-fw"></i>
                             </span>
-                            <input type="text" id="unitcost-${outcomeId}" name="outcomes[${outcomeId}][outputs][${outputId}][unitcost]" oninput="formatNumber(event)" class="form-control formatted-input" placeholder="Enter Output Unitcost" required>
+                            <input type="text" id="unitcost-${outputId}" name="outcomes[${outcomeId}][outputs][${outputId}][unitcost]" oninput="formatNumber(event)" class="form-control formatted-input" placeholder="Enter Output Unitcost" required>
                         </div>
                     </div>
                 </div>
@@ -105,7 +105,7 @@ function addOutput(outcomeId) {
                             <span class="input-group-addon">
                                 <i class="fa fa-pencil fa-fw"></i>
                             </span>
-                            <input type="text" id="quantity-${outcomeId}" name="outcomes[${outcomeId}][outputs][${outputId}][quantity]" oninput="formatNumber(event)" class="form-control formatted-input" placeholder="Enter Quantity" required>
+                            <input type="text" id="quantity-${outputId}" name="outcomes[${outcomeId}][outputs][${outputId}][quantity]" oninput="formatNumber(event)" class="form-control formatted-input" placeholder="Enter Quantity" required>
                         </div>
                     </div>
                 </div>
@@ -117,7 +117,7 @@ function addOutput(outcomeId) {
                             <span class="input-group-addon">
                                 <i class="fa fa-pencil fa-fw"></i>
                             </span>
-                            <input type="text" id="frequency-${outcomeId}" name="outcomes[${outcomeId}][outputs][${outputId}][frequency]" oninput="formatNumber(event)" class="form-control formatted-input" class="form-control" placeholder="Enter Frequency" required>
+                            <input type="text" id="frequency-${outputId}" name="outcomes[${outcomeId}][outputs][${outputId}][frequency]" oninput="formatNumber(event)" class="form-control formatted-input" class="form-control" placeholder="Enter Frequency" required>
                         </div>
                     </div>
                 </div>
@@ -139,7 +139,7 @@ function addOutput(outcomeId) {
                     <span class="input-group-addon">
                             <i class="fa fa-pencil fa-fw"></i>
                         </span>
-                        <input readonly type="text" id="budget-${outcomeId}" name="outcomes[${outcomeId}][outputs][${outputId}][budget]" oninput="formatNumber(event)" class="form-control formatted-input" placeholder="Enter Output Budget" required>
+                        <input readonly type="text" id="budget-${outputId}" name="outcomes[${outcomeId}][outputs][${outputId}][budget]" oninput="formatNumber(event)" class="form-control formatted-input" placeholder="Enter Output Budget" required>
                     </div>
                     </div>
                 </div>
@@ -162,16 +162,16 @@ function addOutput(outcomeId) {
     outputsContainer.insertAdjacentHTML('beforeend', outputTemplate);
 
     // Attach event listeners to recalculate budget
-    const unitCostInput = document.getElementById(`unitcost-${outcomeId}`);
-    const quantityInput = document.getElementById(`quantity-${outcomeId}`);
-    const frequencyInput = document.getElementById(`frequency-${outcomeId}`);
-    const budgetInput = document.getElementById(`budget-${outcomeId}`);
+    const unitCostInput = document.getElementById(`unitcost-${outputId}`);
+    const quantityInput = document.getElementById(`quantity-${outputId}`);
+    const frequencyInput = document.getElementById(`frequency-${outputId}`);
+    const budgetInput = document.getElementById(`budget-${outputId}`);
     
     function recalculateBudget() {
-        const unitCostInput = document.getElementById(`unitcost-${outcomeId}`);
-        const quantityInput = document.getElementById(`quantity-${outcomeId}`);
-        const frequencyInput = document.getElementById(`frequency-${outcomeId}`);
-        const budgetInput = document.getElementById(`budget-${outcomeId}`);
+        const unitCostInput = document.getElementById(`unitcost-${outputId}`);
+        const quantityInput = document.getElementById(`quantity-${outputId}`);
+        const frequencyInput = document.getElementById(`frequency-${outputId}`);
+        const budgetInput = document.getElementById(`budget-${outputId}`);
     
         let unitCost = parseFloat(unitCostInput.getAttribute("data-raw")) || 0;
         console.log('unitCost', unitCostInput.getAttribute("data-raw"));
@@ -191,176 +191,6 @@ function addOutput(outcomeId) {
     
     function formatNumberDisplay(number) {
         return number.toLocaleString('en-US'); // Format as US currency
-    }
-
-    unitCostInput.addEventListener('input', recalculateBudget);
-    quantityInput.addEventListener('input', recalculateBudget);
-    frequencyInput.addEventListener('input', recalculateBudget);
-    // Attach event listener to recalculate budget
-    // budgetInput.addEventListener('input', recalculateActivityBudget);
-}
-
-// Function to add a new Activity under an Output
-function addActivity(outputId, outcomeId) {
-    const activitiesContainer = document.getElementById(`activities-${outputId}`);
-    const activityCount = activitiesContainer.children.length + 1;
-    const activityId = Date.now();
-
-    const activityTemplate = `
-        <div class="panel panel-default activity" id="activity-${activityId}">
-            <div class="panel-heading">
-                <h6 class="panel-title">
-                    <span class="entity-label">Activity ${outcomeCounter}.${activityCount}</span> 
-                </h6>
-            </div>
-            <div class="panel-body">
-                <!-- Activity Fields -->
-                <div class="form-group">
-                    <label class="col-sm-2 control-label">Activity Name</label>
-                    <div class="col-sm-8">
-                     <div class="input-group">
-                      <span class="input-group-addon">
-                            <i class="fa fa-pencil fa-fw"></i>
-                        </span>
-                        <input type="text" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][name]" class="form-control" placeholder="Enter Activity Name" required>
-                    </div>
-                    </div>
-                </div>
-                   <div class="form-group">
-                    <label class="col-sm-2 control-label">Activity Budget</label>
-                    <div class="col-sm-8">
-                     <div class="input-group">
-                      <span class="input-group-addon">
-                            <i class="fa fa-pencil fa-fw"></i>
-                        </span>
-                        <input type="number" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][budget]" class="form-control" placeholder="Enter Activity Budget" required>
-                    </div>
-                    </div>
-                </div>
-
-                <!-- Budget Lines Section -->
-                <div id="budget-lines-${activityId}"></div>
-                <div class="form-group">
-                    <div class="col-sm-8 col-sm-offset-2" style="display: flex; justify-content: space-between; align-items: center;">
-                   <button type="button" class="btn btn-secondary btn-add" onclick="addBudgetLine(${activityId}, ${outputId}, ${outcomeId})">Add Budget Line</button>
-
-                    <!-- Delete Button with Bin Icon -->
-                    <button type="button" class="btn btn-danger btn-delete"  onclick="deleteActivity(${activityId})">
-                        <i class="fa fa-trash"></i> Delete
-                    </button>
-                </div>
-                </div>
-            </div>
-        </div>
-    `;
-
-    activitiesContainer.insertAdjacentHTML('beforeend', activityTemplate);
-}
-
-
-
-// Function to add a new Budget Line under an Activity
-function addBudgetLine(activityId, outputId, outcomeId, recalculateActivityBudget) {
-    const budgetLinesContainer = document.getElementById(`budget-lines-${activityId}`);
-    const budgetLineCount = budgetLinesContainer.children.length + 1;
-    const budgetLineId = Date.now();
-
-    const budgetLineTemplate = `
-        <div class="panel panel-default budget-line" id="budget-line-${budgetLineId}">
-            <div class="panel-heading">
-                <h6 class="panel-title">
-                    <span class="entity-label">Budget Line ${outcomeCounter}.${budgetLineCount}</span>
-                </h6>
-            </div>
-            <div class="panel-body">
-                <!-- Budget Line Fields -->
-                <div class="form-group">
-                    <label class="col-sm-2 control-label">Budget Line Name</label>
-                    <div class="col-sm-8">
-                        <div class="input-group">
-                            <span class="input-group-addon">
-                                <i class="fa fa-pencil fa-fw"></i>
-                            </span>
-                            <input type="text" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][budget_lines][${budgetLineId}][name]" class="form-control" placeholder="Enter Budget Line Name" required>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-2 control-label">Unit Cost</label>
-                    <div class="col-sm-8">
-                        <div class="input-group">
-                            <span class="input-group-addon">
-                                <i class="fa fa-pencil fa-fw"></i>
-                            </span>
-                            <input type="number" id="unit-cost-${budgetLineId}" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][budget_lines][${budgetLineId}][unitcost]"  class="form-control unit-cost" placeholder="Unit Cost" required>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-2 control-label">Quantity</label>
-                    <div class="col-sm-8">
-                        <div class="input-group">
-                            <span class="input-group-addon">
-                                <i class="fa fa-pencil fa-fw"></i>
-                            </span>
-                            <input type="number" id="quantity-${budgetLineId}" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][budget_lines][${budgetLineId}][quantity]"  class="form-control quantity" placeholder="Quantity" required>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-2 control-label">Frequency</label>
-                    <div class="col-sm-8">
-                        <div class="input-group">
-                            <span class="input-group-addon">
-                                <i class="fa fa-pencil fa-fw"></i>
-                            </span>
-                            <input type="number" id="frequency-${budgetLineId}" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][budget_lines][${budgetLineId}][frequency]" class="form-control frequency" placeholder="Frequency" required>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-2 control-label">Budget Line Amount</label>
-                    <div class="col-sm-8">
-                        <div class="input-group">
-                            <span class="input-group-addon">
-                                <i class="fa fa-pencil fa-fw"></i>
-                            </span>
-                            <input type="number" id="budget-${budgetLineId}" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][budget_lines][${budgetLineId}][budget]" class="form-control budget" placeholder="Enter Budget Line Amount" readonly required>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <div class="col-sm-8 col-sm-offset-2" style="display: flex; justify-content: flex-end; align-items: center;">
-                        <!-- Delete Button with Bin Icon -->
-                        <button type="button" class="btn btn-danger btn-delete" onclick="deleteBudgetLine(${budgetLineId})">
-                            <i class="fa fa-trash"></i> Delete
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-
-    budgetLinesContainer.insertAdjacentHTML('beforeend', budgetLineTemplate);
-
-    // Attach event listeners to recalculate budget
-    const unitCostInput = document.getElementById(`unit-cost-${budgetLineId}`);
-    const quantityInput = document.getElementById(`quantity-${budgetLineId}`);
-    const frequencyInput = document.getElementById(`frequency-${budgetLineId}`);
-    const budgetInput = document.getElementById(`budget-${budgetLineId}`);
-
-    function recalculateBudget() {
-        const unitCost = parseFloat(unitCostInput.value) || 0;
-        const quantity = parseFloat(quantityInput.value) || 0;
-        const frequency = parseFloat(frequencyInput.value) || 0;
-        if (validateBudgetLine(budgetLineId, activityId)) {
-             budgetInput.value = unitCost * quantity * frequency;
-        }
-        
-        // if (validateBudgetLine(budgetLineId, activityId)) {
-        //     validateActivityBudget(activityId, outputId);
-        //     validateOutputBudget(outputId, outcomeId);
-        // }
     }
 
     unitCostInput.addEventListener('input', recalculateBudget);
