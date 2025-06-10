@@ -1,0 +1,58 @@
+
+.body, .main-header, .main-sidebar, .content-wrapper, .box-header, .box-body, .box-footer{
+    font-family: 'Poppins', sans-serif !important;
+}
+
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+    font-family: 'Poppins', sans-serif !important;
+}
+
+.sidebar-menu > li {
+	position: relative;
+	margin: 0;
+	padding: 0;
+	border-bottom: 1px solid #2f3e45;
+}
+
+.skin-blue .sidebar a {
+	color: #fff;
+	font-weight: bold;
+}
+
+.panel-body {
+            display: none;
+        }
+/* Add toggle indicators */
+.outcomes::after,
+.outputs::after,
+.activities::after,
+.budgetlines::after {
+	content: '▼';
+	position: absolute;
+	right: 15px;
+	top: 50%;
+	transform: translateY(-50%) rotate(-90deg);
+	transition: transform 0.3s ease;
+}
+
+/* When panel is expanded (i.e. NOT collapsed), rotate arrow downward */
+.panel:not(.collapsed) > .outcomes::after,
+.panel:not(.collapsed) > .outputs::after,
+.panel:not(.collapsed) > .activities::after,
+.panel:not(.collapsed) > .budgetlines::after {
+	transform: translateY(-50%) rotate(0deg);
+}
+
+/* Show panel body when not collapsed */
+.panel:not(.collapsed) > .panel-body {
+	display: block;
+}
+/* 
+.panel-heading {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	background: -webkit-linear-gradient(top, #222, #3c8dbc);
+} */
+
+/* background: -webkit-linear-gradient(top, #d1d3f9, #6266df); */

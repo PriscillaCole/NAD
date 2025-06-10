@@ -22,6 +22,6 @@ class AppServiceProvider extends ServiceProvider
     {
         // In your ServiceProvider, add this to the boot method
         
-    Admin::style(file_get_contents(public_path('css/admin-custom.css')));
+    Admin::style(file_get_contents(public_path('css/admin.css')));
     }
 }

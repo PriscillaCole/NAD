@@ -4,21 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Program budget</title>
-    {{-- <style>
-        .ml-4 { margin-left: 1.5rem; }
-        .ml-5 { margin-left: 3rem; }
-        .btn-add { margin-top: 10px; margin-bottom: 10px; }
-        .delete-btn { color: red; cursor: pointer; margin-left: 10px; }
-        .panel-body { padding: 15px; }
-        .entity-label { font-weight: bold; margin-right: 10px; }
-        .text-right { text-align: right; }
-    </style> --}}
 
     <style>
         /* Basic collapsible functionality */
-        .panel-body {
+        /* .panel-body {
             display: none;
-        }
+        } */
 
         .outcomes,
         .outputs,
@@ -27,30 +18,6 @@
             cursor: pointer;
             position: relative;
             padding-right: 30px;
-        }
-
-        /* Add toggle indicators */
-        .outcomes::after,
-        .outputs::after,
-        .activities::after,
-        .budgetlines::after {
-            content: '▼';
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            transition: transform 0.3s ease;
-        }
-
-        .panel.collapsed,
-        .outcomes::after,
-        /* .outputs::after, */
-        /* .activities::after*/ { 
-            transform: translateY(-50%) rotate(-90deg);
-        }
-        /* Show panel body when not collapsed */
-        .panel:not(.collapsed) > .panel-body {
-            display: block;
         }
 
         /* Initial state - all panels collapsed except outcomes */
@@ -460,6 +427,13 @@
     </div>
 </div>
 <script>
+    document.addEventListener('click', function (e) {
+        if (e.target.matches('.outcomes, .outputs, .activities, .budgetlines')) {
+            const panel = e.target.closest('.panel');
+            panel.classList.toggle('collapsed');
+        }
+    });
+
     document.addEventListener("DOMContentLoaded", function () {
         document.querySelectorAll(".formatted-input").forEach(input => {
             let rawValue = input.value.replace(/,/g, ''); // Remove existing commas (if any)

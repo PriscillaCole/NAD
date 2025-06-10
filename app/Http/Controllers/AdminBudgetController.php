@@ -14,6 +14,7 @@ use App\Models\Staff;
 use App\Models\Utils;
 use Illuminate\Http\Request;
 use Encore\Admin\Form;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Laravel\Pail\ValueObjects\Origin\Console;
 
@@ -187,12 +188,12 @@ class AdminBudgetController extends Controller
                 }
             }
     
-            \DB::commit();
+            DB::commit();
             admin_toastr('Budget updated successfully!', 'success');
             return redirect('/adminBudget');
         } catch (\Exception $e) {
-            \DB::rollBack();
-            \Log::error($e);
+            DB::rollBack();
+            Log::error($e);
             admin_toastr('Failed to update Budget. Please try again. ' . $e->getMessage(), 'error');
             return back()->withInput();
         }

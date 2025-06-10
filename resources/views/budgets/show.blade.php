@@ -29,9 +29,9 @@
 
     <style>
         /* Basic collapsible functionality */
-        .panel-body {
+        /* .panel-body {
             display: none;
-        }
+        } */
 
         .outcomes,
         .outputs,
@@ -43,7 +43,7 @@
         }
 
         /* Add toggle indicators */
-        .outcomes::after,
+        /* .outcomes::after,
         .outputs::after,
         .activities::after,
         .budgetlines::after {
@@ -51,20 +51,21 @@
             position: absolute;
             right: 15px;
             top: 50%;
-            transform: translateY(-50%);
-            transition: transform 0.3s ease;
-        }
-
-        .panel.collapsed,
-        .outcomes::after,
-        /* .outputs::after, */
-        /* .activities::after*/ { 
             transform: translateY(-50%) rotate(-90deg);
-        }
+            transition: transform 0.3s ease;
+        } */
+
+        /* When panel is expanded (i.e. NOT collapsed), rotate arrow downward */
+        /* .panel:not(.collapsed) > .outcomes::after,
+        .panel:not(.collapsed) > .outputs::after,
+        .panel:not(.collapsed) > .activities::after,
+        .panel:not(.collapsed) > .budgetlines::after {
+            transform: translateY(-50%) rotate(0deg);
+        } */
         /* Show panel body when not collapsed */
-        .panel:not(.collapsed) > .panel-body {
+        /* .panel:not(.collapsed) > .panel-body {
             display: block;
-        }
+        } */
 
         /* Initial state - all panels collapsed except outcomes */
         .outcome .output,
@@ -100,7 +101,7 @@
             transition: all 0.3s ease-out;
         }
     </style>
-    <script src="/js/createProgram.js"></script>
+    {{-- <script src="/js/createProgram.js"></script> --}}
 </head>
 <body>
 <div class="col-md-12">
@@ -549,5 +550,13 @@
         </div>
     </div>
 </div>
+<script>
+    document.addEventListener('click', function (e) {
+        if (e.target.matches('.outcomes, .outputs, .activities, .budgetlines')) {
+            const panel = e.target.closest('.panel');
+            panel.classList.toggle('collapsed');
+        }
+    });
+</script>
 </body>
 </html>

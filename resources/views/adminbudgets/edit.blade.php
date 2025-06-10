@@ -15,10 +15,7 @@
     </style> --}}
     <style>
         /* Basic collapsible functionality */
-        .panel-body {
-            display: none;
-        }
-
+        
         .outcomes,
         .outputs,
         .activities,
@@ -28,29 +25,6 @@
             padding-right: 30px;
         }
 
-        /* Add toggle indicators */
-        .outcomes::after,
-        .outputs::after,
-        .activities::after,
-        .budgetlines::after {
-            content: '▼';
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            transition: transform 0.3s ease;
-        }
-
-        .panel.collapsed,
-        .outcomes::after,
-        /* .outputs::after, */
-        /* .activities::after*/ { 
-            transform: translateY(-50%) rotate(-90deg);
-        }
-        /* Show panel body when not collapsed */
-        .panel:not(.collapsed) > .panel-body {
-            display: block;
-        }
 
         /* Initial state - all panels collapsed except outcomes */
         .outcome .output,
@@ -314,6 +288,13 @@
     </div>
 </div>
 <script>
+    document.addEventListener('click', function (e) {
+        if (e.target.matches('.outcomes, .outputs, .activities, .budgetlines')) {
+            const panel = e.target.closest('.panel');
+            panel.classList.toggle('collapsed');
+        }
+    });
+
     document.addEventListener("DOMContentLoaded", function () {
         document.querySelectorAll(".formatted-input").forEach(input => {
             let rawValue = input.value.replace(/,/g, ''); // Remove existing commas (if any)

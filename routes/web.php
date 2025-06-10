@@ -90,14 +90,17 @@ Route::post('/notifications/mark-as-read/{id}', function($id) {
 
 Route::get('migrate', function(){
     $migrations = [
-        'database/migrations/2025_04_07_093338_add_review_cycle_to_programs_table.php',
-        
+        'database/migrations/2025_05_28_121549_add_frequency_to_requisition_items_table.php',
+        'database/migrations/2025_06_04_084455_add_type_to_programs_table.php',
+        'database/migrations/2025_06_04_100203_add_unit_to_admin_budget_lines_table.php',
     ];
+
+    $results = [];
 
     foreach ($migrations as $migration) {
         Artisan::call('migrate', ['--path' => $migration, '--force' => true]);
+        $results[$migration] = Artisan::output();
     }
 
-    return Artisan::output();
+    return response()->json($results);
 });
-
