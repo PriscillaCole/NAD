@@ -153,7 +153,7 @@ class ProgramController extends AdminController
             ->required();
         $form->select('user_id', __('Choose a Program manager'))
             ->options(User::whereHas('roles', function ($query) {
-                $query->where('name', 'staff'); // Adjust 'name' to the correct column if needed
+                $query->whereIn('slug', ['staff', 'admin']); // Adjust 'name' to the correct column if needed
             })->pluck('name', 'id')) // Replace 'name' with the field representing the user's name
             ->attribute('id', 'adminprogram_id')
             ->required();

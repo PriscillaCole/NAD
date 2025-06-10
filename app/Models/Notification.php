@@ -113,7 +113,7 @@ class Notification extends Model
                 // foreach ($receiver as $user) {
                     $notification = new Notification();
                     $notification->role_id = null;
-                    $notification->receiver_id = $user->id;
+                    $notification->receiver_id = $user->user_id;
                     $notification->message = "New {$model_name} has been assigned to " . $name .' ';
                     $notification->link = admin_url("auth/login"); //budgets/62/edit
                     $notification->form_link = admin_url("budgets/{$model->id}/edit");

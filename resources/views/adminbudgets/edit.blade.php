@@ -226,6 +226,17 @@
                                                             </div>
                                                         </div>
                                                         <div class="form-group">
+                                                        <label class="col-sm-2 control-label"> Unit </label>
+                                                        <div class="col-sm-8">
+                                                            <div class="input-group">
+                                                                <span class="input-group-addon">
+                                                                    <i class="fa fa-pencil fa-fw"></i>
+                                                                </span>
+                                                                <input type="text" name="outcomes[{{ $adminActivity->id }}][outputs][{{ $adminBudgetLine->id }}][unit]" class="form-control" value="{{ $adminBudgetLine->units }}" placeholder="Enter Units"  required>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                        <div class="form-group">
                                                             <label class="col-sm-2 control-label">Output Budget</label>
                                                             <div class="col-sm-8">
                                                                 <div class="input-group">
