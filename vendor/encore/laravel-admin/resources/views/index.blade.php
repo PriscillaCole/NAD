@@ -10,7 +10,12 @@
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
 
     @if(!is_null($favicon = Admin::favicon()))
-    <link rel="shortcut icon" href="{{$favicon}}">
+    {{-- <link rel="shortcut icon" href="{{$favicon}}"> --}}
+    {{-- <link rel="icon" href="{{$favicon}}"> --}}
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicon.png') }}">
+
+    <link rel="shortcut icon" href="{{ asset('favicon.png') }}">
     @endif
 
     {!! Admin::css() !!}
