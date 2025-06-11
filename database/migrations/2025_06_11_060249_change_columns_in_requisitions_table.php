@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-      /*   Schema::table('programs', function (Blueprint $table) {
-            $table->enum('type', ['1','2'])->default(1);
-        }); */
+        Schema::table('requisitions', function (Blueprint $table) {
+            $table->bigInteger('outcome_id')->nullable()->change();
+            $table->bigInteger('output_id')->nullable()->change(); 
+            $table->string('code')->nullable()->change();
+        });
     }
 
     /**
@@ -21,8 +23,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('programs', function (Blueprint $table) {
-            $table->dropColumn('type');
+        Schema::table('requisitions', function (Blueprint $table) {
+            //
         });
     }
 };

@@ -19,8 +19,6 @@ use Illuminate\Support\Facades\Route;
 use ZipArchive;
 
 
-
-
 class RequisitionController extends Controller
 {
     

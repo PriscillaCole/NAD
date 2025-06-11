@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('programs', function (Blueprint $table) {
+        /* Schema::table('programs', function (Blueprint $table) {
             $table->integer('review_cycle')->nullable();
-        });
+        }); */
     }
 
     /**

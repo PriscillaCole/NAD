@@ -271,7 +271,7 @@ class RequisitionController extends AdminController
                 $duplicateCategoryFound = false;
                 
                 $user = auth()->user();
-
+                // $staff = Staff::where('user_id', $user->id);
                 if($user->isRole('admin')){
                     foreach ($requisition_items as $item) {
                         // dd($requisition_items);
@@ -338,15 +338,15 @@ class RequisitionController extends AdminController
             if($user->isRole('admin')){
                 $form->text('code', __('RequisitionID'))->default('Admin-'.rand(1000, 9999))->readonly();
                 // dd($user->id);
-                $form->select('admin_program_id', __('Program'))->options(AdminProgram::where('user_id', $staff_id)->pluck('name', 'id'))->attribute('id', 'adminprogram_id')->required();
-                $form->select('activity', __('Activity'))->options(function ($id) {
+                $form->select('admin_program_id', __('Program'))->options(Program::where('user_id', $user->id)->pluck('name', 'id'))->attribute('id', 'adminprogram_id')->required();
+                $form->select('activity', __('Outcome'))->options(function ($id) {
                     // Preload the selected activity for editing
                     $activity = AdminActivity::find($id);
                     return $activity ? [$activity->id => $activity->name] : [];
                     })->attribute('id', 'adminactivity_id')->required();
             
                 $form->hasMany('requisition_items', 'Requisition items', function (Form\NestedForm $form) {
-                    $form->select('admin_budget_line_id', __('Budget Line'))
+                    $form->select('admin_budget_line_id', __('Output'))
                     ->options(function ($id) {
                         // Preload the selected budget line for editing
                         $adminbudgetLine = AdminBudget_lines::find($id);

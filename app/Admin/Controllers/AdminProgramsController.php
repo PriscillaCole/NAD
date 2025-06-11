@@ -7,6 +7,7 @@ use App\Models\AdminProgram;
 use App\Models\Outcome;
 use App\Models\Program;
 use App\Models\Staff;
+use App\Models\User;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
@@ -55,7 +56,8 @@ class AdminProgramsController extends AdminController
 
         $grid->column('user_id', __('Project Manager'))->display(function ($user_id) {
             // Use the relationship to fetch the user's name
-            return Staff::find($user_id)->name;
+            // return Staff::find($user_id)->name;
+            return User::find($user_id)->name;
         });
         $grid->column('description', __('Description'));
         // $grid->column('budget', __('Budget'));

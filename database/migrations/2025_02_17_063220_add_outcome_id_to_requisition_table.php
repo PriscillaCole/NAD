@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('requisitions', function (Blueprint $table) {
-            $table->foreignId('outcome_id');
-            $table->foreignId('output_id');
-        });
+        // Schema::table('requisitions', function (Blueprint $table) {
+        //     $table->foreignId('outcome_id');
+        //     $table->foreignId('output_id');
+        // });
     }
 
     /**
@@ -22,9 +22,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('requisitions', function (Blueprint $table) {
-            $table->dropColumn('outcome_id');
-            $table->dropColumn('output_id');
-        });
+        // Schema::table('requisitions', function (Blueprint $table) {
+        //     $table->dropColumn('outcome_id');
+        //     $table->dropColumn('output_id');
+        // });
     }
 };

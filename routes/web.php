@@ -89,6 +89,12 @@ Route::post('/notifications/mark-as-read/{id}', function($id) {
 });
 
 Route::get('migrate', function(){
+
+    Artisan::call('migrate', ['--force' => true]);
+    return "<pre>" . Artisan::output() . "</pre>";
+    
+    return 'Migrations run successfully!';
+
     $migrations = [
         'database/migrations/2025_05_28_121549_add_frequency_to_requisition_items_table.php',
         'database/migrations/2025_06_04_084455_add_type_to_programs_table.php',
