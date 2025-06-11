@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-       /*  Schema::table('admin_budget_lines', function (Blueprint $table) {
+        Schema::table('admin_budget_lines', function (Blueprint $table) {
             $table->string('units')->after('name');
             $table->integer('unit_cost')->after('units');
             $table->integer('quantity')->after('unit_cost');
             $table->integer('frequency')->after('quantity');
-        }); */
+        });
     }
 
     /**

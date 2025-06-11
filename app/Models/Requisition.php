@@ -53,7 +53,12 @@ class Requisition extends Model
     public function outcome()
     {
         return $this->belongsTo(Outcome::class);
-    }//relationship between requisitions and activities
+    }
+    public function adminoutcome()
+    {
+        return $this->belongsTo(AdminActivity::class, 'outcome_id');
+    }
+    //relationship between requisitions and activities
     public function output()
     {
         return $this->belongsTo(Output::class);
@@ -63,6 +68,11 @@ class Requisition extends Model
     public function accountability()
     {
         return $this->hasOne(Accountability::class);
+    }
+    // Relationship between requisitions and admin_ programs
+    public function program()
+    {
+        return $this->belongsTo(Program::class, 'program_id');
     }
 
     // Relationship between requisitions and admin_ programs

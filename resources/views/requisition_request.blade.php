@@ -178,10 +178,10 @@
                     <th>Code</th>
                     <td>{{ $requisition->code }}</td>
                 </tr>
-                @if($requisition->admin_program_id)
+                @if($requisition->program?->type == 2)
                 <tr>
                     <th>Program</th>
-                    <td>{{ $requisition->admin_program->name }}</td>
+                    <td>{{ $requisition->program?->name }}</td>
                 </tr>
                 @else
                 <tr>
@@ -195,10 +195,12 @@
                 
                     {{-- <td>{{ $requisition->activity->name }}</td> --}}
                 @endif
-                    <th>Activity</th>
-                    @if($requisition->admin_program_id)
-                        {{-- <td>{{ $requisition->admin_program->name }}</td> --}}
+                    
+                    @if($requisition->program?->type == 2)
+                        <th>Outcome</th>
+                        <td>{{ $requisition->adminoutcome?->name }}</td>
                     @else
+                        <th>Activity</th>
                         {{-- <td>{{ $requisition->activity->output->outcome->program->name }}</td>  --}}
                         <td>{{ $requisition->activity->name }}</td>
                     @endif
@@ -371,12 +373,12 @@
             @if ($requisition->status != null)
                 <div style="text-align: center;">
                     <label for="signature">Mwebaza Rolaine, Head of Finance</label><br>
-                    <img src="{{ asset('storage/signatures/hofs.png') }}" alt="signature" style="width: 200px; height: 100px;">
+                    <img src="{{ asset('storage/signatures/hofs.png') }}" alt="signature" style="width: 200px; height: 100px; border-radius: 0%;">
                 </div>
                 @if($requisition->status == 'approved')
                     <div style="text-align: center;">
                         <label for="signature">Edson Ngirabakunzi, Country Director</label><br>
-                        <img src="{{ asset('storage/signatures/cds.png') }}" alt="signature" style="width: 200px; height: 100px;">
+                        <img src="{{ asset('storage/signatures/cds.png') }}" alt="signature" style="width: 200px; height: 100px; border-radius: 0%; object-fit: fill;">
                     </div>
                 @endif
             @endif

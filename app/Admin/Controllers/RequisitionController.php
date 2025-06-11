@@ -205,18 +205,34 @@ class RequisitionController extends AdminController
     {
         $show = new Show(Requisition::findOrFail($id));
         $requisition = Requisition::findOrFail($id);
-        $activityid = $requisition->activity->id;
+        
 
-        // Sum of accountabilities for all requisitions under this activity
-        $activity_budget = $requisition->activity->budget;
-       
-        $usedAmount = Accountability::whereHas('requisition', function ($query) use ($activityid) {
+        if($requisition->program?->type == 2){
+            $activityid = $requisition->activity?->id;
+            Log::info($requisition->program->adminActivities);
+            // Sum of accountabilities for all requisitions under this activity
+            $activity_budget = $requisition->adminoutcome?->budget;
+            $usedAmount = Accountability::whereHas('requisition', function ($query) use ($activityid) {
             $query->where('activity_id', $activityid);
         })->sum('amount_used');
+            //  $remaining =  0;
+            Log::info($usedAmount);
+            Log::info($activity_budget);
 
-        Log::info($usedAmount);
-        Log::info($activity_budget);
-        $remaining = $activity_budget - $usedAmount;
+            $remaining = $activity_budget - $usedAmount;
+        }else{
+            $activityid = $requisition->activity->id;
+            // Sum of accountabilities for all requisitions under this activity
+            $activity_budget = $requisition->activity->budget;
+            $usedAmount = Accountability::whereHas('requisition', function ($query) use ($activityid) {
+            $query->where('activity_id', $activityid);
+            })->sum('amount_used');
+
+            Log::info($usedAmount);
+            Log::info($activity_budget);
+
+            $remaining = $activity_budget - $usedAmount;
+        }
 
         return view('requisition_request', compact('requisition', 'remaining'));
 
@@ -338,8 +354,8 @@ class RequisitionController extends AdminController
             if($user->isRole('admin')){
                 $form->text('code', __('RequisitionID'))->default('Admin-'.rand(1000, 9999))->readonly();
                 // dd($user->id);
-                $form->select('admin_program_id', __('Program'))->options(Program::where('user_id', $user->id)->pluck('name', 'id'))->attribute('id', 'adminprogram_id')->required();
-                $form->select('activity', __('Outcome'))->options(function ($id) {
+                $form->select('program_id', __('Program'))->options(Program::where('user_id', $user->id)->pluck('name', 'id'))->attribute('id', 'adminprogram_id')->required();
+                $form->select('outcome_id', __('Outcome'))->options(function ($id) {
                     // Preload the selected activity for editing
                     $activity = AdminActivity::find($id);
                     return $activity ? [$activity->id => $activity->name] : [];
