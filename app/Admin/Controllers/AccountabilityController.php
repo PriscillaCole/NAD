@@ -212,7 +212,7 @@ class AccountabilityController extends AdminController
                         $user = auth()->user();
                         $staff_id = Staff::where('user_id', $user->id)->first()->id;
 
-                        $form->display('requisition_item_id', __('Budgets Line'))
+                        $form->display('requisition_item_id', __('Requisition item'))
                         ->with(function ($value) {
                             if ($value) {
                                 $requisitionItem = RequisitionItem::find($value);
@@ -222,33 +222,41 @@ class AccountabilityController extends AdminController
                             return 'N/A';
                         });
                         
-                        if($staff_id != $requisition->staff->id){
+                        if($user->isRole('admin')){
                            
                             $form->file('Invoice', __('Invoice'))
                             ->help('upload fies of jpg,jpeg,png formats ')
                             ->rules('file|mimes:pdf,jpg,jpeg,png|max:5120') // 5MB max
                             ->removable()
                             ->readonly();
-                            $form->text('amount', 'Amount');
-            
+                            
                             $form->file('payment_proof', __('Proof of Payment'))
                             ->help('upload fies of jpg,jpeg,png formats ')
                             ->rules('file|mimes:pdf,jpg,jpeg,png|max:5120') // 5MB max
                             ->removable();
+                        if($staff_id == $requisition->staff->id){
+                            $form->file('receipt_file', __('Receipt'))
+                            ->help('upload fies of jpg,jpeg,png formats ')
+                            ->rules('file|mimes:pdf,jpg,jpeg,png|max:5120') // 5MB max
+                            ->removable();
                         }
-                        if ($staff_id == $requisition->staff->id){
+
+                            $form->text('amount', 'Amount');
+                        }
+                        else /*($staff_id == $requisition->staff->id)*/{
                             
                             $form->file('Invoice', __('Invoice'))
                             ->help('upload fies of jpg,jpeg,png formats ')
                             ->rules('file|mimes:pdf,jpg,jpeg,png|max:5120') // 5MB max
                             ->removable();
             
-                            $form->display('payment_proof', __('Proof of Payment'))
+                            $form->file('payment_proof', __('Proof of Payment'))
                             ->help('upload fies of jpg,jpeg,png formats ')
                             ->rules('file|mimes:pdf,jpg,jpeg,png|max:5120') // 5MB max
                             // ->removable()
                             ->default('No proof of payment yet')
                             ->readonly();
+                            
                             $form->file('receipt_file', __('Receipt'))
                             ->help('upload fies of jpg,jpeg,png formats ')
                             ->rules('file|mimes:pdf,jpg,jpeg,png|max:5120') // 5MB max
@@ -284,17 +292,17 @@ class AccountabilityController extends AdminController
                     ->attribute('id', 'returned_amount')
                     ->readonly();
             
-                $form->decimal('amount_to_be_returned', __('Amount returned to staff'))
-                    ->default(function($amount_to_be_returned)use ($form) {
-                        $amount = $form->model()->amount_to_be_returned;
+                // $form->decimal('amount_to_be_returned', __('Amount returned to staff'))
+                //     ->default(function($amount_to_be_returned)use ($form) {
+                //         $amount = $form->model()->amount_to_be_returned;
 
-                        return number_format($amount);
-                    })
-                    ->attribute(['id'=>'amount_to_be_returned',
-                        'name'=>'amount_to_be_returned',
-                        'oninput' => "this.value = this.value.replace(/[^0-9.]/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');"
-                    ])
-                    ->readonly();
+                //         return number_format($amount);
+                //     })
+                //     ->attribute(['id'=>'amount_to_be_returned',
+                //         'name'=>'amount_to_be_returned',
+                //         'oninput' => "this.value = this.value.replace(/[^0-9.]/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');"
+                //     ])
+                //     ->readonly();
             
                 // File fields for proof of funds and narrative report
 

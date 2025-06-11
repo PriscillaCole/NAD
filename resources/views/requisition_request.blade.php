@@ -142,7 +142,7 @@
         <!-- make the concept note a downloadable file -->
        
         <div class="status-container">
-        <label >Concept note : <a href="{{ asset('storage/'.$requisition->concept_note) }}" download onclick="forceDownload(event, '{{ asset('storage/' . $requisition->concept_note) }}')">Download Concept Note</a></label>
+        <label class="no-print" >Concept note : <a href="{{ asset('storage/'.$requisition->concept_note) }}" download onclick="forceDownload(event, '{{ asset('storage/' . $requisition->concept_note) }}')">Download Concept Note</a></label>
                 <div class="field">
                     <label for="status">Status</label>
                     @if ($requisition->status == 'pending')
@@ -370,7 +370,7 @@
         <div class="status-container">
         
         <div class="field" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-            @if ($requisition->status != null)
+            @if ($requisition->status != 'pending')
                 <div style="text-align: center;">
                     <label for="signature">Mwebaza Rolaine, Head of Finance</label><br>
                     <img src="{{ asset('storage/signatures/hofs.png') }}" alt="signature" style="width: 200px; height: 100px; border-radius: 0%;">

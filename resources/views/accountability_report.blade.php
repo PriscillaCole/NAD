@@ -271,7 +271,7 @@
             </table>
         </div>
 
-        <div class="section">
+        <div class="section no-print">
             <h2>Narrative Report</h2>
             <div class="field">
                 <label for="narrative_report">Narrative Report</label>
@@ -290,7 +290,7 @@
                     <th>Quantity</th>
                     <th>Unit Price</th>
                     <th>Total Amount</th>
-                    <th>Receipts</th>
+                    <th class="no-print">Receipts</th>
                 </tr>
             </thead>
             <tbody>
@@ -304,13 +304,13 @@
                         <td>{{ $item->quantity }}</td>
                         <td>{{ number_format($item->unit_price, 2) }} Ugx</td>
                         <td>{{ number_format($item->quantity * $item->unit_price, 2) }} Ugx</td>
-                        <td>
+                        <td class="no-print">
                             @if($item->requisitionItemReceipts->isNotEmpty())
                                 <ul class="file-list">
                                     @foreach($item->requisitionItemReceipts as $receipt)
                                         @if ($receipt->Invoice)
                                             <li>
-                                                <a href="{{ asset('storage/'.$receipt->Invoice) }}" target="_blank">Invoice {{ $loop->iteration }}</a>
+                                                <a href="{{ asset('storage/'.$receipt->Invoice) }}" target="_blank" > Invoice {{ $loop->iteration }}</a>
                                             </li>
                                         @endif
                                         @if ($receipt->payment_proof)
@@ -422,7 +422,7 @@
 
 
        
-        <div class="section">
+        <div class="section no-print">
             <!-- get the role of the logged in user -->
             @php
                 $user = Admin::user();
