@@ -26,6 +26,9 @@ class DashboardController extends Controller
             } elseif ($amount >= 1000) {
                 return round($amount / 1000, 1) . 'K'; // Converts to thousands
             }
+            elseif ($amount >= 1000000000) {
+                return round($amount / 1000000000, 1) . 'B'; // Converts to thousands
+            }
             return $amount; // Returns as-is for smaller numbers
         }
         $data = [

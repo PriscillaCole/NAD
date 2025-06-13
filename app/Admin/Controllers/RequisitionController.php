@@ -443,6 +443,7 @@ class RequisitionController extends AdminController
 
         //script to show activity based on program selected
         Admin::script('
+        let globalBudgetLines = {};
             $("#program_id").change(function(){
                 var program_id = $(this).val();
                 $.get("/program-outcomes/"+program_id, function(data){
@@ -501,54 +502,67 @@ class RequisitionController extends AdminController
                 });
             });
            
-            $("#activity_id").change(function() {
+            $("#activity_id").change(function () {
                 var activity_id = $(this).val();
+
                 if (!activity_id) {
                     alert("Please select an activity");
                     return;
                 }
 
-                 $.get("/budgetlines/" + activity_id)
-                    .done(function(data) {
-                    var budgetLines = data[0]; // Extract budget lines object
-                    var activity_budget = Number(data[1]).toLocaleString(\'en-US\'); // Extract activity budget
-                    var remaining_budget = Number(data[2]).toLocaleString(\'en-US\'); // Extract activity remaining budget
+                $.get("/budgetlines/" + activity_id)
+                    .done(function (data) {
+                        globalBudgetLines = data[0]; // Store for later use
+                        var activity_budget = Number(data[1]).toLocaleString(\'en-US\');
+                        var remaining_budget = Number(data[2]).toLocaleString(\'en-US\');
 
-                    // // Format activity_budget with commas
-                    // var formattedBudget = Number(activity_budget).toLocaleString(\'en-US\');
+                        $("#activity_budget").val(activity_budget);
+                        $("#remaining_budget").val(remaining_budget);
 
-                    
-                    $("#activity_budget").val(activity_budget);
-                    $("#remaining_budget").val(remaining_budget);
-                    if ($.isEmptyObject(budgetLines)) {
-                        alert("No budget lines available for the selected activity");
-                        return;
-                    }
+                        if ($.isEmptyObject(globalBudgetLines)) {
+                            alert("No budget lines available for the selected activity");
+                            return;
+                        }
 
-                    // Clear existing requisition items
-                    $("#has-many-requisition_items").find(".has-many-requisition_items-forms").empty();
+                        // Optionally clear existing options in current select inputs
+                        $("[id^=budget_line_id]").each(function () {
+                            let $select = $(this);
+                            $select.empty().append(\'<option value="">Select Budget Line</option>\');
+                            $.each(globalBudgetLines, function (key, value) {
+                                $select.append(new Option(value, key));
+                            });
+                        });
+                    });
+            });
 
-                    // Dynamically add requisition items for each budget line
-                    $.each(budgetLines, function(key, value) {
-                        $(".add").click(); // Simulate clicking the "Add" button to add a new requisition item
-                        
-                        // Wait for the new form to be added, then populate its fields
-                        setTimeout(function() {
-                            var lastForm = $("#has-many-requisition_items").find(".has-many-requisition_items-forms").children().last();
-                            var budgetLineField = $("[id^=budget_line_id]");
-                            
-                                budgetLineField.append(new Option(value, key, true, true)); // Add and select the option
-                                budgetLineField.trigger("change"); // Trigger change for any dependencies
-                            
-                            // Optionally, set other default values here (e.g., quantity, unit_of_measure)
-                        }, 100); // Add a small delay to ensure the form is rendered
+            // Observer to detect new requisition item form added
+            const targetNode = document.querySelector("#has-many-requisition_items .has-many-requisition_items-forms");
+
+            const observer = new MutationObserver(function (mutationsList) {
+                mutationsList.forEach(function (mutation) {
+                    mutation.addedNodes.forEach(function (node) {
+                        if ($(node).hasClass("has-many-requisition_items-form")) {
+                            // Populate budget lines for the newly added form
+                            let $select = $(node).find("[id^=budget_line_id]");
+                            $select.empty().append(\'<option value="">Select Budget Line</option>\');
+                            $.each(globalBudgetLines, function (key, value) {
+                                $select.append(new Option(value, key));
+                            });
+                        }
                     });
                 });
             });
 
+            // Start observing
+            if (targetNode) {
+                observer.observe(targetNode, { childList: true });
+            }
+
+
         ');
 
         Admin::script('
+        let globalAdminBudgetLines = {};
             $("#adminprogram_id").change(function(){
                 var program_id = $(this).val();
                 $.get("/admin-activities/"+program_id, function(data){
@@ -567,41 +581,56 @@ class RequisitionController extends AdminController
                     }
                 });
             });
-           
-            $("#adminactivity_id").change(function() {
+
+            $("#adminactivity_id").change(function () {
                 var activity_id = $(this).val();
+
                 if (!activity_id) {
-                    alert("Please select an activity");
+                    alert("Please select an outcome");
                     return;
                 }
 
-                 $.get("/adminprogram-budgetlines/" + activity_id)
-                    .done(function(data) {
-                    if ($.isEmptyObject(data)) {
-                        alert("No budget lines available for the selected activity");
-                        return;
-                    }
+                $.get("/adminprogram-budgetlines/" + activity_id)
+                    .done(function (data) {
+                        globalAdminBudgetLines = data; // Store for later use
 
-                    // Clear existing requisition items
-                    $("#has-many-requisition_items").find(".has-many-requisition_items-forms").empty();
+                        if ($.isEmptyObject(globalAdminBudgetLines)) {
+                            alert("No outputs available for the selected outcome");
+                            return;
+                        }
 
-                    // Dynamically add requisition items for each budget line
-                    $.each(data, function(key, value) {
-                        $(".add").click(); // Simulate clicking the "Add" button to add a new requisition item
-                        
-                        // Wait for the new form to be added, then populate its fields
-                        setTimeout(function() {
-                            var lastForm = $("#has-many-requisition_items").find(".has-many-requisition_items-forms").children().last();
-                            var budgetLineField = $("[id^=admin_budget_line_id]");
-                            
-                                budgetLineField.append(new Option(value, key, true, true)); // Add and select the option
-                                budgetLineField.trigger("change"); // Trigger change for any dependencies
-                            
-                            // Optionally, set other default values here (e.g., quantity, unit_of_measure)
-                        }, 100); // Add a small delay to ensure the form is rendered
+                        // Optionally clear existing options in current select inputs
+                        $("[id^=admin_budget_line_id]").each(function () {
+                            let $select = $(this);
+                            $select.empty().append(\'<option value="">Select Budget Line</option>\');
+                            $.each(globalAdminBudgetLines, function (key, value) {
+                                $select.append(new Option(value, key));
+                            });
+                        });
+                    });
+            });
+            // Observer to detect new requisition item form added
+            
+            const adminobserver = new MutationObserver(function (mutationsList) {
+                mutationsList.forEach(function (mutation) {
+                    mutation.addedNodes.forEach(function (node) {
+                        if ($(node).hasClass("has-many-requisition_items-form")) {
+                            // Populate budget lines for the newly added form
+                            let $select = $(node).find("[id^=admin_budget_line_id]");
+                            $select.empty().append(\'<option value="">Select Budget Line</option>\');
+                            $.each(globalAdminBudgetLines, function (key, value) {
+                                $select.append(new Option(value, key));
+                            });
+                        }
                     });
                 });
             });
+
+            // Start observing
+            if (targetNode) {
+                adminobserver.observe(targetNode, { childList: true });
+            }
+
             
         ');
         
