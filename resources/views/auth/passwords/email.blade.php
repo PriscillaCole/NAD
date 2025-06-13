@@ -31,6 +31,14 @@
 		<div class="container-login100" style="background-image: url('{{asset('login-template')}}/images/disability-pictures-data.png');">
 			<div class="wrap-login100">
                 <div class="card-body p-4 p-lg-5 text-black">
+					@if (session('status'))
+						<div id="errorBox" style="text-align:center;margin-top:20px;" class="alert alert-success col-md-12 alert-dismissible fade show" role="alert">
+                            <strong style="color:white;">{{ session('status') }}</strong>
+                            <button type="button" style="color:white;" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true" style="color:white;" >&times;</span>
+                            </button>
+                        </div>
+                    @endif
                     @if(session('success'))
         
                         <div id="errorBox" style="text-align:center;margin-top:20px;" class="alert alert-success col-md-12 alert-dismissible fade show" role="alert">

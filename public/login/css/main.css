@@ -554,6 +554,11 @@ iframe {
   background-color: #f8d7da;
   border-color: #f5c6cb;
 }
+.alert-success {
+  color: #207549;
+  background-color: #66b393;
+  border-color: #b7f8dd;
+}
 .alert-dismissible {
   padding-right: 4rem;
 }

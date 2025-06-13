@@ -1,1 +1,2 @@
 php artisan make:migration change_columns_in_requisitions_table --table=requisitions
+php artisan route:list | Select-String "password.update"
