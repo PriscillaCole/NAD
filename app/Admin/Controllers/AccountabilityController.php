@@ -171,9 +171,9 @@ class AccountabilityController extends AdminController
                     // ->attribute('disabled', 'disabled');;
                     
                     
-                    $form->file('Invoice', __('Invoice'))
-                    ->help('upload fies of jpg,jpeg,png formats ')
-                    ->rules('file|mimes:pdf,jpg,jpeg,png|max:5120') // 5MB max
+                    $form->multipleFile('Invoice', __('Invoice'))
+                    ->help('upload files of pdf,doc,png,jpg,jpeg formats ')
+                    // ->rules('file|mimes:pdf,jpg,jpeg,png|max:5120') // 5MB max
                     ->removable()
                     ->required();
     
@@ -184,8 +184,9 @@ class AccountabilityController extends AdminController
                     // ->rules('file|mimes:pdf,jpg,jpeg,png|max:5120') // 5MB max
                     // ->removable();
                     
-                    $form->text('amount', 'Amount');
+                    $form->text('amount', 'Invoice Amount');
                 });
+                $form->decimal('amount_used', __('Total amount used(UGX)'))->readonly();
                 // Log::info('Received form data', $form()->all());
             
 
@@ -201,7 +202,7 @@ class AccountabilityController extends AdminController
                     
                     // return number_format($amount);
                     return $amount;
-                })
+                })->readonly()
                 ->attribute('id', 'amount_dispensed');
 
                 Log::info('form->amount_dispensed');
@@ -224,42 +225,44 @@ class AccountabilityController extends AdminController
                         
                         if($user->isRole('admin')){
                            
-                            $form->file('Invoice', __('Invoice'))
-                            ->help('upload fies of jpg,jpeg,png formats ')
-                            ->rules('file|mimes:pdf,jpg,jpeg,png|max:5120') // 5MB max
+                            $form->multipleFile('Invoice', __('Invoice'))
+                            ->help('upload fies of jpg, jpeg, png formats ')
+                            // ->rules('file|mimes:pdf,jpg,jpeg,png|max:5120') // 5MB max
                             ->removable()
                             ->readonly();
                             
-                            $form->file('payment_proof', __('Proof of Payment'))
+                            $form->multipleFile('payment_proof', __('Proof of Payment'))
                             ->help('upload fies of jpg,jpeg,png formats ')
-                            ->rules('file|mimes:pdf,jpg,jpeg,png|max:5120') // 5MB max
+                            // ->rules('file|mimes:pdf,jpg,jpeg,png|max:5120') // 5MB max
                             ->removable();
-                        if($staff_id == $requisition->staff->id){
-                            $form->file('receipt_file', __('Receipt'))
-                            ->help('upload fies of jpg,jpeg,png formats ')
-                            ->rules('file|mimes:pdf,jpg,jpeg,png|max:5120') // 5MB max
-                            ->removable();
-                        }
+                            if($staff_id == $requisition->staff->id){
+                                $form->multipleFile('receipt_file', __('Receipt'))
+                                ->help('upload fies of jpg,jpeg,png formats ')
+                                // ->rules('file|mimes:pdf,jpg,jpeg,png|max:5120') // 5MB max
+                                ->removable();
+                            }
 
-                            $form->text('amount', 'Amount');
+                            $form->text('amount', 'Invoice Amount')->required();
+                            $form->text('transfer_charges', 'Transfer chargers')
+                            ->help('Input the tranfer charge amount if any.');
                         }
                         else /*($staff_id == $requisition->staff->id)*/{
                             
-                            $form->file('Invoice', __('Invoice'))
+                            $form->multipleFile('Invoice', __('Invoice'))
                             ->help('upload fies of jpg,jpeg,png formats ')
-                            ->rules('file|mimes:pdf,jpg,jpeg,png|max:5120') // 5MB max
+                            // ->rules('file|mimes:pdf,jpg,jpeg,png|max:5120') // 5MB max
                             ->removable();
             
-                            $form->file('payment_proof', __('Proof of Payment'))
+                            $form->multipleFile('payment_proof', __('Proof of Payment'))
                             ->help('upload fies of jpg,jpeg,png formats ')
-                            ->rules('file|mimes:pdf,jpg,jpeg,png|max:5120') // 5MB max
+                            // ->rules('file|mimes:pdf,jpg,jpeg,png|max:5120') // 5MB max
                             // ->removable()
                             ->default('No proof of payment yet')
                             ->readonly();
                             
-                            $form->file('receipt_file', __('Receipt'))
+                            $form->multipleFile('receipt_file', __('Receipt'))
                             ->help('upload fies of jpg,jpeg,png formats ')
-                            ->rules('file|mimes:pdf,jpg,jpeg,png|max:5120') // 5MB max
+                            // ->rules('file|mimes:pdf,jpg,jpeg,png|max:5120') // 5MB max
                             ->removable();
                             
                             $form->text('amount', 'Amount');
@@ -271,18 +274,18 @@ class AccountabilityController extends AdminController
 
                 $form->hidden('staff_id')->default($staff_id);
                 
-                $form->decimal('amount_used', __('Total amount used(UGX)'))
-                ->default(function($returned_amount)use ($form) {
-                    $amount = $form->model()->amount_used;
+                $form->decimal('amount_used', __('Total amount used(UGX)'))->readonly()
+                // ->default(function($returned_amount)use ($form) {
+                //     $amount = $form->model()->amount_used;
 
-                    return number_format($amount);
-                })
+                //     return number_format($amount);
+                // })
                 ->attribute(['id'=>'amount_used',
                     'name'=>'amount_used',
                     'oninput' => "this.value = this.value.replace(/[^0-9.]/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');"
                  ]);
                 // }
-                Log::info(['$form=>amount', $form->amount_used]);
+                // Log::info(['$form=>amount', $form->amount_used]);
     
                 $form->decimal('returned_amount', __('Amount returned to finance(UGX)'))
                     ->value(function($returned_amount) {
@@ -308,17 +311,23 @@ class AccountabilityController extends AdminController
 
                 if($user->isRole('finance')) {
                     $form->file('proof_of_funds_to_be_returned', __('Receipt for funds returned to staff'));
-                    }else{
-                        $form->file('proof_of_funds_returned', __('Receipt for funds returned to finance'))
-                        ->help('upload files of jpg,jpeg,png formats ')
-                        ->rules('file|mimes:pdf,jpg,jpeg,png|max:5120');
-                        
-                    }
-            
+                }else{
+                    $form->file('proof_of_funds_returned', __('Receipt for funds returned to finance'))
+                    ->help('upload files of pdf,doc,png,jpg,jpeg formats ');
+                    // ->rules('file|mimes:pdf,jpg,jpeg,png|max:5120');
+                    
+                }
+                if($user->isRole('staff')) {
                     $form->file('narrative_report', __('Narrative Report'))
                     ->help('upload files of pdf,doc formats ')
                     ->rules('file|mimes:pdf|max:5120');
+                }
             }
+
+            $form->multipleFile('attachments', __('Additional Accountabilities'))
+                ->help('upload fies of jpg,jpeg,png formats ')
+                // ->rules('file|mimes:pdf,jpg,jpeg,png|max:5120') // 5MB max
+                ->removable();
 
             $form->saving(function (Form $form) {
                 Log::info('Form saving started', ['data' => request()->all()]);
@@ -406,6 +415,9 @@ class AccountabilityController extends AdminController
                                             // Add new option
                                             requisitionItemField.append(new Option(value.budget_line, key, true, true));
                                             requisitionItemField.trigger("change");
+
+                                            bindListenersToReceipts(); // very important!
+                                            recalculateTotalUsed(); // initialize total
                                         });
                                     }, 500); // Increased timeout to ensure forms are ready
                                 }
@@ -414,8 +426,42 @@ class AccountabilityController extends AdminController
                     });
                 }
             });
+
+            function bindListenersToReceipts() {
+                $(".has-many-requisitionItemReceipts-form").each(function () {
+                    const $form = $(this);
+                    $form.find("input[name*=\'[amount]\'], input[name*=\'[transfer_charges]\']")
+                        .off("input") // avoid duplicate bindings
+                        .on("input", function () {
+                            recalculateTotalUsed();
+                        });
+                });
+            }
+
+            function recalculateTotalUsed() {
+                let totalUsed = 0;
+
+                // Loop through each requisition item form
+                $(".has-many-requisitionItemReceipts-form").each(function () {
+                    let amountUsed = parseFloat($(this).find("input[name*=\'[amount]\']").val()) || 0;
+                    let transferCharges = parseFloat($(this).find("input[name*=\'[transfer_charges]\']").val()) || 0;
+                    console.log("transferCharges= ", transferCharges);
+                    console.log("amountUsed= ", amountUsed);
+                    totalUsed += (amountUsed + transferCharges);
+                    console.log("total amount= ", totalUsed);
+                });
+
+                // Set the total in the #amount_used field
+                $("#amount_used").val(totalUsed.toFixed(2)).trigger("input");
+            }
+
         
-            
+            $(".has-many-requisitionItemReceipts-form").each(function() {
+                bindListenersToReceipts(); // very important!
+                recalculateTotalUsed(); // initialize total
+                
+            });
+
 
             $("#amount_used").on("input", function() {
                 var amount_used = $(this).val();

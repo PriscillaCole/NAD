@@ -10,6 +10,14 @@ use Illuminate\Support\Facades\Log;
 class Accountability extends Model
 {
     use HasFactory;
+
+    protected $casts = [
+    'receipt_file' => 'array',
+    'payment_proof' => 'array',
+    'Invoice' => 'array',
+    'attachments' => 'array',
+    ];
+
     
     //on creating a new accountability, convert receipt files to json
     protected $fillable = [
@@ -21,7 +29,9 @@ class Accountability extends Model
         'receipt_files', 
         'remarks', 
         'signature', 
-        'amount_used'];
+        'amount_used',
+        'attachments'
+    ];
 
     public function requisition()
     {

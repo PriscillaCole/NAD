@@ -8,6 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class RequisitionItemReceipt extends Model
 {
     use HasFactory;
+    protected $casts = [
+    'receipt_file' => 'array',
+    'payment_proof' => 'array',
+    'Invoice' => 'array',
+    ];
 
     protected $fillable = [
         'requisition_item_id',
@@ -16,6 +21,7 @@ class RequisitionItemReceipt extends Model
         'payment_proof',
         'Invoice',
         'amount',
+        'transfer_charges'
         
     ];
 

@@ -250,7 +250,8 @@
                         // Assuming you have fetched $item from the database
                         $unit_price = $item->unit_price;
                         $quantity = $item->quantity;
-                        $total_price = $unit_price * $quantity;
+                        $frequency = $item->frequency;
+                        $total_price = $unit_price * $quantity* $frequency ;
                     ?>
                     <tr>
                         <td>{{ $counter++ }}</td>
@@ -370,6 +371,10 @@
         <div class="status-container">
         
         <div class="field" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <div style="text-align: center;">
+                    <label for="signature">{{ $requisition->staff->name }}, Program Manager</label><br>
+                    <img src="{{ asset('storage/'.$requisition->staff->signature) }}" alt="signature" style="width: 200px; height: 100px; border-radius: 0%;">
+                </div>
             @if ($requisition->status != 'pending')
                 <div style="text-align: center;">
                     <label for="signature">Mwebaza Rolaine, Head of Finance</label><br>

@@ -74,6 +74,42 @@
         .container-fluid {
             background-color: white;
         }
+        
+.custom-tooltip-container {
+    position: relative;
+}
+
+.custom-tooltip {
+    display: none;
+    position: absolute;
+    top: 100%; 
+    left: 0;
+    z-index: 10;
+    background-color: white;
+    color: black;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    box-shadow: 0px 2px 8px rgba(0,0,0,0.15);
+    width: 200px;
+}
+
+.custom-tooltip ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.custom-tooltip ul li {
+    margin: 5px 0;
+    font-size: 13px;
+}
+
+.custom-tooltip-container:hover .custom-tooltip {
+    display: block;
+}
+
+
     </style>
 </head>
 <body>
@@ -104,15 +140,36 @@
                         </div>
                     </div>
                     
-                    <div class="col-md-2">
-                        <div class="kpi-card purple-bg">
+                    {{-- <div class="col-md-2">
+                        <div class="kpi-card purple-bg" data-toggle="tooltip" data-placement="top"
+                           title="{{ implode('&#10;', $data['pending_accountability_names']->toArray() ?? []) }}">
                             <div class="kpi-icon">
                                 <i class="glyphicon glyphicon-folder-open"></i>
                             </div>
                             <div class="kpi-value">{{ $data['approved_requisitions'] }}</div>
                             <div class="kpi-label">Pending Accountabilities</div>
                         </div>
+                    </div> --}}
+                    <div class="col-md-2">
+                        <div class="kpi-card purple-bg custom-tooltip-container">
+                            <div class="kpi-icon">
+                                <i class="glyphicon glyphicon-folder-open"></i>
+                            </div>
+                            <div class="kpi-value">{{ $data['approved_requisitions'] }}</div>
+                            <div class="kpi-label">Pending Accountabilities</div>
+
+                            @if (!empty($data['pending_accountability_names']))
+                                <div class="custom-tooltip">
+                                    <ul>
+                                        @foreach ($data['pending_accountability_names'] as $name)
+                                            <li>{{ $name }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            @endif
+                        </div>
                     </div>
+
                     <div class="col-md-2">
                         <div class="kpi-card blue-bg">
                             <div class="kpi-icon">
@@ -144,6 +201,11 @@
             </div>
         </div>
     </div>
+    <script>
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+    </script>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/3.3.7/js/bootstrap.min.js"></script>

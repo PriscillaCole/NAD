@@ -309,9 +309,13 @@ class RequisitionController extends AdminController
                         admin_toastr('You have selected the same budget line twice', 'error');
                         return back()->withInput();
                     }
+
+                    
+                // Set the total amount after validation
+                $form->amount = $total_amount;
                 }
                 else{
-                    foreach ($requisition_items as $item) {
+                    /* foreach ($requisition_items as $item) {
                         // Check if the category_id is already in the $categories array
                         if (in_array($item['budget_line_id'], $budget_lines)) {
                             $duplicateCategoryFound = true;
@@ -324,17 +328,13 @@ class RequisitionController extends AdminController
                         // Calculate the total amount of the requisition
                         $total_amount += $item['quantity'] * $item['unit_price'] * $item['frequency']; // Fixed unit_price to unit_cost to match the form field
                         Log::info($total_amount);
-                    }
-                
+                    } */
                     // If a duplicate category was found, show an error message and return back with input
                     if ($duplicateCategoryFound) {
                         admin_toastr('You have selected the same budget line twice', 'error');
                         return back()->withInput();
                     }
                 }
-            
-                // Set the total amount after validation
-                $form->amount = $total_amount;
             
             });
         
@@ -376,7 +376,8 @@ class RequisitionController extends AdminController
                     $form->decimal('unit_price', __('Unit cost(UGX)'))->required();
                 
                 });
-            }else{
+            }
+            else{
                 $form->text('code', __('RequisitionID'))->default('REQ-'.rand(1000, 9999))->readonly();
                 $form->select('program_id', __('Program'))->options(Program::where('user_id', $user->id)->pluck('name', 'id'))->attribute('id', 'program_id')->required();
                 $form->select('outcome_id', __('Outcome'))->options(function ($id) {
@@ -415,23 +416,23 @@ class RequisitionController extends AdminController
                         $form->decimal('quantity', __('Quantity'))->required();
                         $form->text('unit_of_measure', __('Unit of measure'))->required();
                         $form->decimal('frequency', __('Frequency'))->required();
-                        $form->decimal('unit_price', __('Unit cost(UGX)'))->attribute([
+                        $form->decimal('unit_price', __('Unit cost(UGX)'))
+                        /* ->attribute([
                             'oninput' => "this.value = this.value.replace(/[^0-9.]/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');"
-                        ])->required();
+                        ]) */
+                        ->required();
+                        $form->decimal('total_price', __('Total amount'))->readonly();
                     
                     });
             }
+            $form->decimal('amount', __('Amount(UGX)'))->readonly();
             $form->file('concept_note', __('Concept note'))->required()
             ->help('Upload concept note in pdf format');
             $form->textarea('description', __('Description'));
-            $form->hidden('amount', __('Amount(UGX)'));
+            
             
         Admin::script
-        ('
-            $("form").on("submit", function(e) {
-                console.log("Form submitted", $(this).serialize());
-            });
-            
+        ('  
             $(document).ajaxError(function(event, xhr, settings, error) {
                 console.error("AJAX Error:", {
                     status: xhr.status,
@@ -531,31 +532,159 @@ class RequisitionController extends AdminController
                             $.each(globalBudgetLines, function (key, value) {
                                 $select.append(new Option(value, key));
                             });
+
                         });
+                        
                     });
             });
 
             // Observer to detect new requisition item form added
             const targetNode = document.querySelector("#has-many-requisition_items .has-many-requisition_items-forms");
+            
+            // Utility to sanitize input by removing commas and parsing float
+            function sanitize(val) {
+                return parseFloat((val || ``).toString().replace(/,/g, ``).trim()) || 0;
+            }
 
-            const observer = new MutationObserver(function (mutationsList) {
+            // Function to calculate grand total of all requisition items
+            function calculateGrandTotal() {
+                let grandTotal = 0;
+                
+                // Find all total_price inputs in requisition items
+                const allTotalInputs = document.querySelectorAll("input[name*=\'total_price\']");
+                
+                allTotalInputs.forEach(function(input) {
+                    // Get the raw value or parse the displayed value
+                    let value = input.getAttribute("data-raw") || input.value;
+                    grandTotal += sanitize(value);
+                });
+                
+                // Update the main amount field
+                const amountField = document.querySelector("input[name=\'amount\']");
+                if (amountField) {
+                    amountField.value = grandTotal.toLocaleString(`en-UG`);
+                    amountField.setAttribute("data-raw", grandTotal);
+                }
+                
+                return grandTotal;
+            }
+
+            // Fixed setupRecalculation function that works with dynamic forms
+            function setupRecalculation(formNode) {
+                // Find inputs within the specific form node (not globally)
+                const unitPriceInput = formNode.querySelector("input[name*=\'unit_price\']");
+                const quantityInput = formNode.querySelector("input[name*=\'quantity\']");
+                const frequencyInput = formNode.querySelector("input[name*=\'frequency\']");
+                const totalPriceInput = formNode.querySelector("input[name*=\'total_price\']");
+
+                // console.log("Setting up recalculation for form:", formNode);
+                // console.log("Found inputs:", {
+                //     unitPrice: !!unitPriceInput,
+                //     quantity: !!quantityInput,
+                //     frequency: !!frequencyInput,
+                //     totalPrice: !!totalPriceInput
+                // });
+
+                function recalculateTotal() {
+                    if (!unitPriceInput || !quantityInput || !frequencyInput || !totalPriceInput) {
+                        console.warn("Missing input elements for calculation");
+                        return;
+                    }
+
+                    const unit = sanitize(unitPriceInput.value);
+                    const qty = sanitize(quantityInput.value);
+                    const freq = sanitize(frequencyInput.value);
+                    const total = unit * qty * freq;
+
+                    // console.log(`Calculated Total: ${unit} x ${qty} x ${freq} = ${total}`);
+
+                    totalPriceInput.value = total.toLocaleString(\'en-UG\');
+                    totalPriceInput.setAttribute("data-raw", total);
+
+                    calculateGrandTotal();
+                
+                }
+                function handleInputChange(inputElement) {
+                    inputElement.value = inputElement.value.replace(/[^\\d.]/g, ``);
+                    recalculateTotal();
+                }
+
+                // Add event listeners to each input
+                if (unitPriceInput) {
+                    $(unitPriceInput).on(`input change keyup blur paste`, function() {
+                        handleInputChange(this);
+                    });
+                }
+
+                if (quantityInput) {
+                    $(quantityInput).on(`input change keyup blur paste`, function() {
+                        handleInputChange(this);
+                    });
+                }
+
+                if (frequencyInput) {
+                    $(frequencyInput).on(`input change keyup blur paste`, function() {
+                        handleInputChange(this);
+                    });
+                }
+            }
+
+            $(document).ready(function() {
+                $(".has-many-requisition_items-form").each(function() {
+                    setupRecalculation(this);
+                });
+
+                calculateGrandTotal();
+                
+            });
+
+            // MutationObserver to watch dynamically added requisition item forms
+            const requisitionObserver = new MutationObserver(function (mutationsList) {
                 mutationsList.forEach(function (mutation) {
                     mutation.addedNodes.forEach(function (node) {
-                        if ($(node).hasClass("has-many-requisition_items-form")) {
-                            // Populate budget lines for the newly added form
-                            let $select = $(node).find("[id^=budget_line_id]");
-                            $select.empty().append(\'<option value="">Select Budget Line</option>\');
-                            $.each(globalBudgetLines, function (key, value) {
-                                $select.append(new Option(value, key));
-                            });
+                        if (node.nodeType === Node.ELEMENT_NODE && $(node).hasClass("has-many-requisition_items-form")) {
+                            // console.log("New requisition item form detected:", node);
+
+                            // Populate budget line select
+                            let $select = $(node).find("select[name*=\'budget_line_id\']");
+                            if ($select.length) {
+                                $select.empty().append(`<option value="">Select Budget Line</option>`);
+                                $.each(globalBudgetLines, function (key, value) {
+                                    $select.append(new Option(value, key));
+                                });
+                            }
+
+                            // Set up calculation for the new form
+                            setupRecalculation(node);
                         }
                     });
                 });
             });
 
-            // Start observing
+            // Observer to handle form removal (when requisition items are deleted)
+            function observeFormRemovals() {
+                const formsContainer = document.querySelector("#has-many-requisition_items .has-many-requisition_items-forms");
+                if (!formsContainer) return;
+
+                const removalObserver = new MutationObserver(function(mutationsList) {
+                    mutationsList.forEach(function(mutation) {
+                        if (mutation.type === `childList` && mutation.removedNodes.length > 0) {
+                            // A form was removed, recalculate grand total
+                            setTimeout(calculateGrandTotal, 100); // Small delay to ensure DOM is updated
+                        }
+                    });
+                });
+
+                removalObserver.observe(formsContainer, { childList: true });
+            }
+
             if (targetNode) {
-                observer.observe(targetNode, { childList: true });
+                requisitionObserver.observe(targetNode, { childList: true, subtree: true });
+                console.log("MutationObserver started on requisition items container.");
+
+                observeFormRemovals();
+            } else {
+                console.warn("Target node #has-many-requisition_items not found.");
             }
 
 

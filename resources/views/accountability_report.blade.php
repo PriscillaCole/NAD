@@ -250,7 +250,7 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td>{{ $accountability->returned_amount }} Ugx</td>
+                        <td> Ugx {{ $accountability->returned_amount?? 0 }}</td>
                         <td>
                             @if($accountability->proof_of_funds_returned)
                                 <a href="{{ asset('storage/'.$accountability->proof_of_funds_returned) }}" target="_blank">View Receipt</a>
@@ -258,7 +258,7 @@
                                 No Receipt
                             @endif
                         </td>
-                        <td>{{ $accountability->amount_to_be_returned }} Ugx</td>
+                        <td>Ugx {{ $accountability->returned_amount?? 0 }}</td>
                         <td>
                             @if($accountability->proof_of_funds_to_be_returned)
                                 <a href="{{ asset('storage/'.$accountability->proof_of_funds_to_be_returned) }}" target="_blank">View Receipt</a>
@@ -287,8 +287,9 @@
             <thead>
                 <tr>
                     <th>Item Name</th>
-                    <th>Quantity</th>
-                    <th>Unit Price</th>
+                    <th>Amount Disbursed</th>
+                    <th>Amount Used</th>
+                    <th>Transfer charge</th>
                     <th>Total Amount</th>
                     <th class="no-print">Receipts</th>
                 </tr>
@@ -301,28 +302,41 @@
                         @else
                             <td>{{ $item->budgetline->name }}</td> 
                         @endif
-                        <td>{{ $item->quantity }}</td>
-                        <td>{{ number_format($item->unit_price, 2) }} Ugx</td>
-                        <td>{{ number_format($item->quantity * $item->unit_price, 2) }} Ugx</td>
+                        <td>UGX {{ number_format($item->total_price, 2)}}</td>
+                        
+                        @foreach($item->requisitionItemReceipts as $receipt)
+                            <td>{{ number_format($receipt->amount, 2) }} Ugx</td>
+                            <td>{{ $receipt->transfer_charges}}</td>
+                            <td> UGX {{ number_format(($receipt->amount + $receipt->transfer_charges), 2) }}</td>
+                        @endforeach
+                       
                         <td class="no-print">
                             @if($item->requisitionItemReceipts->isNotEmpty())
                                 <ul class="file-list">
                                     @foreach($item->requisitionItemReceipts as $receipt)
                                         @if ($receipt->Invoice)
+                                        @foreach($receipt->Invoice as $rpt)
                                             <li>
-                                                <a href="{{ asset('storage/'.$receipt->Invoice) }}" target="_blank" > Invoice {{ $loop->iteration }}</a>
+                                                <a href="{{ asset('storage/'.$rpt) }}" target="_blank" > Invoice {{ $loop->iteration }}</a>
                                             </li>
+
+                                        @endforeach
                                         @endif
                                         @if ($receipt->payment_proof)
-                                        <li>
-                                            <a href="{{ asset('storage/'.$receipt->payment_proof) }}" target="_blank">Proof of Payment {{ $loop->iteration }}</a>
-                                        </li>
+                                        @foreach($receipt->payment_proof as $rpt)
+                                            <li>
+                                                <a href="{{ asset('storage/'.$rpt) }}" target="_blank" > Proof of payment {{ $loop->iteration }}</a>
+                                            </li>
+
+                                        @endforeach
                                         @endif
                                         @if ($receipt->receipt_file)
-                                        <li>
-                                            <a href="{{ asset('storage/'.$receipt->receipt_file) }}" target="_blank">Receipt {{ $loop->iteration }}</a>
-                                       
-                                        </li>
+                                        @foreach($receipt->receipt_file as $rpt)
+                                            <li>
+                                                <a href="{{ asset('storage/'.$rpt) }}" target="_blank" > Receipt {{ $loop->iteration }}</a>
+                                            </li>
+
+                                        @endforeach
                                         @endif
                                         
                                     @endforeach
@@ -331,23 +345,30 @@
                                 <p>No receipts available for this item.</p>
                             @endif
                         </td>
+
                     </tr>
                 @endforeach
             </tbody>
+            {{-- <thead> --}}
+                <tr>
+                    <td colspan="4">Total Amount Used</td>
+                    <td>Ugx {{ number_format($accountability->amount_used)}} </td>
+                </tr>
+            {{-- </thead> --}}
+            
         </table>
     </div>
 
 
-        <div class="section">
+        <div class="section no-print">
             <h2>Other Receipt Files</h2>
-            <p>Total Amount Used: {{ number_format($accountability->amount_used)}} Ugx</p> 
-
-            @if($accountability->receiptFiles->isNotEmpty())
+            
+            @if($accountability->attachments)
                 <ul class="file-list" id="receipt_files">
-                    @foreach($accountability->receiptFiles as $receipt)
+                    @foreach($accountability->attachments as $receipt)
                         <li>
-                            <a href="{{ asset('storage/'.$receipt->receipt_path) }}" target="_blank">
-                                Receipt {{ $loop->iteration }}
+                            <a href="{{ asset('storage/'.$receipt) }}" target="_blank">
+                                Attachment {{ $loop->iteration }}
                             </a>
                         </li>
                     @endforeach
@@ -361,7 +382,7 @@
             <h2>Additional Information</h2>
             <div class="field">
                 <label for="created_at">Created At</label>
-                <p id="created_at" class="timestamp">{{ $accountability->created_at }}</p>
+                <p id="created_at" class="timestamp">{{ $accountability->created_at->format('d F, Y') }}</p>
                 @if ($accountability->status == 'closed')
                 <label for="closed by">Closed by</label>
                 <p id="closed_by" class="timestamp">

@@ -37,12 +37,14 @@ class DashboardController extends Controller
             'director_requisitions' => Requisition::where('status', 'accepted')->count(),
             'approved_requisitions' => Requisition::where('status', 'approved')->whereDoesntHave('accountability')->count(),
             'rejected_requisitions' => Requisition::where('status', 'rejected')->count(),
-            'halted_requisitions' => Requisition::where('status', 'halted')->count(),
+            'halted_requisitions' => Requisition::where('status', 'halted')->count(), //$requisition->staff->signature
+            'pending_accountability_names'=> Requisition::where('status', 'approved')->whereDoesntHave('accountability')->get()->pluck('staff.name'),
             //get the total amount of money requested in all requisitions
             'total_amount_requested' => formatAmount(Requisition::whereYear('created_at', Carbon::now()->year)->sum('amount')),
             'accountabilities' => Accountability::whereMonth('created_at', Carbon::now()->month)->count(),
             'closed_accountabilities' => Accountability::whereMonth('created_at', Carbon::now()->month)->where('status', 'closed')->count()
         ];
+        Log::info($data['pending_accountability_names']);
         
 
         return view('dashboard.requisition_status_cards', ['data' => $data]);
