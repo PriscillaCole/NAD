@@ -67,17 +67,22 @@ class Staff extends Model
         parent::boot();
 
         static::created(function ($model) {
+            Log::info($model);
 
             $email = $model->email;
-            $password = $model->staff_number;
+            $password = $model->username;
             $username = $model->username;
             try {
+                Log::info($email);
+                Log::info($model->password);
+                Log::info($password);
                 Mail::to($email)->send(new RegistrationConfirmation($email, $password, $username));
             } catch (\Exception $e) {
                 // Handle the exception (e.g., log the error or send another notification)
+                Log::info('email failed'. $e->getMessage());
                 return "Email sending failed: " . $e->getMessage();
             }
-    
+            Log::info('email sent');
             return "Email sent successfully."; 
         });
         
@@ -92,7 +97,7 @@ class Staff extends Model
                   $new_user->email = $model->email !== 'No email' && $model->email !== null ? $model->email : ($model->name . '@gmail.com');
                   $new_user->name = $model->name;
                   $new_user->avatar = $model->profile_picture ? $model->profile_picture : 'images/default_image.png';
-                  $new_user->password = Hash::make($model->staff_number) ?? Hash::make($model->name);
+                  $new_user->password = Hash::make($model->email) ?? Hash::make($model->name);
                   $new_user->staff_id = $model->id;
           
                   $new_user->save();
@@ -122,6 +127,10 @@ class Staff extends Model
              
 
                 
+        });
+
+        static::deleted(function ($model){
+
         });
     }
 }

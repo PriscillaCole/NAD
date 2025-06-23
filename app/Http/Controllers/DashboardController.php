@@ -35,10 +35,23 @@ class DashboardController extends Controller
             'total_requisitions' => Requisition::count(),
             'pending_requisitions' => Requisition::where('status', 'pending')->orWhere('status', null)->count(),
             'director_requisitions' => Requisition::where('status', 'accepted')->count(),
-            'approved_requisitions' => Requisition::where('status', 'approved')->whereDoesntHave('accountability')->count(),
+            'approved_requisitions' => Requisition::where('status', 'approved')->where(function ($query) {
+                    $query->whereDoesntHave('accountability')
+                        ->orWhereHas('accountability', function ($q) {
+                            $q->whereNull('status');
+                        });
+                })->count(),
             'rejected_requisitions' => Requisition::where('status', 'rejected')->count(),
             'halted_requisitions' => Requisition::where('status', 'halted')->count(), //$requisition->staff->signature
-            'pending_accountability_names'=> Requisition::where('status', 'approved')->whereDoesntHave('accountability')->get()->pluck('staff.name'),
+            'pending_accountability_names' => Requisition::where('status', 'approved')
+                ->where(function ($query) {
+                    $query->whereDoesntHave('accountability')
+                        ->orWhereHas('accountability', function ($q) {
+                            $q->whereNull('status');
+                        });
+                })
+                ->get()
+                ->pluck('staff.name'),
             //get the total amount of money requested in all requisitions
             'total_amount_requested' => formatAmount(Requisition::whereYear('created_at', Carbon::now()->year)->sum('amount')),
             'accountabilities' => Accountability::whereMonth('created_at', Carbon::now()->month)->count(),

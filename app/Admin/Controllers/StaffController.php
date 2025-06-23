@@ -117,14 +117,15 @@ class StaffController extends AdminController
         $form->file('signature', __('Signature'))->required();
 
         // Add a button at the top to upload an excel file
-        $form->tools(function (Form\Tools $tools) {
-            $token = csrf_token(); // Fetch CSRF token
-            $tools->append('<label for="file-upload" class="btn btn-sm btn-success" style="margin-right: 10px;">
-                <i class="fa fa-upload"></i>&nbsp;Upload Staff
-                <input id="file-upload" type="file" style="display: none;" onchange="uploadFile(this, \''.$token.'\')">
-            </label>
-            <progress id="upload-progress" value="0" max="100" style="display: none;"></progress>');
-        });
+        // $form->tools(function (Form\Tools $tools) {
+        //     $token = csrf_token(); // Fetch CSRF token
+        //     $tools->append('
+        //     <label for="file-upload" class="btn btn-sm btn-success" style="margin-right: 10px;">
+        //         <i class="fa fa-upload"></i>&nbsp;Upload Staff
+        //         <input id="file-upload" type="file" style="display: none;" onchange="uploadFile(this, \''.$token.'\')">
+        //     </label>
+        //     <progress id="upload-progress" value="0" max="100" style="display: none;"></progress>');
+        // });
 
         //script to handle the file upload
         Admin::js('/js/uploadStaff.js');

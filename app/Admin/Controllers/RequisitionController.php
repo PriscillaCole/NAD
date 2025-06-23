@@ -444,7 +444,7 @@ class RequisitionController extends AdminController
 
         //script to show activity based on program selected
         Admin::script('
-        let globalBudgetLines = {};
+            let globalBudgetLines = {};
             $("#program_id").change(function(){
                 var program_id = $(this).val();
                 $.get("/program-outcomes/"+program_id, function(data){
@@ -549,25 +549,34 @@ class RequisitionController extends AdminController
             // Function to calculate grand total of all requisition items
             function calculateGrandTotal() {
                 let grandTotal = 0;
-                
-                // Find all total_price inputs in requisition items
-                const allTotalInputs = document.querySelectorAll("input[name*=\'total_price\']");
-                
-                allTotalInputs.forEach(function(input) {
-                    // Get the raw value or parse the displayed value
-                    let value = input.getAttribute("data-raw") || input.value;
-                    grandTotal += sanitize(value);
+
+                // Find all visible requisition items NOT marked for removal
+                const forms = document.querySelectorAll(".has-many-requisition_items-form");
+
+                forms.forEach(function (form) {
+                    const removedInput = form.querySelector("input[name*=\'[_remove_]\']");
+                    if (removedInput && removedInput.value === "1") {
+                        // Skip this form it`s marked for removal
+                        return;
+                    }
+
+                    const totalInput = form.querySelector("input[name*=\'[total_price]\']");
+                    if (totalInput) {
+                        let value = totalInput.getAttribute("data-raw") || totalInput.value;
+                        grandTotal += sanitize(value);
+                    }
                 });
-                
+
                 // Update the main amount field
                 const amountField = document.querySelector("input[name=\'amount\']");
                 if (amountField) {
-                    amountField.value = grandTotal.toLocaleString(`en-UG`);
+                    amountField.value = grandTotal.toLocaleString(\'en-UG\');
                     amountField.setAttribute("data-raw", grandTotal);
                 }
-                
+
                 return grandTotal;
             }
+
 
             // Fixed setupRecalculation function that works with dynamic forms
             function setupRecalculation(formNode) {
@@ -661,28 +670,27 @@ class RequisitionController extends AdminController
                 });
             });
 
-            // Observer to handle form removal (when requisition items are deleted)
-            function observeFormRemovals() {
-                const formsContainer = document.querySelector("#has-many-requisition_items .has-many-requisition_items-forms");
-                if (!formsContainer) return;
+            // Observer to handle Laravel-Admin-style logical removals (via [_remove_] hidden input)
+            function observeLogicalRemovals() {
+                let previousCount = 0;
 
-                const removalObserver = new MutationObserver(function(mutationsList) {
-                    mutationsList.forEach(function(mutation) {
-                        if (mutation.type === `childList` && mutation.removedNodes.length > 0) {
-                            // A form was removed, recalculate grand total
-                            setTimeout(calculateGrandTotal, 100); // Small delay to ensure DOM is updated
-                        }
-                    });
-                });
+                setInterval(function () {
+                    const removedInputs = document.querySelectorAll("input[name*=\'[_remove_]\'][value=\'1\']");
+                    const currentCount = removedInputs.length;
 
-                removalObserver.observe(formsContainer, { childList: true });
+                    if (currentCount !== previousCount) {
+                        console.log("Detected requisition item marked for removal.");
+                        previousCount = currentCount;
+                        calculateGrandTotal();
+                    }
+                }, 300); // Poll every 300ms
             }
 
             if (targetNode) {
                 requisitionObserver.observe(targetNode, { childList: true, subtree: true });
                 console.log("MutationObserver started on requisition items container.");
-
-                observeFormRemovals();
+                observeLogicalRemovals();
+                // observeFormRemovals();
             } else {
                 console.warn("Target node #has-many-requisition_items not found.");
             }
