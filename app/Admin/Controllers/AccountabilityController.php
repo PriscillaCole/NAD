@@ -47,6 +47,7 @@ class AccountabilityController extends AdminController
         // disable create button for finance and CD
         if ($user->inRoles(['finance', 'director'])){
             $grid->disableCreateButton();
+            $grid->model()->whereNot('status', Null);
             $grid->actions(function ($actions) {
                 $actions->disableEdit();
                 $actions->disableDelete();
@@ -87,11 +88,13 @@ class AccountabilityController extends AdminController
         $grid->column('status', __('Status'))->display(
             function ($status) {
                 if ($status == null) {
-                    return "<span class='label label-warning'>pending</span>";
+                    return "<span class='label label-info'>Not Submitted</span>";
                 } elseif ($status == 'closed') {
                     return "<span class='label label-success'>closed</span>";
                 } elseif ($status == 'halted') {
                     return "<span class='label label-danger'>halted</span>";
+                } elseif ($status == 'pending') {
+                    return "<span class='label label-warning'>pending</span>";
                 } 
             }
         );

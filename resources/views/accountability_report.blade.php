@@ -190,7 +190,7 @@
                 <h2>Report Details</h2>
                 <div class="field">
                     <label for="status">Status</label>
-                    @if ($accountability->status == null)
+                    @if ($accountability->status == 'pending')
                         <span class="label label-warning">Pending</span>
                     @elseif ($accountability->status == 'closed')
                         <span class="label label-success">Closed</span>
@@ -199,7 +199,7 @@
                     @elseif ($accountability->status == 'amended')
                         <span class="label label-info">Amended</span>
                     @else
-                        <span class="label label-secondary">Unknown</span>
+                        <span class="label label-info">Not Submitted</span>
                     @endif
                 </div>
                 <button class="print-button" onclick="window.print()">Print Report</button>
@@ -229,7 +229,7 @@
                         </tr>
                         <tr>
                             <td colspan="4">
-                                <strong>Money Dispensed : </strong>{{ number_format($accountability->requisition->amount)}} Ugx
+                                <strong>Money Dispensed : </strong> UGX {{ number_format($accountability->requisition->amount)}}
                             </td>
                         </tr>
                     </tbody>
@@ -305,9 +305,9 @@
                         <td>UGX {{ number_format($item->total_price, 2)}}</td>
                         
                         @foreach($item->requisitionItemReceipts as $receipt)
-                            <td>{{ number_format($receipt->amount, 2) }} Ugx</td>
-                            <td>{{ $receipt->transfer_charges}}</td>
-                            <td> UGX {{ number_format(($receipt->amount + $receipt->transfer_charges), 2) }}</td>
+                            <td>UGX {{ number_format($receipt->amount, 2) }}</td>
+                            <td>UGX {{ $receipt->transfer_charges?? 0}}</td>
+                            <td>UGX {{ number_format(($receipt->amount + $receipt->transfer_charges), 2) }}</td>
                         @endforeach
                        
                         <td class="no-print">
@@ -351,8 +351,8 @@
             </tbody>
             {{-- <thead> --}}
                 <tr>
-                    <td colspan="4">Total Amount Used</td>
-                    <td>Ugx {{ number_format($accountability->amount_used)}} </td>
+                    <td colspan="4"><strong> Total Amount Used</strong></td>
+                    <td>UGX {{ number_format($accountability->amount_used)}} </td>
                 </tr>
             {{-- </thead> --}}
             
@@ -448,6 +448,15 @@
             @php
                 $user = Admin::user();
             @endphp
+            @if ($user->isRole('staff'))
+            @if ($accountability->status == '')
+
+                <a href="#" id="forward" class="btn btn-primary no-print">
+                    Forward to Finance
+                </a>
+                
+            @endif
+            @endif
             <!-- check if the role is finance officer -->
             @if ($user->isRole('finance'))
             @if ($accountability->status != 'closed')
@@ -492,24 +501,35 @@
         var modal = document.getElementById("reasonModal");
         var cross = document.getElementsByClassName("close")[0];
         var closeBtn = document.getElementById("closeBtn");
+        var forward = document.getElementById("forward");
         
         var haltBtn = document.getElementById("haltBtn");
         var submitReason = document.getElementById("submitReason");
         var reasonInput = document.getElementById("reason");
 
-        closeBtn.addEventListener('click', function(e) {
-            saveAccept('closed');
-            
-        });
+        if (closeBtn) {
+            closeBtn.addEventListener('click', function(e) {
+                saveAccept('closed');
+                
+            });
+        }
 
+        if (forward) {
+            forward.addEventListener('click', function(e) {
+                saveAccept('pending');
+                
+            });
+        }
         cross.onclick = function() {
             modal.style.display = "none";
         }
 
-        haltBtn.onclick = function() {
-            modal.style.display = "block";
-            submitReason.onclick = function() {
-                sendReason('halted');
+        if (closeBtn) {
+            haltBtn.onclick = function() {
+                modal.style.display = "block";
+                submitReason.onclick = function() {
+                    sendReason('halted');
+                }
             }
         }
 

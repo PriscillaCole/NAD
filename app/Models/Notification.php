@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Mail\AccountabilityNotificationMail;
 use App\Mail\LeaveRequestStatus;
+use App\Mail\RequisitionNotificationMail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Encore\Admin\Auth\Database\Administrator;
@@ -124,7 +126,9 @@ class Notification extends Model
                     self::sendMail($notification);
                 // }
             }
+            
         } else{
+            Log::info($model_name);
 
             $user = Staff::find($model->staff_id);
             $name = $user ? $user->name : null;
@@ -148,6 +152,11 @@ class Notification extends Model
                 
                     self::sendMail($notification);
                 }
+            }
+            if($model_name == 'Requisition'){
+                
+                $action = 'created';
+                Mail::to($user->email)->send(new RequisitionNotificationMail($model, $action, $user, $name));
             }
         }
     }
@@ -176,7 +185,12 @@ class Notification extends Model
             
                 self::sendMail($notification);
             }
+            if($model_name == 'Accountability'){
+                Log::info($user->email);
+                $action = 'submitted';
+                Mail::to($user->email)->send(new AccountabilityNotificationMail($model, $action, $user, $name));
             }
+        }
     }
     
     
@@ -204,6 +218,10 @@ class Notification extends Model
                 'message' => "Requisition by {$name} has been approved by {$role}.",
                 'form_link' => "http://127.0.0.1:8000/requisitions/{$model->id}",
             ],
+            'accepted' => [
+                'message' => "Requisition by {$name} has been approved by {$role}.",
+                'form_link' => "http://127.0.0.1:8000/requisitions/{$model->id}",
+            ],
             'rejected' => [
                 'message' => "Requisition by {$name} has been rejected by {$role}.",
                 'form_link' => "http://127.0.0.1:8000/requisitions/{$model->id}",
@@ -213,10 +231,18 @@ class Notification extends Model
                 'message' => "Requisition by {$name} has been halted by {$role}.",
                 'form_link' => "http://127.0.0.1:8000/requisitions/{$model->id}",
             ],
+            // 'halted' => [
+            //     'message' => "Accountability by {$name} has been halted by {$role}.",
+            //     'form_link' => "http://127.0.0.1:8000/accountabilities/{$model->id}",
+            // ],
 
             'amended' => [
                 'message' => "Requisition by {$name} has been amended by {$role}.",
                 'form_link' => "http://127.0.0.1:8000/requisitions/{$model->id}",
+            ],
+            'closed' => [
+                'message' => "Accountability by {$name} has been closed by {$role}.",
+                'form_link' => "http://127.0.0.1:8000/accountabilities/{$model->id}",
             ],
         ];
         //check the admin_user_roles table to get the user_id whose role_id is 5
@@ -247,6 +273,15 @@ class Notification extends Model
                         self::sendMail($notification_user);
                     }
                 }
+                    //hildahnantabo@gmail.com
+                if($model_name == 'Requisition'){
+                    Log::info($user);
+                    Mail::to($user->email)->send(new RequisitionNotificationMail($model, $status, $user, $role));
+                }
+                if($model_name == 'Accountability'){
+                    Log::info($user);
+                    Mail::to($user->email)->send(new AccountabilityNotificationMail($model, $status, $user, $role));
+                }
             }
         }
         
@@ -269,7 +304,7 @@ class Notification extends Model
         $emails = $receivers->pluck('email')->toArray();
 
         try {
-            Mail::to($emails)->send(new LeaveRequestStatus($notification->message, $notification->link));
+            // Mail::to($emails)->send(new LeaveRequestStatus($notification->message, $notification->link));
         } catch (\Exception $e) {
             // Handle the exception (e.g., log the error or send another notification)
             return "Email sending failed: " . $e->getMessage();

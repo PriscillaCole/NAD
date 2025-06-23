@@ -114,7 +114,7 @@ class StaffController extends AdminController
         $form->text('contact_of_kin', __('Contact of kin'));
         $form->text('relationship', __('Relationship'));
         $form->file('profile_picture', __('Profile picture'));
-        $form->file('signature', __('Signature'));
+        $form->file('signature', __('Signature'))->required();
 
         // Add a button at the top to upload an excel file
         $form->tools(function (Form\Tools $tools) {
