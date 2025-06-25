@@ -25,6 +25,10 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
+    return view('landing_page');
+})->name('landing');
+
+Route::get('/signin', function(){
     return view('login_page');
 })->name('signin');
 
