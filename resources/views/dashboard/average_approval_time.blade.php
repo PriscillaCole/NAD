@@ -7,212 +7,87 @@
     <!-- Bootstrap 3 CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
     <!-- Chart.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
+    {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script> --}}
+   
     <style>
-        .navbar {
-            height: 2px;
+        .budget-dropdown:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
         }
-        /* .heatmap-container {
-            padding: 15px;
-            background: white;
-            border-radius: 4px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+
+        .budget-dropdown:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
         }
-        
-        .heatmap-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 2px;
+
+         .chart-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
         }
-        
-        .heatmap-cell {
-            aspect-ratio: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            color: #333;
-            border-radius: 2px;
-        } */
-        
-        .chart-title {
-            margin-bottom: 15px;
-            color: #333;
-            font-size: 16px;
-            font-weight: 500;
+
+        .chart-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
         }
-        
-        .panel {
-            margin-bottom: 20px;
-            /* background-color: #b3c7eb !important; */
-        }
-        
-        .panel-heading {
+
+        .chart-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: -webkit-linear-gradient(top, #3c8dbc, #b3b6fc);
-            /* background-color: #E6E6FA  !important; */
+            margin-bottom: 2rem;
         }
-        
-        .project-select {
-            display: inline-block;
+
+        .chart-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
         }
-    </style>
-    <style>
-        .heatmap-container {
-            padding: 20px;
-            background: white;
+
+        .title-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
             border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.12);
-            margin: 20px;
-        }
-
-        .heatmap-grid {
-            display: block;
-            gap: 8px;
-            margin-top: 20px;
-        }
-
-        /* .level-container {
-            margin-bottom: 20px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 15px;
-        } */
-
-        .level-title {
-            font-family: Arial, sans-serif;
-            font-size: 16px;
-            color: #666;
-            margin-bottom: 10px;
-        }
-
-        .level-grid {
-            display: grid;
-            gap: 8px;
-            margin-top: 10px;
-            grid-template-columns: repeat(3, 1fr);
-        }
-
-        .heatmap-cell {
-            /* min-width: 80px;
-            min-height: 70px; */
-            width: 69px;
-            height: 50px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: transform 0.2s;
-            padding: 8px;
-        }
-
-        .heatmap-cell:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        .cell-content {
-            text-align: center;
-            font-family: Arial, sans-serif;
-        }
-
-        .cell-code {
-            font-weight: bold;
-            font-size: 8px;
-            margin-bottom: 4px;
-        }
-
-        .cell-value {
-            font-size: 12px;
-        }
-
-        .legend {
-            display: flex;
-            justify-content: center;
-            gap: 16px;
-            margin-top: 20px;
-            padding: 10px;
-            background: #f8f9fa;
-            border-radius: 4px;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            font-family: Arial, sans-serif;
-        }
-
-        .legend-color {
-            width: 16px;
-            height: 16px;
-            border-radius: 4px;
-        }
-
-        .tooltip {
-            position: absolute;
-            background: rgba(0, 0, 0, 0.8);
             color: white;
-            padding: 8px 12px;
-            border-radius: 4px;
-            font-size: 12px;
-            display: none;
-            z-index: 1000;
-            pointer-events: none;
-            max-width: 250px;
+            font-size: 1.2rem;
         }
+
+        .budget-selector {
+            position: relative;
+        }
+
+        .budget-dropdown {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            min-width: 200px;
+        }
+
     </style>
 </head>
 <body>
     <div class="container-fluid">
         <div class="row">
-            <!-- Heatmap -->
-            {{-- <div class="col-md-6">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <span>Budget Utilisation Breakdown</span>
-                        {{-- <select class="form-control input-sm project-select">
-                            <option>Project</option>
-                        </select> 
-                        <form method="GET" action="{{ request()->url() }}">
-                            <select name="programId2" id="program-filter" class="form-control input-sm project-select" >
-                                <option value="">{{ __('Select Project') }}</option>
-                                @foreach($programs as $program)
-                                    <option value="{{ $program->id }}" {{ request()->query('programId2') == $program->id ? 'selected' : '' }}>
-                                        {{ $program->name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            </form>
-                    </div>
-                    <div class="panel-body">
-                        <div id="heatmap" class="heatmap-grid"></div>
-                        <div class="legend">
-                            <div class="legend-item">
-                                <div class="legend-color" style="background: #FEF9C3"></div>
-                                <span>Low (0-20%)</span>
-                            </div>
-                            <div class="legend-item">
-                                <div class="legend-color" style="background: #FDE047"></div>
-                                <span>Medium (40-60%)</span>
-                            </div>
-                            <div class="legend-item">
-                                <div class="legend-color" style="background: #4ADE80"></div>
-                                <span>High (80-100%)</span>
-                            </div>
-                        </div> 
-                        
-                    </div>
-                    
-                    <div id="tooltip" class="tooltip"></div>
-                </div>
-            </div> --}}
-            
             <!-- Bar Chart -->
-            <div class="col-md-12">
+            {{-- <div class="col-md-12">
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <span class="panel-title">Budget vs Spending</span>
@@ -230,6 +105,39 @@
                     <div class="panel-body">
                         <canvas id="budgetChart" height="100"></canvas>
                     </div>
+                </div>
+            </div> --}}
+
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h2 class="chart-title">
+                        <div class="title-icon">📊</div>
+                        Budget vs Spending
+                    </h2>
+                    <div class="budget-selector">
+                        <form method="GET" action="{{ request()->url() }}">
+                            <select name="programId2" id="program-filter" class="budget-dropdown" >
+                                <option value="">{{ __('Select Project') }}</option>
+                                @foreach($programs as $program)
+                                    <option value="{{ $program->id }}" {{ request()->query('programId2') == $program->id ? 'selected' : '' }}>
+                                        {{ $program->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </form>
+                    </div>
+                    {{-- <div class="budget-selector">
+                        <select class="budget-dropdown" id="budgetSelect">
+                            <option value="country">Country Coordination Budget</option>
+                            <option value="program">Program Implementation Budget</option>
+                            <option value="operations">Operations Budget</option>
+                            <option value="emergency">Emergency Response Budget</option>
+                        </select>
+                    </div> --}}
+                </div>
+            
+                <div class="chart-container">
+                    <canvas id="budgetChart"></canvas>
                 </div>
             </div>
         </div>
@@ -257,84 +165,91 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script>
-       //heatmap
-        
-            const heatmapContainer = document.getElementById('heatmap');
-            const tooltip = document.getElementById('tooltip');
-            
-            
-
-        // Create bar chart
-        function createBarChart() {
-            const ctx = document.getElementById('budgetChart').getContext('2d');
-            const chartData = @json($chartData); // Pass data from the backend
+        // Budget vs Spending Chart
+        const budgetCtx = document.getElementById('budgetChart').getContext('2d');
+        const chartData = @json($chartData); // Pass data from the backend
             console.log(chartData);
 
             const labels = chartData.map(item => item.activity_name);
             const budgetData = chartData.map(item => item.budget);
             const amountUsedData = chartData.map(item => item.amount_used);
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
+        const budgetChart = new Chart(budgetCtx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
                         label: 'Budget',
                         data: budgetData,
-                        backgroundColor: '#8884d8',
-                        borderColor: '#8884d8',
-                        borderWidth: 1
+                        backgroundColor: 'rgba(102, 126, 234, 0.8)',
+                        borderColor: '#667eea',
+                        borderWidth: 2,
+                        borderRadius: 8,
+                        borderSkipped: false,
                     },
                     {
-                        label: 'Amount Used',
+                        label: 'Amount Spent',
                         data: amountUsedData,
-                        backgroundColor: '#82ca9d',
-                        borderColor: '#82ca9d',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-            responsive: true,
-            scales: {
-                yAxes: [{
-                    scaleLabel: {
-                        display: true,
-                        labelString: 'UGX'
-                    },
-                    ticks: {
-                        beginAtZero: true,
-                        callback: function(value) {
-                            return 'UGX' + value.toLocaleString();
+                        backgroundColor: 'rgba(34, 197, 94, 0.8)',
+                        borderColor: '#22c55e',
+                        borderWidth: 2,
+                        borderRadius: 8,
+                        borderSkipped: false,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 20,
+                            font: {
+                                size: 14,
+                                weight: '500'
+                            }
                         }
                     }
-                }],
-                xAxes: [{
-                    scaleLabel: {
-                        display: true,
-                        labelString: 'Activity'
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            color: '#718096',
+                            font: {
+                                size: 12,
+                                weight: '500'
+                            }
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(113, 128, 150, 0.1)'
+                        },
+                        ticks: {
+                            color: '#718096',
+                            font: {
+                                size: 12
+                            },
+                            callback: function(value) {
+                                return 'UGX' + (value / 1000) + 'K';
+                            }
+                        }
                     }
-                }]
-            },
-            tooltips: {
-        callbacks: {
-            label: function(tooltipItem, data) {
-                let label = data.datasets[tooltipItem.datasetIndex].label || '';
-                if (label) {
-                    label += ': ';
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
                 }
-                label += 'UGX ' + tooltipItem.yLabel.toLocaleString();
-                return label;
             }
-        }
-    }
-        }
-            });
-        }
-
-        // Initialize visualizations
-        document.addEventListener('DOMContentLoaded', function() {
-            // createHeatmap();
-            createBarChart();
         });
+
     </script>
 
 </body>

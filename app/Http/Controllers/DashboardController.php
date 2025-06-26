@@ -143,6 +143,7 @@ class DashboardController extends Controller
                 
             }else {
                 $programs = Program::all();
+                Log::info(['function----',$programs]);
 
             }
             

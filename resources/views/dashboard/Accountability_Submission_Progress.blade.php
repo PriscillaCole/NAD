@@ -2,13 +2,13 @@
 <div class="container-fluid">
     <h4 style="font-size: 16px; margin-bottom: 20px;">Accountability Submission Progress</h4>
     
-    <div class="row">
+    {{-- <div class="row">
         <!-- Left Panel - Accountability Status -->
         <div class="col-md-6">
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h5 class="panel-title">Accountability status</h5>
-                    {{-- <small class="text-muted" style="float: right;">Total: 31,863</small> --}}
+                    
                 </div>
                 <div class="panel-body">
                     <div class="progress" style="height: 24px; margin-bottom: 10px; background-color: #f0f0f0;">
@@ -33,7 +33,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> 
         
         <!-- Right Panel - Accountability Report -->
         
@@ -65,7 +65,7 @@
                             <span class="progress-label">Accepted({{$acceptedPerc}}%)</span>
                         </div>
                     </div>
-                    {{-- <canvas id="stackedBarChart" height="32" style="border-radius: 15px;"></canvas> --}}
+                    
                     <div class="legend mt-3" style="display: flex; align-items: center; gap: 20px;">
                         <div class="legend-item">
                             <span class="dot" style="background: #303053;"></span>
@@ -86,10 +86,71 @@
                 </div>
             </div>
         </div>
+    </div> --}}
+    <div class="accountability-grid">
+        <!-- Accountability Status -->
+        <div class="chart-card" style="height: 222px">
+            <div class="card-header">
+                <h3 class="card-title">Accountability Status</h3>
+            </div>
+            
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-segments">
+                        <div class="progress-segment progress-pending" style="width: {{ $pending > 0 ? $pending : 0 }}%;"></div>
+                        <div class="progress-segment progress-submitted" style="width: {{ $submitted > 0 ? $submitted : 0 }}%;"></div>
+                    </div>
+                </div>
+                
+                <div class="progress-labels">
+                    <div class="progress-label">
+                        <div class="label-dot dot-pending"></div>
+                        <span>Pending ({{ $pending > 0 ? $pending : 0 }}%)</span>
+                    </div>
+                    <div class="progress-label">
+                        <div class="label-dot dot-submitted"></div>
+                        <span>Submitted ({{ $submitted > 0 ? $submitted : 0 }}%)</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 2rem;">
+                <div style="font-size: 2rem; font-weight: 700; color: #2d3748; margin-bottom: 0.5rem;">
+                    {{$haltedCount + $pendingCount + $acceptedCount}} Total
+                </div>
+                <div style="color: #718096;">
+                    Accountability Reports
+                </div>
+            </div>
+        </div>
+
+        <!-- Accountability Report -->
+        <div class="chart-card" style="height: 222px">
+            <div class="card-header">
+                <h3 class="card-title">Accountability Report</h3>
+            </div>
+            
+            <div class="report-stats">
+                <div class="stat-circle">
+                    <div class="stat-circle-bg stat-rejected">{{$haltedCount}}</div>
+                    <div class="stat-circle-label">Rejected</div>
+                </div>
+                
+                <div class="stat-circle">
+                    <div class="stat-circle-bg stat-pending">{{$pendingCount}}</div>
+                    <div class="stat-circle-label">Pending</div>
+                </div>
+                
+                <div class="stat-circle">
+                    <div class="stat-circle-bg stat-accepted">{{$acceptedCount}}</div>
+                    <div class="stat-circle-label">Accepted</div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
-<style>
+{{-- <style>
         .panel {
             border-radius: 8px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.12);
@@ -110,11 +171,7 @@
             margin-bottom: 10px;
             background-color: #f0f0f0;
         }
-        .progress-label {
-            color: white;
-            padding: 0 10px;
-            line-height: 24px;
-        }
+        
         .dot {
             display: inline-block;
             width: 10px;
@@ -137,8 +194,8 @@
         .stacked-bars .progress {
             margin-bottom: 15px;
         }
-</style>
-<script>
+</style> --}}
+{{-- <script>
     document.addEventListener('DOMContentLoaded', function() {
         var ctx = document.getElementById('stackedBarChart').getContext('2d');
         const haltedCount = @json($haltedCount); // Pass data from the backend
@@ -210,4 +267,4 @@
             }
         });
     });
-    </script>
+</script> --}}

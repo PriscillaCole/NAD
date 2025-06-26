@@ -1,116 +1,48 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <style>
-        .kpi-card {
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            min-height: 144px;
-        }
-        
-        .kpi-value {
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        
-        .kpi-label {
-            font-size: 14px;
-            color: #666;
-            padding-top: 10%;
-        }
-        
-        .kpi-icon {
-            float: right;
-            width: 24px;
-            height: 24px;
-            background: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .pink-bg {
-            background-color: #FFE6E6;
-        }
-        
-        .orange-bg {
-            background-color: #FFF3E0;
-        }
-        
-        .green-bg {
-            background-color: #E8F5E9;
-        }
-        
-        .purple-bg {
-            background-color: #F3E5F5;
-        }
-        .blue-bg {
-            background-color: #b7f7f1;
-        }
-        .cyan-bg{
-            background-color: #baf5bb;
-        }
 
-        .dropdown {
-            margin-bottom: 20px;
-        }
+<style>
+    .navbar{
+        height: 20px;
+    }
+    .custom-tooltip-container {
+        position: relative;
+    }
 
-        .panel {
-            border: none;
-            box-shadow: none;
-        }
-        .panel-title{
-            color: white;
-        }
+    .custom-tooltip {
+        display: none;
+        position: absolute;
+        top: 100%; 
+        left: 0;
+        z-index: 09990;
+        background-color: white;
+        color: black;
+        /* padding: 10px; */
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        box-shadow: 0px 2px 8px rgba(0,0,0,0.15);
+        width: 163px;
+        overflow: visible;
+    }
 
-        .panel-heading {
-            background-color: white !important;
-            border-bottom: none;
-            padding-left: 2px 2px;
-        }
-        .container-fluid {
-            background-color: white;
-        }
-        
-.custom-tooltip-container {
-    position: relative;
-}
+    .custom-tooltip ul {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+    }
 
-.custom-tooltip {
-    display: none;
-    position: absolute;
-    top: 100%; 
-    left: 0;
-    z-index: 10;
-    background-color: white;
-    color: black;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    box-shadow: 0px 2px 8px rgba(0,0,0,0.15);
-    width: 200px;
-}
+    .custom-tooltip ul li {
+        margin: 5px 0;
+        font-size: 13px;
+    }
 
-.custom-tooltip ul {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-}
-
-.custom-tooltip ul li {
-    margin: 5px 0;
-    font-size: 13px;
-}
-
-.custom-tooltip-container:hover .custom-tooltip {
-    display: block;
-}
+    .custom-tooltip-container:hover .custom-tooltip {
+        display: block;
+    }
+</style>
 
 
-    </style>
 </head>
 <body>
     <div class="container-fluid">
@@ -151,7 +83,7 @@
                         </div>
                     </div> --}}
                     <div class="col-md-2">
-                        <div class="kpi-card purple-bg custom-tooltip-container">
+                        <div class="kpi-card purple-bg custom-tooltip-container" style="overflow: visible;">
                             <div class="kpi-icon">
                                 <i class="glyphicon glyphicon-folder-open"></i>
                             </div>

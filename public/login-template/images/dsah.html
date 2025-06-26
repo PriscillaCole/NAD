@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budget vs Spending Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+            color: #2d3748;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Main Chart Card */
+        .chart-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .chart-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .chart-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .title-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .budget-selector {
+            position: relative;
+        }
+
+        .budget-dropdown {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            min-width: 200px;
+        }
+
+        .budget-dropdown:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .budget-dropdown:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Chart Container */
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-bottom: 2rem;
+        }
+
+        /* Summary Stats */
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin: 0 auto 1rem;
+        }
+
+        .stat-icon.budget { background: rgba(102, 126, 234, 0.15); color: #667eea; }
+        .stat-icon.spent { background: rgba(34, 197, 94, 0.15); color: #22c55e; }
+        .stat-icon.remaining { background: rgba(251, 146, 60, 0.15); color: #f59e0b; }
+        .stat-icon.utilization { background: rgba(168, 85, 247, 0.15); color: #a855f7; }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #718096;
+            font-weight: 500;
+        }
+
+        /* Activity Breakdown */
+        .activity-breakdown {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .breakdown-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .breakdown-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .activity-icon.well { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
+        .activity-icon.health { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+        .activity-icon.education { background: rgba(34, 197, 94, 0.15); color: #22c55e; }
+        .activity-icon.infrastructure { background: rgba(251, 146, 60, 0.15); color: #f59e0b; }
+
+        .activity-details h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 0.25rem;
+        }
+
+        .activity-details p {
+            font-size: 0.875rem;
+            color: #718096;
+        }
+
+        .activity-amount {
+            text-align: right;
+        }
+
+        .amount-budget {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 0.25rem;
+        }
+
+        .amount-spent {
+            font-size: 0.875rem;
+            color: #22c55e;
+            font-weight: 500;
+        }
+
+        /* Progress Bars */
+        .progress-container {
+            margin-top: 0.5rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #22c55e, #16a34a);
+            transition: width 0.8s ease;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .activity-breakdown {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .chart-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+            }
+            
+            .budget-dropdown {
+                min-width: auto;
+            }
+            
+            .activity-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .activity-amount {
+                text-align: left;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Main Chart Card -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <h2 class="chart-title">
+                    <div class="title-icon">📊</div>
+                    Budget vs Spending
+                </h2>
+                <div class="budget-selector">
+                    <select class="budget-dropdown" id="budgetSelect">
+                        <option value="country">Country Coordination Budget</option>
+                        <option value="program">Program Implementation Budget</option>
+                        <option value="operations">Operations Budget</option>
+                        <option value="emergency">Emergency Response Budget</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <canvas id="budgetChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Summary Statistics -->
+        <div class="summary-stats">
+            <div class="stat-card">
+                <div class="stat-icon budget">💰</div>
+                <div class="stat-value">UGX 200K</div>
+                <div class="stat-label">Total Budget</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon spent">💸</div>
+                <div class="stat-value">UGX 32K</div>
+                <div class="stat-label">Amount Spent</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon remaining">💵</div>
+                <div class="stat-value">UGX 168K</div>
+                <div class="stat-label">Remaining Budget</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon utilization">📈</div>
+                <div class="stat-value">16%</div>
+                <div class="stat-label">Budget Utilization</div>
+            </div>
+        </div>
+
+        <!-- Activity Breakdown -->
+        <div class="activity-breakdown">
+            <div class="breakdown-card">
+                <h3 class="breakdown-title">
+                    🎯 Activity Breakdown
+                </h3>
+                <div class="activity-item">
+                    <div class="activity-info">
+                        <div class="activity-icon well">🏔️</div>
+                        <div class="activity-details">
+                            <h4>Water Well Projects</h4>
+                            <p>Community water access initiatives</p>
+                        </div>
+                    </div>
+                    <div class="activity-amount">
+                        <div class="amount-budget">UGX 200K</div>
+                        <div class="amount-spent">UGX 32K spent</div>
+                        <div class="progress-container">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 16%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="activity-item">
+                    <div class="activity-info">
+                        <div class="activity-icon health">🏥</div>
+                        <div class="activity-details">
+                            <h4>Health Clinics</h4>
+                            <p>Mobile health services</p>
+                        </div>
+                    </div>
+                    <div class="activity-amount">
+                        <div class="amount-budget">UGX 0</div>
+                        <div class="amount-spent">UGX 0 spent</div>
+                        <div class="progress-container">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="activity-item">
+                    <div class="activity-info">
+                        <div class="activity-icon education">🎓</div>
+                        <div class="activity-details">
+                            <h4>Education Programs</h4>
+                            <p>Literacy and skills training</p>
+                        </div>
+                    </div>
+                    <div class="activity-amount">
+                        <div class="amount-budget">UGX 0</div>
+                        <div class="amount-spent">UGX 0 spent</div>
+                        <div class="progress-container">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="breakdown-card">
+                <h3 class="breakdown-title">
+                    📈 Budget Performance
+                </h3>
+                <div style="height: 200px; position: relative;">
+                    <canvas id="performanceChart"></canvas>
+                </div>
+                
+                <div style="margin-top: 2rem;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                        <span style="font-weight: 600; color: #4a5568;">Quarterly Progress</span>
+                        <span style="font-weight: 600; color: #667eea;">Q2 2025</span>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar" style="height: 12px;">
+                            <div class="progress-fill" style="width: 16%; background: linear-gradient(90deg, #667eea, #764ba2);"></div>
+                        </div>
+                    </div>
+                    <div style="display: flex; justify-content: between; margin-top: 0.5rem; font-size: 0.875rem; color: #718096;">
+                        <span>16% of quarterly target achieved</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Budget vs Spending Chart
+        const budgetCtx = document.getElementById('budgetChart').getContext('2d');
+        const budgetChart = new Chart(budgetCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Water Well Projects', 'Health Clinics', 'Education Programs', 'Infrastructure'],
+                datasets: [
+                    {
+                        label: 'Budget',
+                        data: [200000, 0, 0, 0],
+                        backgroundColor: 'rgba(102, 126, 234, 0.8)',
+                        borderColor: '#667eea',
+                        borderWidth: 2,
+                        borderRadius: 8,
+                        borderSkipped: false,
+                    },
+                    {
+                        label: 'Amount Spent',
+                        data: [32000, 0, 0, 0],
+                        backgroundColor: 'rgba(34, 197, 94, 0.8)',
+                        borderColor: '#22c55e',
+                        borderWidth: 2,
+                        borderRadius: 8,
+                        borderSkipped: false,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 20,
+                            font: {
+                                size: 14,
+                                weight: '500'
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            color: '#718096',
+                            font: {
+                                size: 12,
+                                weight: '500'
+                            }
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(113, 128, 150, 0.1)'
+                        },
+                        ticks: {
+                            color: '#718096',
+                            font: {
+                                size: 12
+                            },
+                            callback: function(value) {
+                                return 'UGX' + (value / 1000) + 'K';
+                            }
+                        }
+                    }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                }
+            }
+        });
+
+        // Performance Chart (Doughnut)
+        const performanceCtx = document.getElementById('performanceChart').getContext('2d');
+        new Chart(performanceCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Spent', 'Remaining'],
+                datasets: [{
+                    data: [16, 84],
+                    backgroundColor: [
+                        '#22c55e',
+                        '#e2e8f0'
+                    ],
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                cutout: '70%'
+            }
+        });
+
+        // Animate progress bars on load
+        window.addEventListener('load', function() {
+            const progressFills = document.querySelectorAll('.progress-fill');
+            progressFills.forEach((fill, index) => {
+                const targetWidth = fill.style.width;
+                fill.style.width = '0%';
+                setTimeout(() => {
+                    fill.style.width = targetWidth;
+                }, 500 + (index * 200));
+            });
+        });
+
+        // Budget selector functionality
+        document.getElementById('budgetSelect').addEventListener('change', function(e) {
+            const selectedBudget = e.target.value;
+            // Here you would typically update the chart data based on selection
+            console.log('Selected budget:', selectedBudget);
+        });
+    </script>
+</body>
+</html>

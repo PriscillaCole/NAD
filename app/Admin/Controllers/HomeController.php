@@ -44,15 +44,11 @@ class HomeController extends AdminController
                     $column->append(view('dashboard.fund_request_status_overview', $status));
                 });
                 
-               
             })
             ->row(function (Row $row) use ($programId, $data, $fund) {
                 $row->column(12, function (Column $column) use ($data, $fund) {
-                        $column->append(view('dashboard.fund_disbursement_summary', $data, $fund));
-                    });
-                // $row->column(6, function (Column $column) use ($fund) {
-                //     $column->append(view('dashboard.funds_over_time', $fund));
-                // });
+                    $column->append(view('dashboard.fund_disbursement_summary', $data, $fund));
+                });
                 
                 
             })
@@ -67,7 +63,6 @@ class HomeController extends AdminController
                     $column->append(DashboardController::getBudgetComparisonData($programId2));
                 });
         
-            
             });
             // ->row(view('footer'));
 
