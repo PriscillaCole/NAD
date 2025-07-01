@@ -87,8 +87,8 @@
             </tr>
             
         </table>
-
-        <p>Thank you for joining us! <a href="{{ $url }}">Click here</a> to head to the system.</p>
+        <p>You can change your password in user settings <a href="{{ $url }}">Click here</a> to head to the system.</p>
+        {{-- <p>Thank you for joining us! <a href="{{ $url }}">Click here</a> to head to the system.</p> --}}
 
         <p>Thank you,<br>
         {{ config('app.name') }} Team</p>

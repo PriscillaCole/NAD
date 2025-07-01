@@ -296,7 +296,7 @@
         }
 
         .kpi-label {
-            font-size: 0.9rem;
+            font-size: 1.1rem;
             color: #718096;
             font-weight: 500;
         }

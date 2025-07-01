@@ -165,7 +165,9 @@
                                                     <span class="input-group-addon">
                                                         <i class="fa fa-pencil fa-fw"></i>
                                                     </span>
-                                                    <input type="number" name="outcomes[{{ $adminActivity->id }}][budget]" class="form-control" value="{{ $adminActivity->budget }}" required>
+                                                     {{-- <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][budget_lines][{{ $budget_line->id }}][budget]" oninput= "formatNumber(event)" class="form-control formatted-input" value=" {{($budget_line->budget) }}" required> --}}
+                                                   
+                                                    <input type="text" name="outcomes[{{ $adminActivity->id }}][budget]" class="form-control formatted-input" value="{{ $adminActivity->budget }}" required>
                                                 </div>
                                             </div>
                                         </div>

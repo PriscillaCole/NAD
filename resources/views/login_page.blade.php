@@ -336,7 +336,7 @@
         </div>
 		
 
-        <form id="loginForm" action="{{ admin_url('auth/login') }}" method="POST">
+        <form id="loginForm" action="{{ url('auth/login') }}" method="POST">
 			{{ csrf_field() }}
             <div class="form-group">
                 <div class="input-container">

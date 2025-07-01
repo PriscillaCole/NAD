@@ -12,14 +12,14 @@
             box-sizing: border-box;
         }
 
-        /* body {
+        body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
-        } */
+        }
 
-        /* .header {
+        .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -41,7 +41,7 @@
             display: flex;
             gap: 15px;
             align-items: center;
-        } */
+        }
 
         .btn {
             padding: 10px 20px;
@@ -78,12 +78,11 @@
         }
 
         .container {
-            display: flex;
-            /* grid-template-columns: 1fr 2fr; */
-            /* gap: 30px; */
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
             max-width: 1400px;
             margin: 0 auto;
-            justify-content: space-between
         }
 
         .card {
@@ -105,8 +104,6 @@
             text-align: center;
             position: relative;
             overflow: hidden;
-            flex: 0 1 30%;
-        margin-right: 11px;
         }
 
         .basic-info::before {
@@ -229,7 +226,6 @@
 
         .additional-details {
             position: relative;
-            width: 1000px;
         }
 
         .additional-details h2 {
@@ -260,7 +256,7 @@
 
         .detail-item {
             background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
-            padding: 14px;
+            padding: 20px;
             border-radius: 15px;
             border-left: 4px solid #667eea;
             transition: all 0.3s ease;
@@ -289,7 +285,7 @@
         .detail-label {
             font-weight: 600;
             color: #667eea;
-            font-size: 1.2rem;
+            font-size: 0.9rem;
             margin-bottom: 5px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -329,14 +325,10 @@
 
         @media (max-width: 768px) {
             .container {
-                flex-wrap: nowrap; /* don't wrap rows, stay in single line */
-                overflow-x: auto;  /* allow horizontal scroll on small screens */
-                -webkit-overflow-scrolling: touch; /* smooth scroll on iOS */
+                grid-template-columns: 1fr;
+                gap: 20px;
             }
-            .card {
-                flex: 0 0 80%; /* make each card take 80% of viewport width for readability */
-                margin-right: 20px; /* spacing between cards */
-            }
+            
             .details-grid {
                 grid-template-columns: 1fr;
             }
@@ -369,22 +361,17 @@
     <div class="container">
         <div class="card basic-info">
             <div class="profile-image">
-                {{-- <i class="fas fa-user"></i> --}}
-                <?php
-                $profilePicture = $staff->user->avatar ? asset('storage/' . $staff->user->avatar) : asset('storage/images/default_image.png');
-                ?>
-                <img style="width: 144px; border-radius: 50%;" src="{{ $profilePicture }}" alt="profile">
-                <div class="staff-badge">ID: {{$staff->staff_number}}</div>
+                <i class="fas fa-user"></i>
+                <div class="staff-badge">ID: 1</div>
             </div>
             
-            <h2>{{$staff->name}}</h2>
-            <h6>{{$staff->email}}</h6>
-            <div class="position">{{$staff->title}}</div>
+            <h2>NGIRABAKUNZI EDSON</h2>
+            <div class="position">Country Director</div>
             
-            {{-- <div class="status-indicators">
+            <div class="status-indicators">
                 <span class="status-badge status-active">Active</span>
                 <span class="status-badge status-verified">Verified</span>
-            </div> --}}
+            </div>
         </div>
 
         <div class="card additional-details">
@@ -395,91 +382,91 @@
                     <div class="detail-label">
                         <i class="fas fa-calendar"></i> Date of Birth
                     </div>
-                    <div class="detail-value">{{$staff->date_of_birth}}</div>
+                    <div class="detail-value">1971-08-05</div>
                 </div>
 
-                {{-- <div class="detail-item">
+                <div class="detail-item">
                     <div class="detail-label">
                         <i class="fas fa-envelope"></i> Email
                     </div>
-                    <div class="detail-value">{{$staff->email}}</div>
-                </div> --}}
+                    <div class="detail-value">edson.ngirabakunzi@nhf.no</div>
+                </div>
 
                 <div class="detail-item">
                     <div class="detail-label">
                         <i class="fas fa-phone"></i> Phone
                     </div>
-                    <div class="detail-value">{{$staff->telephone}}</div>
+                    <div class="detail-value">+256704420041</div>
                 </div>
 
                 <div class="detail-item">
                     <div class="detail-label">
                         <i class="fas fa-calendar-start"></i> Contract Start
                     </div>
-                    <div class="detail-value">{{$staff->contract_start}}</div>
+                    <div class="detail-value">2024-01-01</div>
                 </div>
 
                 <div class="detail-item">
                     <div class="detail-label">
                         <i class="fas fa-calendar-times"></i> Contract End
                     </div>
-                    <div class="detail-value">{{$staff->contract_end}}</div>
+                    <div class="detail-value">2028-12-31</div>
                 </div>
 
                 <div class="detail-item">
                     <div class="detail-label">
                         <i class="fas fa-users"></i> Next of Kin
                     </div>
-                    <div class="detail-value">{{$staff->next_of_kin}}</div>
+                    <div class="detail-value">UHIRIWE BRIAN</div>
                 </div>
 
                 <div class="detail-item">
                     <div class="detail-label">
                         <i class="fas fa-heart"></i> Relationship
                     </div>
-                    <div class="detail-value">{{$staff->relationship}}</div>
+                    <div class="detail-value">BROTHER</div>
                 </div>
 
                 <div class="detail-item">
                     <div class="detail-label">
-                        <i class="fas fa-phone-alt"></i> Next of kin contact
+                        <i class="fas fa-phone-alt"></i> Emergency Contact
                     </div>
-                    <div class="detail-value">{{$staff->contact_of_kin}}</div>
+                    <div class="detail-value">0704201870</div>
                 </div>
 
                 <div class="detail-item">
                     <div class="detail-label">
                         <i class="fas fa-map-marker-alt"></i> Home District
                     </div>
-                    <div class="detail-value">{{$staff->home_district}}</div>
+                    <div class="detail-value">Kisoro</div>
                 </div>
 
                 <div class="detail-item">
                     <div class="detail-label">
                         <i class="fas fa-id-card"></i> NSSF Number
                     </div>
-                    <div class="detail-value">{{$staff->nssf}}</div>
+                    <div class="detail-value">7117200045088</div>
                 </div>
 
                 <div class="detail-item">
                     <div class="detail-label">
                         <i class="fas fa-hashtag"></i> TIN Number
                     </div>
-                    <div class="detail-value">{{$staff->tin}}</div>
+                    <div class="detail-value">1000652276</div>
                 </div>
 
                 <div class="detail-item">
                     <div class="detail-label">
                         <i class="fas fa-university"></i> Bank Name
                     </div>
-                    <div class="detail-value">{{$staff->bank}}</div>
+                    <div class="detail-value">ABSA</div>
                 </div>
 
                 <div class="detail-item">
                     <div class="detail-label">
                         <i class="fas fa-credit-card"></i> Account Number
                     </div>
-                    <div class="detail-value">{{$staff->bank_account}}</div>
+                    <div class="detail-value">6004288295</div>
                 </div>
             </div>
         </div>

@@ -114,3 +114,18 @@ Route::get('migrate', function(){
 
     return response()->json($results);
 });
+
+Route::get('storage_link', function(){
+    $target = realpath(__DIR__ . '/../storage/app/public');
+    $link = __DIR__ . '/storage';
+
+    if (is_link($link) || file_exists($link)) {
+        unlink($link); // remove existing if any
+    }
+
+    if (symlink($target, $link)) {
+        echo "Symlink created successfully: $link → $target";
+    } else {
+        echo "Failed to create symlink";
+    }
+});

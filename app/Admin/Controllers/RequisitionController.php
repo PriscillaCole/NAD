@@ -374,6 +374,13 @@ class RequisitionController extends AdminController
                     $form->decimal('frequency', __('Frequency'))->required();
                     $form->text('unit_of_measure', __('Unit of measure'))->required();
                     $form->decimal('unit_price', __('Unit cost(UGX)'))->required();
+                    $form->decimal('total_price', __('Total amount'))->readonly()
+                            ->customFormat(function ($value) {
+                                return !is_null($value) ? number_format($value, 0, '.', ',') : '';
+                            })
+                            ->attribute([
+                                'oninput' => "this.value = this.value.replace(/[^0-9.]/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');"
+                            ]);
                 
                 });
             }
@@ -417,11 +424,17 @@ class RequisitionController extends AdminController
                         $form->text('unit_of_measure', __('Unit of measure'))->required();
                         $form->decimal('frequency', __('Frequency'))->required();
                         $form->decimal('unit_price', __('Unit cost(UGX)'))
-                        /* ->attribute([
+                        ->attribute([
                             'oninput' => "this.value = this.value.replace(/[^0-9.]/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');"
-                        ]) */
+                        ])
                         ->required();
-                        $form->decimal('total_price', __('Total amount'))->readonly();
+                        $form->decimal('total_price', __('Total amount'))->readonly()
+                            ->customFormat(function ($value) {
+                                return !is_null($value) ? number_format($value, 0, '.', ',') : '';
+                            })
+                            ->attribute([
+                                'oninput' => "this.value = this.value.replace(/[^0-9.]/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');"
+                            ]);
                     
                     });
             }

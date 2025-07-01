@@ -189,7 +189,8 @@ class DashboardController extends Controller
             return [
                 'data' => [$used, $balance],
                 'programs' => $programs,
-                'budget' => $totalBudget
+                'budget' => $totalBudget,
+                'used' =>$totalUsed
             ];
         }else{
             

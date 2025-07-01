@@ -61,7 +61,7 @@
                 
                 <div class="budget-stats">
                     <div class="stat-item">
-                        <div class="stat-value">UGX 171K</div>
+                        <div class="stat-value">UGX {{number_format($used ?? 0)}}</div>
                         <div class="stat-label">Disbursed</div>
                     </div>
                     <div class="stat-item">

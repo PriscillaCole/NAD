@@ -12,6 +12,7 @@ use Encore\Admin\Grid;
 use Encore\Admin\Show;
 use Carbon\Carbon;
 use Encore\Admin\Actions\RowAction;
+use Encore\Admin\Facades\Admin;
 use Encore\Admin\Layout\Content;
 use Illuminate\Support\Facades\Log;
 
@@ -118,16 +119,16 @@ class ProgramController extends AdminController
             ]);
         }else {
             $form->text('budget', __('First Budget (UGX)'))
-            ->value(function ($value) {
-                return !is_null($value) ? number_format($value, 0, '.', ',') : ''; // Avoid error on create
+            ->customFormat(function ($value) {
+                return !is_null($value) ? number_format($value, 0, '.', ',') : '';
             })
             ->attribute([
                 'oninput' => "this.value = this.value.replace(/[^0-9.]/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');"
             ]);
 
                 $form->text('second_budget', __('Second Budget (UGX)'))
-                    ->value(function ($value) {
-                        return !is_null($value) ? number_format($value, 0, '.', ',') : ''; // Avoid error on create
+                    ->customFormat(function ($value) {
+                        return !is_null($value) ? number_format($value, 0, '.', ',') : '';
                     })
                     ->attribute([
                         'oninput' => "this.value = this.value.replace(/[^0-9.]/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');"
@@ -135,7 +136,7 @@ class ProgramController extends AdminController
                 // $form->text('note_for_review_2')->rules('required');
            
                 $form->text('third_budget', __('Third Budget (UGX)'))
-                    ->value(function ($value) {
+                    ->customFormat(function ($value) {
                         return !is_null($value) ? number_format($value, 0, '.', ',') : ''; // Avoid error on create
                     })
                     ->attribute([
@@ -172,6 +173,19 @@ class ProgramController extends AdminController
             $form->ignore(['review_cycle']);
             
         }); 
+
+        Admin::script('
+            document.addEventListener("DOMContentLoaded", function () {
+            const budgetInput = document.querySelector(\'input[name="budget"]\');
+            if (budgetInput) {
+                // Remove any existing commas, reformat it properly
+                let rawValue = budgetInput.value.replace(/,/g, \'\');
+                if (rawValue) { 
+                    budgetInput.value = Number(rawValue).toLocaleString(\'en-US\');
+                }
+            }
+        });
+        ');
 
         return $form;
     }

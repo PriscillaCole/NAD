@@ -117,9 +117,9 @@
                     <div class="budget-selector">
                         <form method="GET" action="{{ request()->url() }}">
                             <select name="programId2" id="program-filter" class="budget-dropdown" >
-                                <option value="">{{ __('Select Project') }}</option>
+                                <option style="color: black" value="">{{ __('Select Project') }}</option>
                                 @foreach($programs as $program)
-                                    <option value="{{ $program->id }}" {{ request()->query('programId2') == $program->id ? 'selected' : '' }}>
+                                    <option style="color: black" value="{{ $program->id }}" {{ request()->query('programId2') == $program->id ? 'selected' : '' }}>
                                         {{ $program->name }}
                                     </option>
                                 @endforeach

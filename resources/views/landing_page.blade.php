@@ -16,7 +16,7 @@
     <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicon.png') }}">
 
     <link rel="shortcut icon" href="{{ asset('favicon.png') }}">
-    
+
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -460,7 +460,7 @@
 
         <div class="main-content">
             <h1 class="hero-title loading" data-aos="fade-up" data-aos-duration="1000">
-                Track budgets, expenses, and requisitions
+                Track Budgets, Expenses, and Requisitions
             </h1>
             
             <p class="hero-subtitle loading" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="200">
