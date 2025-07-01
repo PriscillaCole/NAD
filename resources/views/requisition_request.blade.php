@@ -7,436 +7,719 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
-    <!-- Include Font Awesome for spinner icon -->
+    <!-- Include Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
-    <title>Requisition Report</title>
+    <title>Funds Requisition Report</title>
     <style>
+        /* * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f9f9f9;
-          
-        }
-        .container {
-            max-width: 900px;
-            margin: auto;
-            background-color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        } */
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            padding-left: 0;
         }
-        h1 {
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
             text-align: center;
-            color: #343a40;
+            position: relative;
+            width: 1000px;
         }
+
+        .logo1 {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #667eea;
+            font-weight: bold;
+            overflow: hidden;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            font-weight: 300;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        .header .subtitle {
+            font-size: 1.1em;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-approved { background: #d1ecf1; color: #0c5460; }
+        .status-accepted { background: #d4edda; color: #155724; }
+        .status-rejected { background: #f8d7da; color: #721c24; }
+        .status-amended { background: #e2e3e5; color: #383d41; }
+
         .section {
-            margin-bottom: 20px;
+            margin-bottom: 40px;
         }
-        .section h2 {
-            font-size: 1.5em;
-            border-bottom: 2px solid #007bff;
-            padding-bottom: 5px;
-            color: #007bff;
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e9ecef;
         }
+
+        .section-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+            margin-right: 15px;
+        }
+
+        .section-title {
+            font-size: 1.4em;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .info-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            border-left: 4px solid #667eea;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .info-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .info-label {
+            font-size: 0.9em;
+            color: #666;
+            font-weight: 500;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+        }
+
+        .info-label i {
+            margin-right: 8px;
+            color: #667eea;
+        }
+
+        .info-value {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #2c3e50;
+            word-break: break-word;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e9ecef;
+        }
+
         .table {
             width: 100%;
             border-collapse: collapse;
-            margin: 20px 0;
         }
-        .table, .table th, .table td {
-            border: 1px solid #ddd;
-        }
-        .table th, .table td {
-            padding: 10px;
-            text-align: left;
-        }
+
         .table th {
-            /* background-color: #f4f4f4; */
-            background:  -webkit-linear-gradient(top, #3c8dbc, #b3b6fc);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
+            padding: 18px 15px;
+            font-weight: 600;
+            text-align: left;
+            font-size: 0.9em;
+            letter-spacing: 0.5px;
         }
-        @media print {
-            .no-print {
-                display: none;
-            }
+
+        .table td {
+            padding: 15px;
+            border-bottom: 1px solid #e9ecef;
+            color: #495057;
         }
+
+        .table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .total-row {
+            background: #f8f9fa !important;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
         .btn {
             display: inline-block;
-            padding: 5px 25px;
-            background-color: #007bff;
-            color: white;
+            padding: 12px 24px;
+            border-radius: 10px;
             text-decoration: none;
-            border-radius: 5px;
-           
+            font-weight: 600;
+            font-size: 0.9em;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            margin: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
-         
+
         .btn:hover {
-            background-color: #0056b3;
-        } */
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-approve {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+        }
+
+        .btn-reject {
+            background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+            color: white;
+        }
+
+        .btn-amend {
+            background: linear-gradient(135deg, #17a2b8 0%, #6610f2 100%);
+            color: white;
+        }
+
+        .signatures-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 40px;
+        }
+
+        .signatures-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .signature-card {
+            text-align: center;
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .signature-img {
+            width: 150px;
+            height: 75px;
+            object-fit: contain;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .signature-name {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 0.9em;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #e9ecef;
+        }
+
+        .download-link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        .download-link:hover {
+            color: #764ba2;
+            text-decoration: underline;
+        }
 
         .modal {
-            display: none; 
-            position: fixed; 
-            z-index: 1; 
+            display: none;
+            position: fixed;
+            z-index: 1000;
             left: 0;
             top: 0;
             width: 100%;
             height: 100%;
-            overflow: auto; 
-            background-color: rgb(0,0,0); 
-            background-color: rgba(0,0,0,0.4); 
-            padding-top: 60px;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
         }
+
         .modal-content {
-            background-color: #fefefe;
+            background: white;
             margin: 5% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%; 
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
             max-width: 500px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            position: relative;
         }
+
         .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            font-size: 24px;
             font-weight: bold;
-        }
-        .close:hover,
-        .close:focus {
-            color: black;
-            text-decoration: none;
+            color: #999;
             cursor: pointer;
+            transition: color 0.3s;
         }
-      
-        .btn-approve {
-            background-color: #28a745;
+
+        .close:hover {
+            color: #333;
         }
-        .btn-reject {
-            background-color: #dc3545;
-        }
-        .btn-amend {
-            background-color: #17a2b8;
-        }
-        img {
-            display: block;
-            margin: 0 auto;
-            border-radius: 50%;
-            width: 200px;
-            height: 100px;
-            object-fit: cover;
-            object-position: center;
+
+        .modal h3 {
             margin-bottom: 20px;
+            color: #2c3e50;
+            font-size: 1.3em;
         }
-        .status-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+
+        .modal textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 1em;
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .modal textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .spinner {
+            display: none;
+            margin-right: 8px;
+        }
+
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white; padding: 0; }
+            .container { box-shadow: none; border-radius: 0; }
+            .header { background: #667eea !important; -webkit-print-color-adjust: exact; }
+        }
+
+        @media (max-width: 768px) {
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .status-bar {
+                flex-direction: column;
+                gap: 15px;
+                align-items: stretch;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .btn {
+                text-align: center;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <img src="{{ asset('login-template/images/logo.webp') }}" alt="Logo" >
-        <h1>FUNDS REQUISITION FORM</h1>
-        <label>Date Created: {{ $requisition->created_at }}</label>
-        <!-- make the concept note a downloadable file -->
-       
-        <div class="status-container">
-        <label class="no-print" >Concept note : <a href="{{ asset('storage/'.$requisition->concept_note) }}" download onclick="forceDownload(event, '{{ asset('storage/' . $requisition->concept_note) }}')">Download Concept Note</a></label>
-                <div class="field">
-                    <label for="status">Status</label>
-                    @if ($requisition->status == 'pending')
-                        <span class="label label-warning">Pending</span>
-                    @elseif ($requisition->status == 'approved')
-                        <span class="label label-success">Authorized</span>
-                    @elseif ($requisition->status == 'accepted')
-                        <span class="label label-primary">Approved</span>
-                    @elseif ($requisition->status == 'rejected')
-                        <span class="label label-danger">Rejected</span>
-                    @elseif ($requisition->status == 'amended')
-                        <span class="label label-info">Amended</span>
-                    @else
-                        <span class="label label-secondary">Unknown</span>
-                    @endif
+        <!-- Header Section -->
+        <div class="header">
+            <div class="logo1">
+                <img style="width: 100%" src="{{ asset('login-template/images/logo.webp') }}" alt="Logo" >
+                {{-- NAD --}}</div>
+            <h1>Funds Requisition Report</h1>
+            <div class="subtitle">Financial Accountability & Transparency</div>
+        </div>
+
+        <div class="content">
+            <!-- Status Bar -->
+            <div class="status-bar">
+                <div>
+                    <div class="info-label"><i class="fas fa-calendar"></i> Date Created</div>
+                    <div class="info-value">{{ $requisition->created_at }}</div>
                 </div>
-                <button class="btn no-print" onclick="window.print()">Print Request</button>
-            </div>
-      
-        <!-- General Information Section -->
-        <div class="section">
-        <h2>General Information</h2>
-        <table class="table table-bordered">
-                <tr>
-                    <th>Staff ID</th>
-                    <td>{{ $requisition->staff->staff_number}}</td>
-                </tr>
-                <tr>
-                    <th>Requested by</th>
-                    <td>{{ $requisition->staff->name }}</td>
-                </tr>
-                <tr>
-                    <th>Code</th>
-                    <td>{{ $requisition->code }}</td>
-                </tr>
-                @if($requisition->program?->type == 2)
-                <tr>
-                    <th>Program</th>
-                    <td>{{ $requisition->program?->name }}</td>
-                </tr>
-                @else
-                <tr>
-                    <th>Outcome</th>
-                    <td>{{ $requisition->activity->output->outcome->name }}</td> 
-                </tr>
-                <tr>
-                    <th>Output</th>
-                    <td>{{ $requisition->activity->output->name }}</td> 
-                </tr>
                 
-                    {{-- <td>{{ $requisition->activity->name }}</td> --}}
-                @endif
-                    
-                    @if($requisition->program?->type == 2)
-                        <th>Outcome</th>
-                        <td>{{ $requisition->adminoutcome?->name }}</td>
-                    @else
-                        <th>Activity</th>
-                        {{-- <td>{{ $requisition->activity->output->outcome->program->name }}</td>  --}}
-                        <td>{{ $requisition->activity->name }}</td>
-                    @endif
-                </tr>
-                <tr>
-                    <th>Activity Remaining Budget</th>
-                    <td>UGX {{ number_format($remaining) }}</td>
-                </tr>
-            {{-- <tbody>
-                <tr>
-                    @if($requisition->admin_program_id)
-                        <td>{{ $requisition->admin_program->name }}</td>
-                    @else
-                        <td>{{ $requisition->activity->output->outcome->program->name }}</td> 
-                        <td>{{ $requisition->activity->name }}</td>
-                    @endif
-                    
-                    
-                </tr>
-            </tbody> --}}
-        </table>
-
-        </div>
-
-
-         <!-- Requisition items Section -->
-         <div class="section">
-         <h2>Requisition Items</h2>
-        
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>No.</th>
-                    <th>Name</th>
-                    <th>Quantity</th>
-                    <th>Frequency</th>
-                    <th>Unit Price(UGX)</th>
-                    <th>Total Price(UGX)</th>
-                </tr>
-            </thead>
-            <tbody>
-                @php
-                    $counter = 1;
-                @endphp
-                @foreach($requisition->requisition_items as $item)
-                    <?php
-                        // Assuming you have fetched $item from the database
-                        $unit_price = $item->unit_price;
-                        $quantity = $item->quantity;
-                        $frequency = $item->frequency;
-                        $total_price = $unit_price * $quantity* $frequency ;
-                    ?>
-                    <tr>
-                        <td>{{ $counter++ }}</td>
-                        
-                        @if($item->admin_budget_line_id)
-                            <td>{{ $item->adminbudgetline->name }}</td>
-                        @else
-                            <td>{{ $item->budgetline->name }}</td>
-                        @endif
-                        <td>{{ $item->quantity }} {{$item->unit_of_measure}}</td>
-                        <td>{{ $item->frequency }} </td>
-                        <td>{{ number_format($item->unit_price) }}</td>
-                        <td>{{ number_format($total_price) }}</td>
-                    </tr>
-                @endforeach
-                <tr>
-                    <td colspan="5"><b>Overall Estimated Cost (UGX):</b></td>
-                    <td>{{ number_format($requisition->amount) }}</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-
-       <!-- Approval Section -->
-<div class="section">
-    <h2>Approval list</h2>
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>No.</th>
-                <th>Roles</th>
-                <th>Reviewed by</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            @php
-                $counter = 1; // Initialize a counter variable
-                // Get unique comments by staff_id
-                $uniqueComments = $requisition->comments->unique('commented_by');
-            @endphp
-            @if($requisition->status == 'amended')
-                <tr>
-                    <td>1</td>
-                    <td>Head of finance</td>
-                    <td>Mwebaza Rolaine</td>
-                    <td>{{ $requisition->status }}</td>
-
-                </tr>
-            @endif
-            @foreach($uniqueComments as $comment)
-                <tr>
-                    <td>{{ $counter++ }}</td> <!-- Display incremental number -->
-                    <td>
-                        @if($comment->staff && $comment->staff->user)
-                            @if($comment->staff->user->roles->isNotEmpty())
-                                @foreach($comment->staff->user->roles as $role)
-                                    {{ $role->name }}
-                                    @if(!$loop->last) 
-                                        , 
-                                    @endif
-                                @endforeach
-                            @else
-                                No Roles Assigned
-                            @endif
-                        @else
-                            No User or Staff
-                        @endif
-                    </td>
-                    <td>{{ $comment->staff ? $comment->staff->name : 'Unknown' }}</td>
-                    <td>{{ $comment->status }}</td>
-                </tr>
-            @endforeach
-        </tbody>
-    </table>
-</div>
-
-        <!-- Comments Section -->
-        <div class="section">
-        <h2>Comments</h2>
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>No.</th>
-                    <th>Comment</th>
-                    <th>Created by</th>
-                    <th>Created at</th>
-                </tr>
-            </thead>
-            <tbody>
-                @php
-                    $counter = 1; // Initialize a counter variable
-                @endphp
-                @foreach($requisition->comments as $comment)
-                    <tr>
-                        <td>{{ $counter++ }}</td> <!-- Display incremental number -->
-                        <td>{{ $comment->comment }}</td>
-                        <td>{{ $comment->staff ? $comment->staff->name : 'Unknown' }}</td>
-                        <td>{{ $comment->created_at }}</td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
-
-    <!-- Ammendment notes if any  -->
-    @if ($requisition->amendment_notes != null)
-    <div class="section">
-        <h2>Ammendment Notes</h2>
-        <p>{{ $requisition->amendment_notes }}</p>
-    </div>
-    @endif
-
-    <!-- signatures -->
-    <div class="section">
-       
-        <div class="status-container">
-        
-        <div class="field" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-            <div style="text-align: center;">
-                    <label for="signature">{{ $requisition->staff->name }}, Program Manager</label><br>
-                    <img src="{{ asset('storage/'.$requisition->staff->signature) }}" alt="signature" style="width: 200px; height: 100px; border-radius: 0%;">
+                <div>
+                    <div class="info-label"><i class="fas fa-file-download"></i> Concept Note</div>
+                    <a href="{{ asset('storage/'.$requisition->concept_note) }}" 
+                       download 
+                       class="download-link no-print"
+                       onclick="forceDownload(event, '{{ asset('storage/' . ($requisition->concept_note ?? '')) }}')">
+                        Download Concept Note
+                    </a>
                 </div>
-            @if ($requisition->status != 'pending')
-                <div style="text-align: center;">
-                    <label for="signature">Mwebaza Rolaine, Head of Finance</label><br>
-                    <img src="{{ asset('storage/signatures/hofs.png') }}" alt="signature" style="width: 200px; height: 100px; border-radius: 0%;">
+                
+                <div>
+                    <div class="info-label"><i class="fas fa-info-circle"></i> Status</div>
+                    <span class="status-badge status-{{ $requisition->status ?? 'pending' }}">
+                        {{ ucfirst($requisition->status ?? 'Pending') }}
+                    </span>
                 </div>
-                @if($requisition->status == 'approved')
-                    <div style="text-align: center;">
-                        <label for="signature">Edson Ngirabakunzi, Country Director</label><br>
-                        <img src="{{ asset('storage/signatures/cds.png') }}" alt="signature" style="width: 200px; height: 100px; border-radius: 0%; object-fit: fill;">
-                    </div>
-                @endif
-            @endif
-        </div>
-
-</div>
-
-        </div>
-    
-        <!-- check the role of the logged in user -->
-        @if(auth()->user()!=null)
-            @if(auth()->user()->roles->isNotEmpty())
-                @foreach(auth()->user()->roles as $role)
-                    @if($role->slug == 'finance' )
-                        <a href="#" id="acceptBtn" class="btn btn-accept no-print">Approve</a>
-                        <a href="#" id="rejectBtn" class="btn btn-reject no-print">Reject</a>
-                        <a href="#" id="haltBtn" class="btn btn-halt no-print">On Hold</a>
-                        <a href="/requisitions/{{$requisition->id}}/edit" id="amendBtn" class="btn btn-amend no-print">Amend</a>
-                    @elseif($role->slug == 'director' && $requisition->status == 'accepted')
-                        <a href="#" id="approveBtn" class="btn btn-approve no-print">Authorize</a>
-                        <a href="#" id="rejectBtn" class="btn btn-reject no-print">Reject</a>
-                        <a href="#" id="haltBtn" class="btn btn-halt no-print">Halt</a>
-                        <a href="/requisitions/{{$requisition->id}}/edit" id="amendBtn" class="btn btn-amend no-print">Amend</a>
-                    @endif
-                        
-                @endforeach
-            @endif
-        @endif
-        </div>
-
-        <!-- Modal -->
-        <div id="reasonModal" class="modal">
-            <div class="modal-content">
-                <span class="close">&times;</span>
-                <h3>Enter Comment</h3>
-                <form id="reasonForm">
-                    <textarea id="reason" rows="4" style="width: 100%;" placeholder="Enter comment here..."></textarea>
-                    <br><br>
-                    <button type="button" id="submitReason" class="btn btn-approve">
-                        <span id="spinner" class="spinner" style="display: none;">
-                            <i class="fas fa-spinner fa-spin"></i> <!-- Font Awesome Spinner Icon -->
-                        </span>
-                        Submit
-                    </button>
-                </form>
+                
+                <button class="btn btn-primary no-print" onclick="window.print()">
+                    <i class="fas fa-print"></i> Print Report
+                </button>
             </div>
+
+            <!-- Report Details Section -->
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="fas fa-info-circle"></i>
+                    </div>
+                    <div class="section-title">Report Details</div>
+                </div>
+                
+                <div class="info-grid">
+                    <div class="info-card">
+                        <div class="info-label"><i class="fas fa-id-badge"></i> Staff ID</div>
+                        <div class="info-value">{{ $requisition->staff->staff_number }}</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-label"><i class="fas fa-user"></i> Staff Member</div>
+                        <div class="info-value">{{ $requisition->staff->name  }}</div>
+                    </div>
+                    
+                    <div class="info-card">
+                        <div class="info-label"><i class="fas fa-hashtag"></i> Requisition ID</div>
+                        <div class="info-value">{{ $requisition->code }}</div>
+                    </div>
+                    
+                    <div class="info-card">
+                        <div class="info-label"><i class="fas fa-project-diagram"></i> Program</div>
+                        <div class="info-value">{{ $requisition->program?->name }}</div>
+                    </div>
+                    
+                    <div class="info-card">
+                        <div class="info-label"><i class="fas fa-tasks"></i> Activity</div>
+                        <div class="info-value">{{ $requisition->activity->name }}</div>
+                    </div>
+                    
+                    <div class="info-card">
+                        <div class="info-label"><i class="fas fa-wallet"></i> Activity Remaining Budget</div>
+                        <div class="info-value">UGX {{ number_format($remaining ) }}</div>
+                    </div>
+                    
+                    
+                </div>
+            </div>
+
+            <!-- Financial Details Section -->
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="fas fa-calculator"></i>
+                    </div>
+                    <div class="section-title">Financial Details</div>
+                </div>
+                
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>No.</th>
+                                <th>Item Name</th>
+                                <th>Quantity</th>
+                                <th>Frequency</th>
+                                <th>Unit Price (UGX)</th>
+                                <th>Total Price (UGX)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Sample data - replace with actual loop -->
+                            @php
+                                $counter = 1;
+                            @endphp
+                            @foreach($requisition->requisition_items as $item)
+                                <?php
+                                    // Assuming you have fetched $item from the database
+                                    $unit_price = $item->unit_price;
+                                    $quantity = $item->quantity;
+                                    $frequency = $item->frequency;
+                                    $total_price = $unit_price * $quantity* $frequency ;
+                                ?>
+                                <tr>
+                                    <td>{{ $counter++ }}</td>
+                                    @if($item->admin_budget_line_id)
+                                        <td>{{ $item->adminbudgetline->name }}</td>
+                                    @else
+                                        <td>{{ $item->budgetline->name }}</td>
+                                    @endif
+                                    <td>{{ $item->quantity }} {{$item->unit_of_measure}}</td>
+                                    <td>{{ $item->frequency }} </td>
+                                    <td>{{ number_format($item->unit_price) }}</td>
+                                    <td>{{ number_format($total_price) }}</td>
+                                </tr>
+                            @endforeach
+                           
+                            <tr class="total-row">
+                                <td colspan="5"><strong>Total Estimated Cost (UGX):</strong></td>
+                                <td><strong>{{ number_format($requisition->amount) }}</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Approval Section -->
+            {{-- <div class="section">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="section-title">Approval Process</div>
+                </div>
+                
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>No.</th>
+                                <th>Role</th>
+                                <th>Reviewed By</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>Program Manager</td>
+                                <td>{{ $requisition->staff->name ?? 'Nantabo Hildah' }}</td>
+                                <td><span class="status-badge status-accepted">Submitted</span></td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>Head of Finance</td>
+                                <td>Mwebaza Rolaine</td>
+                                <td><span class="status-badge status-pending">Pending</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div> --}}
+
+            <!-- Comments Section -->
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <div class="section-title">Comments & Feedback</div>
+                </div>
+                
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>No.</th>
+                                <th>Comment</th>
+                                <th>Created By</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @php
+                                $counter = 1; // Initialize a counter variable
+                            @endphp
+                            @foreach($requisition->comments as $comment)
+                                <tr>
+                                    <td>{{ $counter++ }}</td> <!-- Display incremental number -->
+                                    <td>{{ $comment->comment }}</td>
+                                    <td>{{ $comment->staff ? $comment->staff->name : 'Unknown' }}</td>
+                                    <td>{{ $comment->created_at }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Signatures Section -->
+            <div class="signatures-section">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="fas fa-signature"></i>
+                    </div>
+                    <div class="section-title">Digital Signatures</div>
+                </div>
+                
+                <div class="signatures-grid">
+                    <div class="signature-card">
+                        {{-- <img src="data:image/svg+xml,%3Csvg xmlns='{{ asset('storage/'.$requisition->staff->signature) }}' width='150' height='75' viewBox='0 0 150 75'%3E%3Crect width='150' height='75' fill='%23f8f9fa' stroke='%23dee2e6'/%3E%3Ctext x='75' y='40' text-anchor='middle' font-family='Arial' font-size='12' fill='%23666'%3ESignature%3C/text%3E%3C/svg%3E" 
+                             alt="Signature" class="signature-img"> --}}
+                        <img src="{{ asset('storage/'.$requisition->staff->signature) }}" alt="Signature" class="signature-img">
+                        <div class="signature-name">{{ $requisition->staff->name ?? 'Nantabo Hildah' }}<br>Program Manager</div>
+                    </div>
+                    @if ($requisition->status != 'pending')
+                        <div class="signature-card">
+                            <img src="{{ asset('storage/signatures/hofs.png') }}" alt="signature" class="signature-img">
+                            <div class="signature-name">Mwebaza Rolaine<br>Head of Finance</div>
+                        </div>
+                        @if($requisition->status == 'approved')
+                            <div class="signature-card">
+                                <img src="{{ asset('storage/signatures/cds.png') }}" alt="signature" class="signature-img">
+                                <div class="signature-name">Edson Ngirabakunzi<br>Country Director</div>
+                            </div>
+                        @endif
+                    @endif
+                </div>
+            </div>
+
+            @if(auth()->user()!=null)
+                @if(auth()->user()->roles->isNotEmpty())
+                    @foreach(auth()->user()->roles as $role)
+                        @if($role->slug == 'finance' && $requisition->status != 'approved')
+                <!-- Action Buttons -->
+                            <div class="action-buttons no-print">
+                                <a href="#" id="acceptBtn" class="btn btn-approve">
+                                    <i class="fas fa-check"></i> Approve
+                                </a>
+                                <a href="#" id="rejectBtn" class="btn btn-reject">
+                                    <i class="fas fa-times"></i> Reject
+                                </a>
+                                <a href="#" id="haltBtn" class="btn btn-amend">
+                                    <i class="fas fa-pause"></i> On Hold
+                                </a>
+                                <a href="#" id="amendBtn" class="btn btn-primary">
+                                    <i class="fas fa-edit"></i> Amend
+                                </a>
+                            </div>
+                            @elseif($role->slug == 'director' && $requisition->status == 'accepted')
+                                <div class="action-buttons no-print">
+                                    <a href="#" id="acceptBtn" class="btn btn-approve">
+                                        <i class="fas fa-check"></i> Approve
+                                    </a>
+                                    <a href="#" id="rejectBtn" class="btn btn-reject">
+                                        <i class="fas fa-times"></i> Reject
+                                    </a>
+                                    <a href="#" id="haltBtn" class="btn btn-amend">
+                                        <i class="fas fa-pause"></i> On Hold
+                                    </a>
+                                    <a href="#" id="amendBtn" class="btn btn-primary">
+                                        <i class="fas fa-edit"></i> Amend
+                                    </a>
+                                </div>
+
+                            {{-- @endif --}}
+                        @endif
+                            
+                    @endforeach
+                @endif
+            @endif
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="reasonModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3><i class="fas fa-comment"></i> Enter Comment</h3>
+            <form id="reasonForm">
+                <textarea id="reason" placeholder="Enter your comment here..." required></textarea>
+                <br><br>
+                <button type="button" id="submitReason" class="btn btn-approve">
+                    <span id="spinner" class="spinner">
+                        <i class="fas fa-spinner fa-spin"></i>
+                    </span>
+                    <i class="fas fa-paper-plane"></i> Submit
+                </button>
+            </form>
         </div>
     </div>
 
     <script>
         // Modal functionality
         var modal = document.getElementById("reasonModal");
-        // var modal = document.getElementByClassName("modal");
         var closeBtn = document.getElementsByClassName("close")[0];
         
         var approveBtn = document.getElementById("approveBtn");
@@ -446,38 +729,36 @@
         var submitReason = document.getElementById("submitReason");
         var reasonInput = document.getElementById("reason");
 
-        if (approveBtn) {
-            approveBtn.onclick = function() {
-                modal.style.display = "block";
-                submitReason.onclick = function() {
-                    sendReason('approved');
-                }
-            }
-        } else {
-            acceptBtn.onclick = function() {
+        // Event listeners for buttons
+        if (acceptBtn) {
+            acceptBtn.onclick = function(e) {
+                e.preventDefault();
                 modal.style.display = "block";
                 submitReason.onclick = function() {
                     sendReason('accepted');
                 }
             }
         }
-        
 
-        rejectBtn.onclick = function() {
-            modal.style.display = "block";
-            submitReason.onclick = function() {
-                sendReason('rejected');
+        if (rejectBtn) {
+            rejectBtn.onclick = function(e) {
+                e.preventDefault();
+                modal.style.display = "block";
+                submitReason.onclick = function() {
+                    sendReason('rejected');
+                }
             }
         }
 
-        haltBtn.onclick = function() {
-            modal.style.display = "block";
-            submitReason.onclick = function() {
-                sendReason('halted');
+        if (haltBtn) {
+            haltBtn.onclick = function(e) {
+                e.preventDefault();
+                modal.style.display = "block";
+                submitReason.onclick = function() {
+                    sendReason('halted');
+                }
             }
         }
-
-      
 
         closeBtn.onclick = function() {
             modal.style.display = "none";
@@ -491,7 +772,7 @@
 
         // Function to force download a file
         function forceDownload(event, url) {
-            event.preventDefault(); // Prevent default link action
+            event.preventDefault();
             
             fetch(url)
                 .then(response => {
@@ -511,37 +792,37 @@
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    toastr.error('There was an error downloading the file.', 'Error'); // Show error message
+                    if (typeof toastr !== 'undefined') {
+                        toastr.error('There was an error downloading the file.', 'Error');
+                    }
                 });
         }
 
         function sendReason(action) {
             var reason = reasonInput.value;
-            var submitButton = document.getElementById('submitReason'); // Select the submit button
-            var spinner = document.getElementById('spinner'); // Select the spinner
+            var submitButton = document.getElementById('submitReason');
+            var spinner = document.getElementById('spinner');
 
             if (reason.trim() === '') {
-                toastr.error('Please enter a reason.', 'Error'); // Use Toastr for error message
+                if (typeof toastr !== 'undefined') {
+                    toastr.error('Please enter a reason.', 'Error');
+                }
                 return;
             }
 
-            // Disable the submit button and show the spinner
+            // Show loading state
             submitButton.disabled = true;
-            spinner.style.display = 'inline-block'; // Show spinner
-            submitButton.innerHTML = 'Submitting...'; // Show loading text
+            spinner.style.display = 'inline-block';
+            submitButton.innerHTML = '<span class="spinner"><i class="fas fa-spinner fa-spin"></i></span> Submitting...';
 
-            // Assuming you have the requisition ID available
             var requisitionId = '{{ $requisition->id }}'; // Ensure this is correctly set
 
-            // Prepare the data to be sent
             var data = {
                 action: action,
                 reason: reason,
                 requisition_id: requisitionId
             };
-
-            console.log(data);
-            // Perform the AJAX request to send data to the server
+            // Simulate API call (replace with actual implementation)
             fetch('/comments', { // Adjust the URL to your server endpoint
                 method: 'POST',
                 headers: {
@@ -576,42 +857,36 @@
                 spinner.style.display = 'none'; // Hide spinner
                 submitButton.innerHTML = 'Submit'; // Reset the button text
             });
-        }
-
-        function saveAccept(action) {
-            var requisitionId = '{{ $requisition->id }}'; // Ensure it's properly set in Blade
-
-            var data = {
-                action: action,
-                requisition_id: requisitionId
-            };
-
-            console.log("Sending data:", data);
-
-            fetch('/comments', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => {
-                if (!response.ok) {
-                    return response.text().then(text => { throw new Error(text); });
+            /* setTimeout(() => {
+                console.log('Action:', action, 'Reason:', reason);
+                
+                if (typeof toastr !== 'undefined') {
+                    toastr.success('Your decision has been recorded.', 'Success');
                 }
-                return response.json();
-            })
-            .then(data => {
-                console.log('Success:', data);
-                toastr.success('Your decision has been recorded.', 'Success');
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                toastr.error('There was an error recording your decision.', 'Error');
-            });
+                
+                modal.style.display = "none";
+                
+                // Reset button state
+                submitButton.disabled = false;
+                spinner.style.display = 'none';
+                submitButton.innerHTML = '<i class="fas fa-paper-plane"></i> Submit';
+                reasonInput.value = '';
+            }, 2000); */
         }
 
+        // Add smooth scrolling for better UX
+        // document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        //     anchor.addEventListener('click', function (e) {
+        //         e.preventDefault();
+        //         const target = document.querySelector(this.getAttribute('href'));
+        //         if (target) {
+        //             target.scrollIntoView({
+        //                 behavior: 'smooth',
+        //                 block: 'start'
+        //             });
+        //         }
+        //     });
+        // });
     </script>
-    </body>
-    </html>
+</body>
+</html>

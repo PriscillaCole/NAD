@@ -3,473 +3,615 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staff Profile - NGIRABAKUNZI EDSON</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Include Toastr CSS & JS from a CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+    <!-- Include Font Awesome for spinner icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <title>Requisition Report</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+          
         }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #343a40;
+        }
+        .section {
+            margin-bottom: 20px;
+        }
+        .section h2 {
+            font-size: 1.5em;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 5px;
+            color: #007bff;
+        }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .table, .table th, .table td {
+            border: 1px solid #ddd;
+        }
+        .table th, .table td {
+            padding: 10px;
+            text-align: left;
+        }
+        .table th {
+            /* background-color: #f4f4f4; */
+            background:  -webkit-linear-gradient(top, #3c8dbc, #b3b6fc);
+            color: white;
+        }
+        @media print {
+            .no-print {
+                display: none;
+            }
+        }
+        .btn {
+            display: inline-block;
+            padding: 5px 25px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+           
+        }
+         
+        .btn:hover {
+            background-color: #0056b3;
+        } */
 
-        .header {
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 1; 
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto; 
+            background-color: rgb(0,0,0); 
+            background-color: rgba(0,0,0,0.4); 
+            padding-top: 60px;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%; 
+            max-width: 500px;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+      
+        .btn-approve {
+            background-color: #28a745;
+        }
+        .btn-reject {
+            background-color: #dc3545;
+        }
+        .btn-amend {
+            background-color: #17a2b8;
+        }
+        img {
+            display: block;
+            margin: 0 auto;
+            border-radius: 50%;
+            width: 200px;
+            height: 100px;
+            object-fit: cover;
+            object-position: center;
+            margin-bottom: 20px;
+        }
+        .status-container {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 15px 25px;
-            margin-bottom: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .header h1 {
-            color: white;
-            font-size: 2rem;
-            font-weight: 300;
-        }
-
-        .header-actions {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-        }
-
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 25px;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s ease;
-            font-weight: 500;
-        }
-
-        .btn-home {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .btn-home:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: translateY(-2px);
-        }
-
-        .btn-back {
-            background: linear-gradient(45deg, #FF6B6B, #FF8E53);
-            color: white;
-        }
-
-        .btn-back:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
-        }
-
-        .container {
-            display: grid;
-            grid-template-columns: 1fr 2fr;
-            gap: 30px;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            transition: all 0.3s ease;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
-        }
-
-        .basic-info {
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .basic-info::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            /* background: linear-gradient(45deg, transparent, rgba(102, 126, 234, 0.1), transparent); */
-            transform: rotate(45deg);
-            /* animation: shimmer 3s infinite; */
-        }
-
-        /* @keyframes shimmer {
-            0% { transform: translateX(-100%) rotate(45deg); }
-            100% { transform: translateX(100%) rotate(45deg); }
-        } */
-
-        .profile-image {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 25px;
-            position: relative;
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
-            transition: all 0.3s ease;
-        }
-
-        .profile-image:hover {
-            transform: scale(1.05);
-            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
-        }
-
-        .profile-image i {
-            font-size: 4rem;
-            color: white;
-        }
-
-        .staff-badge {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            background: linear-gradient(45deg, #4CAF50, #45a049);
-            color: white;
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-size: 0.8rem;
-            font-weight: bold;
-        }
-
-        .basic-info h2 {
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 1.8rem;
-            font-weight: 600;
-        }
-
-        .position {
-            color: #667eea;
-            font-size: 1.1rem;
-            font-weight: 500;
-            margin-bottom: 20px;
-            padding: 8px 16px;
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
-            border-radius: 20px;
-            display: inline-block;
-        }
-
-        .info-item {
-            display: flex;
-            align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px solid #f0f0f0;
-            transition: all 0.3s ease;
-        }
-
-        .info-item:hover {
-            background: rgba(102, 126, 234, 0.05);
-            padding-left: 10px;
-            border-radius: 10px;
-        }
-
-        .info-item:last-child {
-            border-bottom: none;
-        }
-
-        .info-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 15px;
-            color: white;
-            font-size: 1rem;
-        }
-
-        .info-content {
-            flex: 1;
-        }
-
-        .info-label {
-            font-weight: 600;
-            color: #555;
-            font-size: 0.9rem;
-            margin-bottom: 2px;
-        }
-
-        .info-value {
-            color: #333;
-            font-size: 1rem;
-        }
-
-        .additional-details {
-            position: relative;
-        }
-
-        .additional-details h2 {
-            color: #333;
-            margin-bottom: 25px;
-            font-size: 2rem;
-            font-weight: 600;
-            position: relative;
-            padding-bottom: 10px;
-        }
-
-        .additional-details h2::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 60px;
-            height: 3px;
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            border-radius: 2px;
-        }
-
-        .details-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        .detail-item {
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
-            padding: 20px;
-            border-radius: 15px;
-            border-left: 4px solid #667eea;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .detail-item::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
-            border-radius: 50%;
-            transform: translate(20px, -20px);
-        }
-
-        .detail-item:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.15);
-            border-left-color: #764ba2;
-        }
-
-        .detail-label {
-            font-weight: 600;
-            color: #667eea;
-            font-size: 0.9rem;
-            margin-bottom: 5px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .detail-value {
-            color: #333;
-            font-size: 1.1rem;
-            font-weight: 500;
-        }
-
-        .status-indicators {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-            justify-content: center;
-        }
-
-        .status-badge {
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .status-active {
-            background: linear-gradient(45deg, #4CAF50, #45a049);
-            color: white;
-        }
-
-        .status-verified {
-            background: linear-gradient(45deg, #2196F3, #1976D2);
-            color: white;
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-            
-            .details-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .header {
-                flex-direction: column;
-                gap: 15px;
-                text-align: center;
-            }
-            
-            .header-actions {
-                justify-content: center;
-            }
         }
     </style>
 </head>
 <body>
-    <!-- <div class="header">
-        <h1><i class="fas fa-user-circle"></i> Staff Profile</h1>
-        <div class="header-actions">
-            <a href="#" class="btn btn-home">
-                <i class="fas fa-home"></i> Home
-            </a>
-            <a href="#" class="btn btn-back">
-                <i class="fas fa-arrow-left"></i> Back
-            </a>
-        </div>
-    </div> -->
-
     <div class="container">
-        <div class="card basic-info">
-            <div class="profile-image">
-                <i class="fas fa-user"></i>
-                <div class="staff-badge">ID: 1</div>
+        <img src="{{ asset('login-template/images/logo.webp') }}" alt="Logo" >
+        <h1>FUNDS REQUISITION FORM</h1>
+        <label>Date Created: {{ $requisition->created_at }}</label>
+        <!-- make the concept note a downloadable file -->
+       
+        <div class="status-container">
+        <label class="no-print" >Concept note : <a href="{{ asset('storage/'.$requisition->concept_note) }}" download onclick="forceDownload(event, '{{ asset('storage/' . $requisition->concept_note) }}')">Download Concept Note</a></label>
+                <div class="field">
+                    <label for="status">Status</label>
+                    @if ($requisition->status == 'pending')
+                        <span class="label label-warning">Pending</span>
+                    @elseif ($requisition->status == 'approved')
+                        <span class="label label-success">Authorized</span>
+                    @elseif ($requisition->status == 'accepted')
+                        <span class="label label-primary">Approved</span>
+                    @elseif ($requisition->status == 'rejected')
+                        <span class="label label-danger">Rejected</span>
+                    @elseif ($requisition->status == 'amended')
+                        <span class="label label-info">Amended</span>
+                    @else
+                        <span class="label label-secondary">Unknown</span>
+                    @endif
+                </div>
+                <button class="btn no-print" onclick="window.print()">Print Request</button>
             </div>
-            
-            <h2>NGIRABAKUNZI EDSON</h2>
-            <div class="position">Country Director</div>
-            
-            <div class="status-indicators">
-                <span class="status-badge status-active">Active</span>
-                <span class="status-badge status-verified">Verified</span>
-            </div>
+      
+        <!-- General Information Section -->
+        <div class="section">
+        <h2>General Information</h2>
+        <table class="table table-bordered">
+                <tr>
+                    <th>Staff ID</th>
+                    <td>{{ $requisition->staff->staff_number}}</td>
+                </tr>
+                <tr>
+                    <th>Requested by</th>
+                    <td>{{ $requisition->staff->name }}</td>
+                </tr>
+                <tr>
+                    <th>Code</th>
+                    <td>{{ $requisition->code }}</td>
+                </tr>
+                @if($requisition->program?->type == 2)
+                <tr>
+                    <th>Program</th>
+                    <td>{{ $requisition->program?->name }}</td>
+                </tr>
+                @else
+                <tr>
+                    <th>Outcome</th>
+                    <td>{{ $requisition->activity->output->outcome->name }}</td> 
+                </tr>
+                <tr>
+                    <th>Output</th>
+                    <td>{{ $requisition->activity->output->name }}</td> 
+                </tr>
+                
+                    {{-- <td>{{ $requisition->activity->name }}</td> --}}
+                @endif
+                    
+                    @if($requisition->program?->type == 2)
+                        <th>Outcome</th>
+                        <td>{{ $requisition->adminoutcome?->name }}</td>
+                    @else
+                        <th>Activity</th>
+                        {{-- <td>{{ $requisition->activity->output->outcome->program->name }}</td>  --}}
+                        <td>{{ $requisition->activity->name }}</td>
+                    @endif
+                </tr>
+                <tr>
+                    <th>Activity Remaining Budget</th>
+                    <td>UGX {{ number_format($remaining) }}</td>
+                </tr>
+            {{-- <tbody>
+                <tr>
+                    @if($requisition->admin_program_id)
+                        <td>{{ $requisition->admin_program->name }}</td>
+                    @else
+                        <td>{{ $requisition->activity->output->outcome->program->name }}</td> 
+                        <td>{{ $requisition->activity->name }}</td>
+                    @endif
+                    
+                    
+                </tr>
+            </tbody> --}}
+        </table>
+
         </div>
 
-        <div class="card additional-details">
-            <h2><i class="fas fa-info-circle"></i> Additional Details</h2>
-            
-            <div class="details-grid">
-                <div class="detail-item">
-                    <div class="detail-label">
-                        <i class="fas fa-calendar"></i> Date of Birth
-                    </div>
-                    <div class="detail-value">1971-08-05</div>
-                </div>
 
-                <div class="detail-item">
-                    <div class="detail-label">
-                        <i class="fas fa-envelope"></i> Email
-                    </div>
-                    <div class="detail-value">edson.ngirabakunzi@nhf.no</div>
-                </div>
+         <!-- Requisition items Section -->
+         <div class="section">
+         <h2>Requisition Items</h2>
+        
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>No.</th>
+                    <th>Name</th>
+                    <th>Quantity</th>
+                    <th>Frequency</th>
+                    <th>Unit Price(UGX)</th>
+                    <th>Total Price(UGX)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @php
+                    $counter = 1;
+                @endphp
+                @foreach($requisition->requisition_items as $item)
+                    <?php
+                        // Assuming you have fetched $item from the database
+                        $unit_price = $item->unit_price;
+                        $quantity = $item->quantity;
+                        $frequency = $item->frequency;
+                        $total_price = $unit_price * $quantity* $frequency ;
+                    ?>
+                    <tr>
+                        <td>{{ $counter++ }}</td>
+                        
+                        @if($item->admin_budget_line_id)
+                            <td>{{ $item->adminbudgetline->name }}</td>
+                        @else
+                            <td>{{ $item->budgetline->name }}</td>
+                        @endif
+                        <td>{{ $item->quantity }} {{$item->unit_of_measure}}</td>
+                        <td>{{ $item->frequency }} </td>
+                        <td>{{ number_format($item->unit_price) }}</td>
+                        <td>{{ number_format($total_price) }}</td>
+                    </tr>
+                @endforeach
+                <tr>
+                    <td colspan="5"><b>Overall Estimated Cost (UGX):</b></td>
+                    <td>{{ number_format($requisition->amount) }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 
-                <div class="detail-item">
-                    <div class="detail-label">
-                        <i class="fas fa-phone"></i> Phone
-                    </div>
-                    <div class="detail-value">+256704420041</div>
-                </div>
+       <!-- Approval Section -->
+<div class="section">
+    <h2>Approval list</h2>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>No.</th>
+                <th>Roles</th>
+                <th>Reviewed by</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @php
+                $counter = 1; // Initialize a counter variable
+                // Get unique comments by staff_id
+                $uniqueComments = $requisition->comments->unique('commented_by');
+            @endphp
+            @if($requisition->status == 'amended')
+                <tr>
+                    <td>1</td>
+                    <td>Head of finance</td>
+                    <td>Mwebaza Rolaine</td>
+                    <td>{{ $requisition->status }}</td>
 
-                <div class="detail-item">
-                    <div class="detail-label">
-                        <i class="fas fa-calendar-start"></i> Contract Start
-                    </div>
-                    <div class="detail-value">2024-01-01</div>
-                </div>
+                </tr>
+            @endif
+            @foreach($uniqueComments as $comment)
+                <tr>
+                    <td>{{ $counter++ }}</td> <!-- Display incremental number -->
+                    <td>
+                        @if($comment->staff && $comment->staff->user)
+                            @if($comment->staff->user->roles->isNotEmpty())
+                                @foreach($comment->staff->user->roles as $role)
+                                    {{ $role->name }}
+                                    @if(!$loop->last) 
+                                        , 
+                                    @endif
+                                @endforeach
+                            @else
+                                No Roles Assigned
+                            @endif
+                        @else
+                            No User or Staff
+                        @endif
+                    </td>
+                    <td>{{ $comment->staff ? $comment->staff->name : 'Unknown' }}</td>
+                    <td>{{ $comment->status }}</td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+</div>
 
-                <div class="detail-item">
-                    <div class="detail-label">
-                        <i class="fas fa-calendar-times"></i> Contract End
-                    </div>
-                    <div class="detail-value">2028-12-31</div>
-                </div>
+        <!-- Comments Section -->
+        <div class="section">
+        <h2>Comments</h2>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>No.</th>
+                    <th>Comment</th>
+                    <th>Created by</th>
+                    <th>Created at</th>
+                </tr>
+            </thead>
+            <tbody>
+                @php
+                    $counter = 1; // Initialize a counter variable
+                @endphp
+                @foreach($requisition->comments as $comment)
+                    <tr>
+                        <td>{{ $counter++ }}</td> <!-- Display incremental number -->
+                        <td>{{ $comment->comment }}</td>
+                        <td>{{ $comment->staff ? $comment->staff->name : 'Unknown' }}</td>
+                        <td>{{ $comment->created_at }}</td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
 
-                <div class="detail-item">
-                    <div class="detail-label">
-                        <i class="fas fa-users"></i> Next of Kin
-                    </div>
-                    <div class="detail-value">UHIRIWE BRIAN</div>
-                </div>
+    <!-- Ammendment notes if any  -->
+    @if ($requisition->amendment_notes != null)
+    <div class="section">
+        <h2>Ammendment Notes</h2>
+        <p>{{ $requisition->amendment_notes }}</p>
+    </div>
+    @endif
 
-                <div class="detail-item">
-                    <div class="detail-label">
-                        <i class="fas fa-heart"></i> Relationship
-                    </div>
-                    <div class="detail-value">BROTHER</div>
+    <!-- signatures -->
+    <div class="section">
+       
+        <div class="status-container">
+        
+        <div class="field" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <div style="text-align: center;">
+                    <label for="signature">{{ $requisition->staff->name }}, Program Manager</label><br>
+                    <img src="{{ asset('storage/'.$requisition->staff->signature) }}" alt="signature" style="width: 200px; height: 100px; border-radius: 0%;">
                 </div>
+            @if ($requisition->status != 'pending')
+                <div style="text-align: center;">
+                    <label for="signature">Mwebaza Rolaine, Head of Finance</label><br>
+                    <img src="{{ asset('storage/signatures/hofs.png') }}" alt="signature" style="width: 200px; height: 100px; border-radius: 0%;">
+                </div>
+                @if($requisition->status == 'approved')
+                    <div style="text-align: center;">
+                        <label for="signature">Edson Ngirabakunzi, Country Director</label><br>
+                        <img src="{{ asset('storage/signatures/cds.png') }}" alt="signature" style="width: 200px; height: 100px; border-radius: 0%; object-fit: fill;">
+                    </div>
+                @endif
+            @endif
+        </div>
 
-                <div class="detail-item">
-                    <div class="detail-label">
-                        <i class="fas fa-phone-alt"></i> Emergency Contact
-                    </div>
-                    <div class="detail-value">0704201870</div>
-                </div>
+</div>
 
-                <div class="detail-item">
-                    <div class="detail-label">
-                        <i class="fas fa-map-marker-alt"></i> Home District
-                    </div>
-                    <div class="detail-value">Kisoro</div>
-                </div>
+        </div>
+    
+        <!-- check the role of the logged in user -->
+        @if(auth()->user()!=null)
+            @if(auth()->user()->roles->isNotEmpty())
+                @foreach(auth()->user()->roles as $role)
+                    @if($role->slug == 'finance' )
+                        <a href="#" id="acceptBtn" class="btn btn-accept no-print">Approve</a>
+                        <a href="#" id="rejectBtn" class="btn btn-reject no-print">Reject</a>
+                        <a href="#" id="haltBtn" class="btn btn-halt no-print">On Hold</a>
+                        <a href="/requisitions/{{$requisition->id}}/edit" id="amendBtn" class="btn btn-amend no-print">Amend</a>
+                    @elseif($role->slug == 'director' && $requisition->status == 'accepted')
+                        <a href="#" id="approveBtn" class="btn btn-approve no-print">Authorize</a>
+                        <a href="#" id="rejectBtn" class="btn btn-reject no-print">Reject</a>
+                        <a href="#" id="haltBtn" class="btn btn-halt no-print">Halt</a>
+                        <a href="/requisitions/{{$requisition->id}}/edit" id="amendBtn" class="btn btn-amend no-print">Amend</a>
+                    @endif
+                        
+                @endforeach
+            @endif
+        @endif
+        </div>
 
-                <div class="detail-item">
-                    <div class="detail-label">
-                        <i class="fas fa-id-card"></i> NSSF Number
-                    </div>
-                    <div class="detail-value">7117200045088</div>
-                </div>
-
-                <div class="detail-item">
-                    <div class="detail-label">
-                        <i class="fas fa-hashtag"></i> TIN Number
-                    </div>
-                    <div class="detail-value">1000652276</div>
-                </div>
-
-                <div class="detail-item">
-                    <div class="detail-label">
-                        <i class="fas fa-university"></i> Bank Name
-                    </div>
-                    <div class="detail-value">ABSA</div>
-                </div>
-
-                <div class="detail-item">
-                    <div class="detail-label">
-                        <i class="fas fa-credit-card"></i> Account Number
-                    </div>
-                    <div class="detail-value">6004288295</div>
-                </div>
+        <!-- Modal -->
+        <div id="reasonModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h3>Enter Comment</h3>
+                <form id="reasonForm">
+                    <textarea id="reason" rows="4" style="width: 100%;" placeholder="Enter comment here..."></textarea>
+                    <br><br>
+                    <button type="button" id="submitReason" class="btn btn-approve">
+                        <span id="spinner" class="spinner" style="display: none;">
+                            <i class="fas fa-spinner fa-spin"></i> <!-- Font Awesome Spinner Icon -->
+                        </span>
+                        Submit
+                    </button>
+                </form>
             </div>
         </div>
     </div>
-</body>
-</html>
+
+    <script>
+        // Modal functionality
+        var modal = document.getElementById("reasonModal");
+        // var modal = document.getElementByClassName("modal");
+        var closeBtn = document.getElementsByClassName("close")[0];
+        
+        var approveBtn = document.getElementById("approveBtn");
+        var acceptBtn = document.getElementById("acceptBtn");
+        var rejectBtn = document.getElementById("rejectBtn");
+        var haltBtn = document.getElementById("haltBtn");
+        var submitReason = document.getElementById("submitReason");
+        var reasonInput = document.getElementById("reason");
+
+        if (approveBtn) {
+            approveBtn.onclick = function() {
+                modal.style.display = "block";
+                submitReason.onclick = function() {
+                    sendReason('approved');
+                }
+            }
+        } else {
+            acceptBtn.onclick = function() {
+                modal.style.display = "block";
+                submitReason.onclick = function() {
+                    sendReason('accepted');
+                }
+            }
+        }
+        
+
+        rejectBtn.onclick = function() {
+            modal.style.display = "block";
+            submitReason.onclick = function() {
+                sendReason('rejected');
+            }
+        }
+
+        haltBtn.onclick = function() {
+            modal.style.display = "block";
+            submitReason.onclick = function() {
+                sendReason('halted');
+            }
+        }
+
+      
+
+        closeBtn.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        // Function to force download a file
+        function forceDownload(event, url) {
+            event.preventDefault(); // Prevent default link action
+            
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.blob();
+                })
+                .then(blob => {
+                    const filename = url.split('/').pop();
+                    const link = document.createElement('a');
+                    link.href = window.URL.createObjectURL(blob);
+                    link.download = filename;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    toastr.error('There was an error downloading the file.', 'Error'); // Show error message
+                });
+        }
+
+        function sendReason(action) {
+            var reason = reasonInput.value;
+            var submitButton = document.getElementById('submitReason'); // Select the submit button
+            var spinner = document.getElementById('spinner'); // Select the spinner
+
+            if (reason.trim() === '') {
+                toastr.error('Please enter a reason.', 'Error'); // Use Toastr for error message
+                return;
+            }
+
+            // Disable the submit button and show the spinner
+            submitButton.disabled = true;
+            spinner.style.display = 'inline-block'; // Show spinner
+            submitButton.innerHTML = 'Submitting...'; // Show loading text
+
+            // Assuming you have the requisition ID available
+            var requisitionId = '{{ $requisition->id }}'; // Ensure this is correctly set
+
+            // Prepare the data to be sent
+            var data = {
+                action: action,
+                reason: reason,
+                requisition_id: requisitionId
+            };
+
+            console.log(data);
+            // Perform the AJAX request to send data to the server
+            fetch('/comments', { // Adjust the URL to your server endpoint
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}' // CSRF token for Laravel
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    // If the response status is not OK, throw an error
+                    return response.text().then(text => { throw new Error(text); });
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Success:', data);
+                toastr.success('Your decision has been recorded.', 'Success'); // Show success message
+                modal.style.display = "none"; // Close the modal on success
+
+                // Reset button state
+                submitButton.disabled = false; 
+                spinner.style.display = 'none'; // Hide spinner
+                submitButton.innerHTML = 'Submit'; // Reset the button text
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                toastr.error('There was an error recording your decision.', 'Error'); // Show error message
+
+                // Reset button state on error
+                submitButton.disabled = false;
+                spinner.style.display = 'none'; // Hide spinner
+                submitButton.innerHTML = 'Submit'; // Reset the button text
+            });
+        }
+
+        function saveAccept(action) {
+            var requisitionId = '{{ $requisition->id }}'; // Ensure it's properly set in Blade
+
+            var data = {
+                action: action,
+                requisition_id: requisitionId
+            };
+
+            console.log("Sending data:", data);
+
+            fetch('/comments', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => { throw new Error(text); });
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Success:', data);
+                toastr.success('Your decision has been recorded.', 'Success');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                toastr.error('There was an error recording your decision.', 'Error');
+            });
+        }
+
+    </script>
+    </body>
+    </html>
