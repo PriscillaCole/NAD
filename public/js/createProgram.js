@@ -48,7 +48,7 @@
                             
                             <!-- Delete Button with Bin Icon -->
                             <button type="button" class="btn btn-danger btn-delete" onclick="deleteOutcome(${outcomeId})">
-                                <i class="fa fa-trash"></i> Delete
+                                <i class="fa fa-trash"></i> Delete Outcome
                             </button>
                         </div>
                     </div>
@@ -106,7 +106,7 @@
                         <button type="button" class="btn btn-warning btn-add" onclick="addActivity(${outputId}, ${outcomeId})">Add Activity</button>
                         <!-- Delete Button with Bin Icon -->
                         <button type="button" class="btn btn-danger btn-delete"  onclick="deleteOutput(${outputId})">
-                            <i class="fa fa-trash"></i> Delete
+                            <i class="fa fa-trash"></i> Delete Output
                         </button>
                     </div>
                     </div>
@@ -163,8 +163,19 @@
 
                         <!-- Delete Button with Bin Icon -->
                         <button type="button" class="btn btn-danger btn-delete"  onclick="deleteActivity(${activityId})">
-                            <i class="fa fa-trash"></i> Delete
+                            <i class="fa fa-trash"></i> Delete Activity
                         </button>
+                    </div>
+                    <div style="height: 20px; border-bottom: 1px solid #eee; text-align: center;margin-top: 20px;margin-bottom: 20px;">
+                        <span style="font-size: 18px; background-color: #ffffff; padding: 0 10%;">
+                        Contingency Budget
+                        </span>
+                    </div>
+                    <div id="contingency-${activityId}" style="padding: 0 15px;"></div>
+                    <div class="form-group">
+                        <div class="col-sm-6 col-sm-offset-2" style="display: flex; justify-content: space-between; align-items: center;">
+                            <button type="button" class="btn btn-secondary btn-add" onclick="addContigencyBudget(${activityId}, ${outputId}, ${outcomeId})">Add Contingency Budget</button>
+                        </div>
                     </div>
                     </div>
                 </div>
@@ -248,7 +259,7 @@
                         <div class="col-sm-8 col-sm-offset-2" style="display: flex; justify-content: flex-end; align-items: center;">
                             <!-- Delete Button with Bin Icon -->
                             <button type="button" class="btn btn-danger btn-delete" onclick="deleteBudgetLine(${budgetLineId})">
-                                <i class="fa fa-trash"></i> Delete
+                                <i class="fa fa-trash"></i> Delete Budgetline
                             </button>
                         </div>
                     </div>
@@ -299,19 +310,27 @@
 
     // Delete Functions
     function deleteOutcome(outcomeId) {
-        document.getElementById(`outcome-${outcomeId}`).remove();
+        if (confirm("Are you sure you want to delete this outcome?")) {
+            document.getElementById(`outcome-${outcomeId}`).remove();
+        }
     }
 
     function deleteOutput(outputId) {
-        document.getElementById(`output-${outputId}`).remove();
+        if (confirm("Are you sure you want to delete this outcome?")) {
+            document.getElementById(`output-${outputId}`).remove();
+        }
     }
 
     function deleteActivity(activityId) {
-        document.getElementById(`activity-${activityId}`).remove();
+        if (confirm("Are you sure you want to delete this activity?")) {
+            document.getElementById(`activity-${activityId}`).remove();
+        }
     }
 
     function deleteBudgetLine(budgetLineId) {
-        document.getElementById(`budget-line-${budgetLineId}`).remove();
+        if (confirm("Are you sure you want to delete this outcome?")) {
+            document.getElementById(`budget-line-${budgetLineId}`).remove();
+        }
     }
 
     function calculateActivityTotal(activityId) {
@@ -448,4 +467,65 @@
             input.value = input.getAttribute("data-raw"); // Restore raw value before submission
         });
     }
+
+    // Function to add a new contingecy under a Program
+    function addContigencyBudget(activityId, outputId, outcomeId,) {
+        const contingencyContainer = document.getElementById(`contingency-${activityId}`);
+        // const budgetLineCount = budgetLinesContainer.children.length + 1;
+        const contingencyBudget = Date.now();
+    
+        const contingencyTemplate = `
+            <div class="panel panel-default budget-line" id="contingencyBudget-${contingencyBudget}}">
+                <div class="panel-heading budgetlines">
+                    <h6 class="panel-title">
+                        <span class="entity-label">Contingency Budget</span>
+                    </h6>
+                </div>
+                <div class="panel-body">
+                    <!-- Budget Line Fields -->
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">Contingency Name</label>
+                        <div class="col-sm-8">
+                            <div class="input-group">
+                                <span class="input-group-addon">
+                                    <i class="fa fa-pencil fa-fw"></i>
+                                </span>
+                                <input type="text" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}]contingency[${contingencyBudget}][name]" class="form-control" placeholder="Enter Budget Name" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">Contingency Budget</label>
+                        <div class="col-sm-8">
+                            <div class="input-group">
+                                <span class="input-group-addon">
+                                    <i class="fa fa-pencil fa-fw"></i>
+                                </span>
+                                <input type="text" id="unit-cost-${contingencyBudget}" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}]contingency[${contingencyBudget}][budget]" oninput= "formatNumber(event)" class="form-control formatted-input" placeholder="Budget" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="col-sm-8 col-sm-offset-2" style="display: flex; justify-content: flex-end; align-items: center;">
+                            <!-- Delete Button with Bin Icon -->
+                            <button type="button" class="btn btn-danger btn-delete" onclick="deleteContingency(${contingencyBudget})">
+                                <i class="fa fa-trash"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    
+        contingencyContainer.insertAdjacentHTML('beforeend', contingencyTemplate);
+    
+    
+    }
+
+    // delete contingency budget
+    function deleteContingency(contingencyBudget) {
+        document.getElementById(`contingencyBudget-${contingencyBudget}`).remove();
+    }
+
     

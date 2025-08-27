@@ -11,8 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('requisition_item_receipts', function (Blueprint $table) {
-            $table->decimal('transfer_charges', 15, 2)->nullable()->after('amount');
+        Schema::table('contingency_budgets', function (Blueprint $table) {
+            $table->dropColumn('program_id');
+            $table->foreignId('activity_id')->after('id');
         });
     }
 
@@ -21,6 +22,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        
+        Schema::table('contingency_budgets', function (Blueprint $table) {
+            //
+        });
     }
 };

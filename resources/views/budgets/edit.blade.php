@@ -297,6 +297,8 @@
                                                                                                 </button>
                                                                                             </div>
                                                                                         </div>
+
+                                                                                        
                                                                     
                                                                                         <!-- More fields for Budget Lines -->
                                                                                     </div>
@@ -309,8 +311,68 @@
                                                     
                                                                             <!-- Delete Button with Bin Icon -->
                                                                             <button type="button" class="btn btn-danger btn-delete"  onclick="deleteActivity({{$activity->id}})">
-                                                                                <i class="fa fa-trash"></i> Delete
+                                                                                <i class="fa fa-trash"></i> Delete Activity
                                                                             </button>
+                                                                        </div>
+                                                                        <div style="height: 20px; border-bottom: 1px solid #eee; text-align: center;margin-top: 20px;margin-bottom: 20px;">
+                                                                            <span style="font-size: 18px; background-color: #ffffff; padding: 0 10%;">
+                                                                            Contingency Budget
+                                                                            </span>
+                                                                        </div>
+
+                                                                        <div id="contingency-{{ $activity->id }}" style="padding: 0 15px;">
+                                                                            @foreach ($activity->contingency as $contingency)
+                                                                                <div class="panel panel-default activity" id="activity-{{ ($contingency->id) }}">
+                                                                                    <div class="panel-heading budgetlines">
+                                                                                        <h6 class="panel-title">
+                                                                                            <span class="entity-label">Contingency Budget</span> 
+                                                                                        </h6>
+                                                                                    </div>
+                                                                                    <div class="panel-body">
+                                                                                        <!-- Budget Lines Fields -->
+                                                                                        <div class="form-group">
+                                                                                            <label class="col-sm-2 control-label">Contingency Name</label>
+                                                                                            <div class="col-sm-8">
+                                                                                                <div class="input-group">
+                                                                                                    <span class="input-group-addon">
+                                                                                                        <i class="fa fa-pencil fa-fw"></i>
+                                                                                                    </span>
+                                                                                                    <!-- outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][budget_lines][{{ $budget_line->id }}][budget] -->
+                                                                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][contingency][{{$contingency->id }}][name]" class="form-control " value="{{ $contingency->name }}" required>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        
+                                                                                        <div class="form-group">
+                                                                                            <label class="col-sm-2 control-label">Contingency Budget (UGX)</label>
+                                                                                            <div class="col-sm-8">
+                                                                                                <div class="input-group">
+                                                                                                    <span class="input-group-addon">
+                                                                                                        <i class="fa fa-pencil fa-fw"></i>
+                                                                                                    </span>
+                                                                                                    
+                                                                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][contingency][{{$contingency->id }}][budget]" class="form-control formatted-input" oninput= "formatNumber(event)" value=" {{($contingency->budget) }}" required>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <div class="form-group">
+                                                                                            <div class="col-sm-8 col-sm-offset-2" style="display: flex; justify-content: flex-end; align-items: center;">
+                                                                                                <!-- Delete Button with Bin Icon -->
+                                                                                                <button type="button" class="btn btn-danger btn-delete" onclick="deleteContingency({{$contingency->id}})">
+                                                                                                    <i class="fa fa-trash"></i> Delete
+                                                                                                </button>
+                                                                                            </div>
+                                                                                        </div>
+                                                                    
+                                                                                        <!-- More fields for Budget Lines -->
+                                                                                    </div>
+                                                                                </div>
+                                                                            @endforeach
+                                                                        </div>
+                                                                        <div class="form-group">
+                                                                            <div class="col-sm-6 col-sm-offset-2" style="display: flex; justify-content: space-between; align-items: center;">
+                                                                                <button type="button" class="btn btn-secondary btn-add" onclick="addContigencyBudget({{$activity->id}}, {{$output->id}}, {{$outcome->id}})">Add Contingency Budget</button>
+                                                                            </div>
                                                                         </div>
                                                                         </div>
                                                                     </div>
@@ -322,7 +384,7 @@
                                                               <button type="button" class="btn btn-warning btn-add" onclick="addActivity({{$output->id}}, {{$outcome->id}})">Add Activity</button>
                                                               <!-- Delete Button with Bin Icon -->
                                                               <button type="button" class="btn btn-danger btn-delete"  onclick="deleteOutput({{$output->id}})">
-                                                                  <i class="fa fa-trash"></i> Delete
+                                                                  <i class="fa fa-trash"></i> Delete Output
                                                               </button>
                                                           </div>
                                                         </div>
@@ -337,7 +399,7 @@
                                                 
                                                 <!-- Delete Button with Bin Icon -->
                                                 <button type="button" class="btn btn-danger btn-delete" onclick="deleteOutcome({{$outcome->id}})">
-                                                    <i class="fa fa-trash"></i> Delete
+                                                    <i class="fa fa-trash"></i> Delete Outcome
                                                 </button>
                                             </div>
                                         </div>
@@ -353,66 +415,6 @@
                             </div>
                         </div>
 
-                        <div style="height: 20px; border-bottom: 1px solid #eee; text-align: center;margin-top: 20px;margin-bottom: 20px;">
-                            <span style="font-size: 18px; background-color: #ffffff; padding: 0 10px;">
-                              Contingency Budget
-                            </span>
-                          </div>
-
-                        <div id="contingency">
-                            @foreach ($program->contingencyBudgets as $budget)
-                                <div class="panel panel-default activity" id="activity-{{ ($budget->id) }}">
-                                    <div class="panel-heading budgetlines">
-                                        <h6 class="panel-title">
-                                            <span class="entity-label">Contingency Budget</span> 
-                                        </h6>
-                                    </div>
-                                    <div class="panel-body">
-                                        <!-- Budget Lines Fields -->
-                                        <div class="form-group">
-                                            <label class="col-sm-2 control-label">Contingency Name</label>
-                                            <div class="col-sm-8">
-                                                <div class="input-group">
-                                                    <span class="input-group-addon">
-                                                        <i class="fa fa-pencil fa-fw"></i>
-                                                    </span>
-                                                    
-                                                    <input type="text" name="contingency[${contingencyBudget}][name]" class="form-control " value="{{ $budget->name }}" required>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="form-group">
-                                            <label class="col-sm-2 control-label">Contingency Budget (UGX)</label>
-                                            <div class="col-sm-8">
-                                                <div class="input-group">
-                                                    <span class="input-group-addon">
-                                                        <i class="fa fa-pencil fa-fw"></i>
-                                                    </span>
-                                                    
-                                                    <input type="text" name="contingency[${contingencyBudget}][budget]" class="form-control formatted-input" oninput= "formatNumber(event)" value=" {{($budget->budget) }}" required>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <div class="col-sm-8 col-sm-offset-2" style="display: flex; justify-content: flex-end; align-items: center;">
-                                                <!-- Delete Button with Bin Icon -->
-                                                <button type="button" class="btn btn-danger btn-delete" onclick="deleteContingency({{$budget->id}})">
-                                                    <i class="fa fa-trash"></i> Delete
-                                                </button>
-                                            </div>
-                                        </div>
-                    
-                                        <!-- More fields for Budget Lines -->
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                        <div class="form-group">
-                            <div class="col-sm-8 col-sm-offset-2" style="display: flex; justify-content: space-between; align-items: center;">
-                           <button type="button" class="btn btn-secondary btn-add" onclick="addContigencyBudget()">Add Contingency Budget</button>
-    
-                        </div>
 
                         <!-- Save Button -->
                         <div class="form-group text-right">

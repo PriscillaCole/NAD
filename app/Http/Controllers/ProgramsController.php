@@ -149,14 +149,15 @@ class ProgramsController extends Controller
             'outcomes.*.outputs.*.activities.*.budget_lines.*.frequency' => 'sometimes|required|numeric|min:0',
             'outcomes.*.outputs.*.activities.*.budget_lines.*.budget' => 'sometimes|required|numeric|min:0',
 
-            'contingency' => 'sometimes|nullable|array',
-            'contingency.*.id' => 'sometimes|nullable',
-            'contingency.*.name' => 'sometimes|required',
-            'contingency.*.budget' => 'sometimes|required',
+            'outcomes.*.outputs.*.activities.*.contingency' => 'sometimes|nullable|array',
+            'outcomes.*.outputs.*.activities.*.contingency.*.id' => 'sometimes|nullable',
+            'outcomes.*.outputs.*.activities.*.contingency.*.name' => 'sometimes|required',
+            'outcomes.*.outputs.*.activities.*.contingency.*.budget' => 'sometimes|required',
 
         ]);
 
         Log::info(['validated:', $validated]);
+        // Log::info(['request:', $request]);
     
         // Start database transaction
         DB::beginTransaction();
@@ -174,18 +175,21 @@ class ProgramsController extends Controller
     
             // Get all current IDs for comparison
             $currentOutcomeIds = $program->outcomes->pluck('id')->toArray();
-            $submittedOutcomeIds = collect($validated['outcomes'])->pluck('id')->filter()->toArray();
+            $outcomeIds = array_keys($validated['outcomes']);
+            
             
             // Remove outcomes that are no longer present
-            Outcome::whereIn('id', array_diff($currentOutcomeIds, $submittedOutcomeIds))
+            Outcome::whereIn('id', array_diff($currentOutcomeIds, $outcomeIds))
                 ->where('program_id', $program->id)
                 ->delete();
     
             // Handle outcomes
-            foreach ($validated['outcomes'] as $outcomeData) {
+            // foreach ($validated['outcomes'] as $outcomeData) {
+            foreach ($validated['outcomes'] as $outcomeId => $outcomeData) {
                 $outcome = Outcome::updateOrCreate(
                     [
-                        'id' => $outcomeData['id'] ?? null,
+                        // 'id' => $outcomeData['id'] ?? null,
+                        'id' => is_numeric($outcomeId) ? $outcomeId : null,
                         'program_id' => $program->id
                     ],
                     [
@@ -193,83 +197,145 @@ class ProgramsController extends Controller
                         'budget' => $outcomeData['budget'],
                     ]
                 );
+                if(!empty($outcomeData['outputs'])){
     
-                // Get current output IDs for this outcome
-                $currentOutputIds = $outcome->outputs->pluck('id')->toArray();
-                $submittedOutputIds = collect($outcomeData['outputs'] ?? [])->pluck('id')->filter()->toArray();
-    
-                // Remove outputs that are no longer present
-                Output::whereIn('id', array_diff($currentOutputIds, $submittedOutputIds))
-                    ->where('outcome_id', $outcome->id)
-                    ->delete();
-    
-                // Handle outputs
-                foreach ($outcomeData['outputs'] ?? [] as $outputData) {
-                    $output = Output::updateOrCreate(
-                        [
-                            'id' => $outputData['id'] ?? null,
-                            'outcome_id' => $outcome->id
-                        ],
-                        [
-                            'name' => $outputData['name'],
-                            'budget' => $outputData['budget'],
-                        ]
-                    );
-    
-                    // Get current activity IDs for this output
-                    $currentActivityIds = $output->activities->pluck('id')->toArray();
-                    $submittedActivityIds = collect($outputData['activities'] ?? [])->pluck('id')->filter()->toArray();
-    
-                    // Remove activities that are no longer present
-                    Activity::whereIn('id', array_diff($currentActivityIds, $submittedActivityIds))
-                        ->where('output_id', $output->id)
+                    // Get current output IDs for this outcome
+                    $currentOutputIds = $outcome->outputs->pluck('id')->toArray();
+                    $submittedOutputIds = array_keys($outcomeData['outputs']);
+                
+                    // $submittedOutputIds = collect($outcomeData['outputs'] ?? [])->pluck('id')->filter()->toArray();
+
+                    // Remove outputs that are no longer present
+                    Output::whereIn('id', array_diff($currentOutputIds, $submittedOutputIds))
+                        ->where('outcome_id', $outcome->id)
                         ->delete();
-    
-                    // Handle activities
-                    foreach ($outputData['activities'] ?? [] as $activityData) {
-                        $activity = Activity::updateOrCreate(
+        
+                    // Handle outputs
+                    foreach ($outcomeData['outputs'] ?? [] as $outputId => $outputData) {
+                        $output = Output::updateOrCreate(
                             [
-                                'id' => $activityData['id'] ?? null,
-                                'output_id' => $output->id
+                                'id' => is_numeric($outputId) ? $outputId : null,
+                                'outcome_id' => $outcome->id
                             ],
                             [
-                                'name' => $activityData['name'],
-                                'budget' => $activityData['budget'],
+                                'name' => $outputData['name'],
+                                'budget' => $outputData['budget'],
                             ]
                         );
-    
-                        // Get current budget line IDs for this activity
-                        $currentBudgetLineIds = $activity->budget_lines->pluck('id')->toArray();
-                        $submittedBudgetLineIds = collect($activityData['budget_lines'] ?? [])->pluck('id')->filter()->toArray();
-    
-                        // Remove budget lines that are no longer present
-                        BudgetLines::whereIn('id', array_diff($currentBudgetLineIds, $submittedBudgetLineIds))
-                            ->where('activity_id', $activity->id)
-                            ->delete();
-    
-                        // Handle budget lines
-                        foreach ($activityData['budget_lines'] ?? [] as $budgetLineData) {
-                            BudgetLines::updateOrCreate(
-                                [
-                                    'id' => $budgetLineData['id'] ?? null,
-                                    'activity_id' => $activity->id
-                                ],
-                                [
-                                    'name' => $budgetLineData['name'],
-                                    'unitcost' => $budgetLineData['unitcost'],
-                                    'quantity' => $budgetLineData['quantity'],
-                                    'frequency' => $budgetLineData['frequency'],
-                                    'budget' => $budgetLineData['budget'],
-                                ]
-                            );
+
+                        if(!empty($outputData['activities'])){
+        
+                            // Get current activity IDs for this output
+                            $currentActivityIds = $output->activities->pluck('id')->toArray();
+                            $submittedActivityIds = array_keys($outputData['activities']);
+            
+                            // Remove activities that are no longer present
+                            Activity::whereIn('id', array_diff($currentActivityIds, $submittedActivityIds))
+                                ->where('output_id', $output->id)
+                                ->delete();
+            
+                            // Handle activities
+                            foreach ($outputData['activities'] ?? [] as $activityId => $activityData) {
+                                $activity = Activity::updateOrCreate(
+                                    [
+                                        'id' => is_numeric($activityId) ? $activityId : null,
+                                        'output_id' => $output->id
+                                    ],
+                                    [
+                                        'name' => $activityData['name'],
+                                        'budget' => $activityData['budget'],
+                                    ]
+                                );
+            
+                                if (!empty($activityData['budget_lines'])) {
+                                    // Get current budget line IDs for this activity
+                                    $currentBudgetLineIds = $activity->budget_lines->pluck('id')->toArray();
+                                    $submittedBudgetLineIds = array_keys($activityData['budget_lines']);
+                
+                                    // Remove budget lines that are no longer present
+                                    BudgetLines::whereIn('id', array_diff($currentBudgetLineIds, $submittedBudgetLineIds))
+                                        ->where('activity_id', $activity->id)
+                                        ->delete();
+                
+                                    // Handle budget lines
+                                    foreach ($activityData['budget_lines'] ?? [] as $budgetLineId => $budgetLineData) {
+                                        BudgetLines::updateOrCreate(
+                                            [
+                                                'id' => is_numeric($budgetLineId) ? $budgetLineId : null,
+                                                'activity_id' => $activity->id
+                                            ],
+                                            [
+                                                'name' => $budgetLineData['name'],
+                                                'unitcost' => $budgetLineData['unitcost'],
+                                                'quantity' => $budgetLineData['quantity'],
+                                                'frequency' => $budgetLineData['frequency'],
+                                                'budget' => $budgetLineData['budget'],
+                                            ]
+                                        );
+                                    }
+                                }
+                                // $contingencies = $activityData['contingency'];
+
+                                if (!empty($activityData['contingency'])) {
+                                    // Get current budget line IDs for this activity
+                                    $currentContigencyIds = $activity->contingency->pluck('id')->toArray();
+                                    $submittedContigencyIds = array_keys($activityData['contingency']);
+                
+                                    // Remove budget lines that are no longer present
+                                    ContingencyBudget::whereIn('id', array_diff($currentContigencyIds, $submittedContigencyIds))
+                                        ->where('activity_id', $activity->id)
+                                        ->delete();
+                
+                                    // Handle budget lines
+                                    foreach ($activityData['contingency'] ?? [] as $contigencyId => $contigencyData) {
+                                        ContingencyBudget::updateOrCreate(
+                                            [
+                                                'id' => is_numeric($contigencyId) ? $contigencyId : null,
+                                                'activity_id' => $activity->id
+                                            ],
+                                            [
+                                                'name' => $contigencyData['name'],
+                                                'budget' => $contigencyData['budget'],
+                                            ]
+                                        );
+                                    }
+                                }
+                                // $contingencies = $validated['outcomes.*.outputs.*.activities.*.contingency'] ?? [];   // default to empty array
+
+                                // // Log($contingencies);
+                                // if (!empty($contingencies)) {
+
+                                //     // Get current budget line IDs for this activity
+                                //     $currentContingencyIds = $activity->contingency->pluck('id')->toArray();
+                                //     $submittedContingencyIds = collect($activityData['contingency'] ?? [])->pluck('id')->filter()->toArray();
+                
+                                //     // Remove budget lines that are no longer present
+                                //     ContingencyBudget::whereIn('id', array_diff($currentContingencyIds, $submittedContingencyIds))
+                                //         ->where('activity_id', $activity->id)
+                                //         ->delete();
+                    
+                                //     foreach ($activityData['contingency'] ?? [] as $contingencyData) {
+                                //         ContingencyBudget::updateOrCreate(
+                                //             [
+                                //                 'id' => $contingencyData['id'] ?? null,
+                                //                 'activity_id' => $activity->id
+                                //             ],
+                                //             [
+                                //                 'name' => $contingencyData['name'],
+                                //                 'budget' => $contingencyData['budget'],
+                                //             ]
+                                //         );
+                                //     }
+                                // }
+                            }
                         }
                     }
                 }
             }
-            $contingencies = $validated['contingency'] ?? [];   // default to empty array
+            /* $contingencies = $validated['contingency'] ?? [];   // default to empty array
 
             if (!empty($contingencies)) {
-                Log::info(['hellllll: ',$validated['contingency']]);
+                // Log::info(['hellllll: ',$validated['contingency']]);
                 // Load existing relationships
                 $program->load('contingencyBudgets');
         
@@ -296,7 +362,7 @@ class ProgramsController extends Controller
                         ]
                     );
                 }
-            }
+            } */
             \DB::commit();
             admin_toastr('Budget Updated successfully!', 'success');
             return redirect(admin_url('budgets'));
@@ -306,6 +372,135 @@ class ProgramsController extends Controller
             return redirect()->back()->with('error', 'Failed to update program. ' . $e->getMessage());
         }
     }
+
+//     public function update(Request $request, $id)
+// {
+//     try {
+//         $validated = $request->validate([
+//             'name' => 'required|string|max:255',
+//             'description' => 'required|string|max:1000',
+//             'outcomes' => 'sometimes|nullable|array',
+//             'outcomes.*.id' => 'sometimes|nullable',
+//             'outcomes.*.name' => 'sometimes|required|string|max:255',
+//             'outcomes.*.budget' => 'sometimes|required|numeric|min:0',
+
+//             'outcomes.*.outputs' => 'sometimes|nullable|array',
+//             'outcomes.*.outputs.*.id' => 'sometimes|nullable',
+//             'outcomes.*.outputs.*.name' => 'sometimes|required|string|max:255',
+//             'outcomes.*.outputs.*.budget' => 'sometimes|required|numeric|min:0',
+
+//             'outcomes.*.outputs.*.activities' => 'sometimes|nullable|array',
+//             'outcomes.*.outputs.*.activities.*.id' => 'sometimes|nullable',
+//             'outcomes.*.outputs.*.activities.*.name' => 'sometimes|required|string|max:255',
+//             'outcomes.*.outputs.*.activities.*.budget' => 'sometimes|required|numeric|min:0',
+
+//             'outcomes.*.outputs.*.activities.*.budget_lines' => 'sometimes|nullable|array',
+//             'outcomes.*.outputs.*.activities.*.budget_lines.*.id' => 'sometimes|nullable',
+//             'outcomes.*.outputs.*.activities.*.budget_lines.*.name' => 'sometimes|required|string|max:255',
+//             'outcomes.*.outputs.*.activities.*.budget_lines.*.unitcost' => 'sometimes|required|numeric|min:0',
+//             'outcomes.*.outputs.*.activities.*.budget_lines.*.quantity' => 'sometimes|required|numeric|min:0',
+//             'outcomes.*.outputs.*.activities.*.budget_lines.*.frequency' => 'sometimes|required|numeric|min:0',
+//             'outcomes.*.outputs.*.activities.*.budget_lines.*.budget' => 'sometimes|required|numeric|min:0',
+
+//             'outcomes.*.outputs.*.activities.*.contingency' => 'sometimes|nullable|array',
+//             'outcomes.*.outputs.*.activities.*.contingency.*.id' => 'sometimes|nullable',
+//             'outcomes.*.outputs.*.activities.*.contingency.*.name' => 'sometimes|required|string|max:255',
+//             'outcomes.*.outputs.*.activities.*.contingency.*.budget' => 'sometimes|required|numeric|min:0',
+//         ]);
+
+//         DB::beginTransaction();
+
+//         // Update program
+//         $program = Program::findOrFail($id);
+//         $program->update([
+//             'name' => $validated['name'],
+//             'description' => $validated['description'],
+//         ]);
+
+//         // Loop through outcomes
+//         foreach ($validated['outcomes'] ?? [] as $outcomeData) {
+//             $outcome = Outcome::updateOrCreate(
+//                 [
+//                     'id' => $outcomeData['id'] ?? null,
+//                     'program_id' => $program->id
+//                 ],
+//                 [
+//                     'name' => $outcomeData['name'],
+//                     'budget' => $outcomeData['budget'],
+//                 ]
+//             );
+
+//             // Loop through outputs
+//             foreach ($outcomeData['outputs'] ?? [] as $outputData) {
+//                 $output = Output::updateOrCreate(
+//                     [
+//                         'id' => $outputData['id'] ?? null,
+//                         'outcome_id' => $outcome->id
+//                     ],
+//                     [
+//                         'name' => $outputData['name'],
+//                         'budget' => $outputData['budget'],
+//                     ]
+//                 );
+
+//                 // Loop through activities
+//                 foreach ($outputData['activities'] ?? [] as $activityData) {
+//                     $activity = Activity::updateOrCreate(
+//                         [
+//                             'id' => $activityData['id'] ?? null,
+//                             'output_id' => $output->id
+//                         ],
+//                         [
+//                             'name' => $activityData['name'],
+//                             'budget' => $activityData['budget'],
+//                         ]
+//                     );
+
+//                     // Loop through budget lines
+//                     foreach ($activityData['budget_lines'] ?? [] as $budgetLineData) {
+//                         BudgetLines::updateOrCreate(
+//                             [
+//                                 'id' => $budgetLineData['id'] ?? null,
+//                                 'activity_id' => $activity->id
+//                             ],
+//                             [
+//                                 'name' => $budgetLineData['name'],
+//                                 'unitcost' => $budgetLineData['unitcost'],
+//                                 'quantity' => $budgetLineData['quantity'],
+//                                 'frequency' => $budgetLineData['frequency'],
+//                                 'budget' => $budgetLineData['budget'],
+//                             ]
+//                         );
+//                     }
+
+//                     // Loop through contingency budgets
+//                     foreach ($activityData['contingency'] ?? [] as $contingencyData) {
+//                         ContingencyBudget::updateOrCreate(
+//                             [
+//                                 'id' => $contingencyData['id'] ?? null,
+//                                 'activity_id' => $activity->id
+//                             ],
+//                             [
+//                                 'name' => $contingencyData['name'],
+//                                 'budget' => $contingencyData['budget'],
+//                             ]
+//                         );
+//                     }
+//                 }
+//             }
+//         }
+
+//         DB::commit();
+//         admin_toastr('Budget Updated successfully!', 'success');
+//         return redirect(admin_url('budgets'));
+
+//     } catch (\Exception $e) {
+//         DB::rollBack();
+//         Log::error($e);
+//         return redirect()->back()->with('error', 'Failed to update program. ' . $e->getMessage());
+//     }
+// }
+
 
 
 

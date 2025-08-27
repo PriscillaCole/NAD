@@ -431,16 +431,35 @@
                 
                 <div>
                     <div class="info-label"><i class="fas fa-file-download"></i> Concept Note</div>
-                    <a href="{{ asset('storage/'.$requisition->concept_note) }}" 
+                    @php
+                        $activityConcept = \App\Models\Requisition::where('activity_id', $requisition->activity->id)->first()
+                    @endphp
+                    
+                    <a href="{{ asset('storage/'.$activityConcept->concept_note) }}" 
                        download 
                        class="download-link no-print"
-                       onclick="forceDownload(event, '{{ asset('storage/' . ($requisition->concept_note ?? '')) }}')">
+                       onclick="forceDownload(event, '{{ asset('storage/' . ($activityConcept->concept_note ?? '')) }}')">
                         Download Concept Note
                     </a>
                 </div>
                 
                 <div>
                     <div class="info-label"><i class="fas fa-info-circle"></i> Status</div>
+                    @php
+                    // function ($status) {
+                        // if ($requisition->status == 'pending') {
+                        //     return "<span class=`status-badge status-{{ $requisition->status ?? `pending` }}`>Pending</span>";
+                        // } elseif ($requisition->status == 'approved') {
+                        //     return "<span class=`status-badge status-{{ $requisition->status }}`>Authorized</span>";
+                        // } elseif ($requisition->status == 'rejected') {
+                        //     return "<span class=`status-badge status-{{ $requisition->status }}`>Rejected</span>";
+                        // } elseif ($requisition->status == 'amended') {
+                        //     return "<span class=`status-badge status-{{ $requisition->status }}`>Amended</span>";
+                        // }elseif ($requisition->status == 'accepted') {
+                        //     return "<span class=`status-badge status-{{ $requisition->status }}`>Approved</span>";
+                        // }
+                    // }
+                    @endphp
                     <span class="status-badge status-{{ $requisition->status ?? 'pending' }}">
                         {{ ucfirst($requisition->status ?? 'Pending') }}
                     </span>
@@ -658,11 +677,11 @@
             @if(auth()->user()!=null)
                 @if(auth()->user()->roles->isNotEmpty())
                     @foreach(auth()->user()->roles as $role)
-                        @if($role->slug == 'finance' && $requisition->status != 'approved')
+                        @if($role->slug == 'finance' && $requisition->status == 'pending')
                 <!-- Action Buttons -->
                             <div class="action-buttons no-print">
                                 <a href="#" id="acceptBtn" class="btn btn-approve">
-                                    <i class="fas fa-check"></i> Approve
+                                    <i class="fas fa-check"></i> Accept
                                 </a>
                                 <a href="#" id="rejectBtn" class="btn btn-reject">
                                     <i class="fas fa-times"></i> Reject
@@ -676,7 +695,7 @@
                             </div>
                             @elseif($role->slug == 'director' && $requisition->status == 'accepted')
                                 <div class="action-buttons no-print">
-                                    <a href="#" id="acceptBtn" class="btn btn-approve">
+                                    <a href="#" id="approveBtn" class="btn btn-approve">
                                         <i class="fas fa-check"></i> Approve
                                     </a>
                                     <a href="#" id="rejectBtn" class="btn btn-reject">
@@ -739,6 +758,17 @@
                 }
             }
         }
+        // Event listeners for buttons
+        if (approveBtn) {
+            approveBtn.onclick = function(e) {
+                e.preventDefault();
+                modal.style.display = "block";
+                submitReason.onclick = function() {
+                    sendReason('approved');
+                }
+            }
+        }
+
 
         if (rejectBtn) {
             rejectBtn.onclick = function(e) {
@@ -840,6 +870,8 @@
             })
             .then(data => {
                 console.log('Success:', data);
+                window.location.reload();
+
                 toastr.success('Your decision has been recorded.', 'Success'); // Show success message
                 modal.style.display = "none"; // Close the modal on success
 

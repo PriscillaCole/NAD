@@ -56,10 +56,12 @@ class RequisitionController extends AdminController
             $grid->disableCreateButton();
             $grid->actions(function ($actions) {
                 $actions->disableEdit();
+                if ($actions->row->status == 'approved') {
                     $actions->disableDelete();
+                }
+                // $actions->disableDelete();
             });
-        }
-        
+        }else{
             $grid->actions(function ($actions) {
                 if ($actions->row->status == 'approved') {
                     $actions->disableEdit();
@@ -67,6 +69,9 @@ class RequisitionController extends AdminController
                 }
             });
         
+        }
+        
+            
 
         // order by latest requisition
         $grid->model()->orderBy('created_at', 'desc');
@@ -78,9 +83,9 @@ class RequisitionController extends AdminController
         }
         
         // show the CD only accepted requisitions
-        if ($user->inRoles(['director'])) {
-            $grid->model()->where('status', 'accepted');
-        }
+        // if ($user->inRoles(['director'])) {
+        //     $grid->model()->where('status', 'accepted');
+        // }
 
          //filter by program and activity
          $grid->filter(function($filter){
@@ -253,7 +258,7 @@ class RequisitionController extends AdminController
             $user = auth()->user();
             $staff_id = Staff::where('user_id', $user->id)->first()->id;
 
-            $pendingRequisition = Requisition::where('staff_id', $staff_id)
+            /* $pendingRequisition = Requisition::where('staff_id', $staff_id)
                 ->where('status', 'approved')
                 ->whereDoesntHave('accountability') // Check if there's no accountability
                 ->first();
@@ -266,7 +271,7 @@ class RequisitionController extends AdminController
                 ]);
 
                 return back()->with(compact('error'));
-            }
+            } */
         };
         
         $staff_id = Staff::where('user_id', $user->id)->first()->id;
@@ -439,8 +444,26 @@ class RequisitionController extends AdminController
                     });
             }
             $form->decimal('amount', __('Amount(UGX)'))->readonly();
-            $form->file('concept_note', __('Concept note'))->required()
-            ->help('Upload concept note in pdf format');
+            $form->radio('setOff_date', __('Have you already uploaded a Concept Note'))
+                ->options([
+                    '1' => 'Yes',
+                    '2' => 'No',
+                ])
+                ->when(2, function ($form) {
+                    // This closure will only be executed if the radio value is 1
+                    $form->file('concept_note', __('Concept Note File'))
+                        ->rules('mimes:pdf,doc,docx')
+                        ->help('Please upload your concept note.');
+                });
+                // ->required();
+            $form->html('
+            <div id="existingConceptNoteWrapper"></div>
+            ');
+            
+// {{-- File input for replacing --}}
+//  $form->file(`concept_note`, __(`Concept note`))->help(`Upload a new concept note (PDF format) if you want to replace the existing one.`);
+
+            
             $form->textarea('description', __('Description'));
             
             
@@ -516,6 +539,7 @@ class RequisitionController extends AdminController
                 });
             });
            
+            
             $("#activity_id").change(function () {
                 var activity_id = $(this).val();
 
@@ -524,32 +548,45 @@ class RequisitionController extends AdminController
                     return;
                 }
 
-                $.get("/budgetlines/" + activity_id)
-                    .done(function (data) {
-                        globalBudgetLines = data[0]; // Store for later use
-                        var activity_budget = Number(data[1]).toLocaleString(\'en-US\');
-                        var remaining_budget = Number(data[2]).toLocaleString(\'en-US\');
+                    $.get("/budgetlines/" + activity_id)
+                        .done(function (data) {
+                            globalBudgetLines = data[0];
+                            var activity_budget = Number(data[1]).toLocaleString(`en-US`);
+                            var remaining_budget = Number(data[2]).toLocaleString(`en-US`);
 
-                        $("#activity_budget").val(activity_budget);
-                        $("#remaining_budget").val(remaining_budget);
+                            $("#activity_budget").val(activity_budget);
+                            $("#remaining_budget").val(remaining_budget);
 
-                        if ($.isEmptyObject(globalBudgetLines)) {
-                            alert("No budget lines available for the selected activity");
-                            return;
-                        }
+                            if ($.isEmptyObject(globalBudgetLines)) {
+                                alert("No budget lines available for the selected activity");
+                                return;
+                            }
 
-                        // Optionally clear existing options in current select inputs
-                        $("[id^=budget_line_id]").each(function () {
-                            let $select = $(this);
-                            $select.empty().append(\'<option value="">Select Budget Line</option>\');
-                            $.each(globalBudgetLines, function (key, value) {
-                                $select.append(new Option(value, key));
+                            $("[id^=budget_line_id]").each(function () {
+                                let $select = $(this);
+                                $select.empty().append(`<option value="">Select Budget Line</option>`);
+                                $.each(globalBudgetLines, function (key, value) {
+                                    $select.append(new Option(value, key));
+                                });
                             });
 
+                            // 🔹 Handle concept note
+                            if (data[3]) {
+                                $("#concept_note").val(data[3]);
+                                $("#existingConceptNoteWrapper").html(`
+                                    <div class="mb-3">
+                                        <label>Existing Concept Note:</label>
+                                        <a href="${data[3]}" target="_blank" class="btn btn-link">
+                                            View Concept Note
+                                        </a>
+                                    </div>
+                                `);
+                            } else {
+                                $("#existingConceptNoteWrapper").empty();
+                            }
                         });
-                        
-                    });
-            });
+                });
+
 
             // Observer to detect new requisition item form added
             const targetNode = document.querySelector("#has-many-requisition_items .has-many-requisition_items-forms");
@@ -791,6 +828,10 @@ class RequisitionController extends AdminController
     // function to fetch budget lines under a chosen activity
     public function getActivitiesbudgetlines($id)
     {
+        $activityConcept = Requisition::where('activity_id', $id)->first();// gets a single column directly
+
+        Log::info($activityConcept);
+
         $activity_budget = Activity::where('id', $id)->value('budget');
         
         $budgetlines = BudgetLines::where('activity_id', $id)->pluck('name', 'id'); // Returns {id: name}
@@ -800,12 +841,12 @@ class RequisitionController extends AdminController
             $query->where('activity_id', $id);
         })->sum('amount_used');
 
-        Log::info($usedAmount);
-        Log::info($activity_budget);
+        
         $remaining = $activity_budget - $usedAmount;
-        Log::info($remaining);
 
-        return [$budgetlines, $activity_budget, $remaining];
+        return [$budgetlines, $activity_budget, $remaining, $activityConcept?->concept_note 
+            ? asset('storage/' . $activityConcept->concept_note) 
+            : null,];
     }
 
     // function to fetch activities under a program

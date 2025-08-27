@@ -49,12 +49,6 @@ class ProgramController extends AdminController
             $filter->equal('id', 'Program')->select(Program::all()->pluck('name', 'id'));
         });
 
-        // change function for edit action
-        $grid->actions(function ($actions) {
-            // Disable delete button
-            $actions->disableDelete();
-        });
-
         $grid->column('id', __('Id'));
         $grid->column('name', __('Name'));
         $grid->column('user_id', __('Project Manager'))->display(function ($user_id) {
@@ -110,10 +104,10 @@ class ProgramController extends AdminController
     {
         $form = new Form(new Program());
        
-        $form->text('name', __('Name'));
+        $form->text('name', __('Name'))->required();
         $form->textarea('description', __('Description'));
         if($form->isCreating()){
-            $form->text('budget', __('Budget (UGX)'))
+            $form->text('budget', __('Budget (UGX)'))->required()
             ->attribute([
                 'oninput' => "this.value = this.value.replace(/[^0-9.]/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');"
             ]);

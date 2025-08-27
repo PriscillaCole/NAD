@@ -20,9 +20,9 @@ class ContingencyBudget extends Model
     ];
 
     //relationship with requisition
-    public function program()
+    public function activity()
     {
-        return $this->belongsTo(Program::class);
+        return $this->belongsTo(Activity::class);
     }
 
     

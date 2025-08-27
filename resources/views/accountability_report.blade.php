@@ -168,7 +168,7 @@
             padding: 8px 16px;
             border-radius: 25px;
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 1.2rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -215,7 +215,7 @@
             border: none;
             padding: 12px 24px;
             border-radius: 25px;
-            font-size: 1rem;
+            font-size: 1.2rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -263,14 +263,14 @@
 
         .info-card h3 {
             color: #2c3e50;
-            font-size: 1.1rem;
+            font-size: 1.4rem;
             margin-bottom: 10px;
             font-weight: 600;
         }
 
         .info-card p {
             color: #5a6c7d;
-            font-size: 1rem;
+            font-size: 1.2rem;
             font-weight: 500;
         }
 
@@ -297,7 +297,7 @@
             padding: 20px;
             text-align: left;
             font-weight: 600;
-            font-size: 1rem;
+            font-size: 1.3rem;
             position: relative;
         }
 
@@ -343,7 +343,7 @@
             color: white;
             text-decoration: none;
             border-radius: 25px;
-            font-size: 0.9rem;
+            font-size: 1.2rem;
             font-weight: 500;
             transition: all 0.3s ease;
             gap: 8px;
@@ -367,7 +367,7 @@
             padding: 12px 24px;
             border: none;
             border-radius: 25px;
-            font-size: 1rem;
+            font-size: 1.5rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -462,7 +462,7 @@
             padding: 15px;
             border: 2px solid #e9ecef;
             border-radius: 10px;
-            font-size: 1rem;
+            font-size: 1.5rem;
             resize: vertical;
             min-height: 120px;
             transition: border-color 0.3s ease;
@@ -821,6 +821,41 @@
                     </div>
                 @endif
             </div>
+            <!-- Comments Section -->
+            {{-- <div class="section">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <div class="section-title">Comments & Feedback</div>
+                </div>
+                
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>No.</th>
+                                <th>Comment</th>
+                                <th>Created By</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @php
+                                $counter = 1; // Initialize a counter variable
+                            @endphp
+                            @foreach($accountability->comments as $comment)
+                                <tr>
+                                    <td>{{ $counter++ }}</td> <!-- Display incremental number -->
+                                    <td>{{ $comment->comment }}</td>
+                                    <td>{{ $comment->staff ? $comment->staff->name : 'Unknown' }}</td>
+                                    <td>{{ $comment->created_at }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div> --}}
 
             <div class="section">
                 <div class="section-header">
@@ -838,8 +873,12 @@
                         <div class="info-card">
                             <h3><i class="fas fa-user-check"></i> Closed By</h3>
                             <p>
-                                @if ($accountability->staff)
-                                    {{ $accountability->staff->name }}, Head of Finance
+                                @php
+                                    $HOF = \App\Models\Staff::where('user_id', $accountability->signature)->first()
+                                @endphp
+                                @if ($accountability->signature)
+                                    
+                                    {{ $HOF->name }}, Head of Finance
                                 @else
                                     No review yet
                                 @endif
@@ -1066,6 +1105,8 @@
                 return response.json();
             })
             .then(data => {
+                window.location.reload();
+
                 console.log('Success:', data);
                 toastr.success('Your decision has been recorded.', 'Success');
             })

@@ -524,12 +524,15 @@ class AccountabilityController extends AdminController
             'accountability' => 'required|integer',
             'remark' => 'string'
         ]);
+        // $user = auth()->user()->id;
+        $userId = Admin::user()->id;
 
         $accountability = Accountability::findOrFail($validated['accountability']);
 
         $accountability->update([
             'status'=>$validated['status'],
-            'remarks' => $validated['remark']?? null
+            'remarks' => $validated['remark']?? null,
+            'signature' => $userId
         ]);
 
         return response()->json(['success' => true]);
