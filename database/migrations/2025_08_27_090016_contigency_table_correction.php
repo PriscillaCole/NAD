@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('contingency_budgets', function (Blueprint $table) {
             $table->dropColumn('program_id');
-            $table->foreignId('activity_id')->after('id');
+            $table->foreignId('activity_id')->constrained('activities')->after('id');
         });
     }
 

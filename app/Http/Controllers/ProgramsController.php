@@ -148,10 +148,9 @@ class ProgramsController extends Controller
             'outcomes.*.outputs.*.activities.*.budget_lines.*.quantity' => 'sometimes|required|numeric|min:0',
             'outcomes.*.outputs.*.activities.*.budget_lines.*.frequency' => 'sometimes|required|numeric|min:0',
             'outcomes.*.outputs.*.activities.*.budget_lines.*.budget' => 'sometimes|required|numeric|min:0',
-
             'outcomes.*.outputs.*.activities.*.contingency' => 'sometimes|nullable|array',
             'outcomes.*.outputs.*.activities.*.contingency.*.id' => 'sometimes|nullable',
-            'outcomes.*.outputs.*.activities.*.contingency.*.name' => 'sometimes|required',
+            'outcomes.*.outputs.*.activities.*.contingency.*.name' => 'sometimes|required|string|max:255',
             'outcomes.*.outputs.*.activities.*.contingency.*.budget' => 'sometimes|required',
 
         ]);
@@ -278,7 +277,7 @@ class ProgramsController extends Controller
 
                                 if (!empty($activityData['contingency'])) {
                                     // Get current budget line IDs for this activity
-                                    $currentContigencyIds = $activity->contingency->pluck('id')->toArray();
+                                    $currentContigencyIds = $activity->contingencies->pluck('id')->toArray();
                                     $submittedContigencyIds = array_keys($activityData['contingency']);
                 
                                     // Remove budget lines that are no longer present

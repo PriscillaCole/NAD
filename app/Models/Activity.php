@@ -26,7 +26,7 @@ class Activity extends Model
     {
         return $this->hasMany(BudgetLines::class);
     }
-    public function contingency()
+    public function contingencies()
     {
         return $this->hasMany(ContingencyBudget::class);
     }

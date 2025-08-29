@@ -321,8 +321,8 @@
                                                                         </div>
 
                                                                         <div id="contingency-{{ $activity->id }}" style="padding: 0 15px;">
-                                                                            @foreach ($activity->contingency as $contingency)
-                                                                                <div class="panel panel-default activity" id="activity-{{ ($contingency->id) }}">
+                                                                            @foreach ($activity->contingencies as $contingency)
+                                                                                <div class="panel panel-default activity" id="contingencyBudget-{{ ($contingency->id) }}">
                                                                                     <div class="panel-heading budgetlines">
                                                                                         <h6 class="panel-title">
                                                                                             <span class="entity-label">Contingency Budget</span> 
@@ -369,6 +369,8 @@
                                                                                 </div>
                                                                             @endforeach
                                                                         </div>
+                                                                        
+
                                                                         <div class="form-group">
                                                                             <div class="col-sm-6 col-sm-offset-2" style="display: flex; justify-content: space-between; align-items: center;">
                                                                                 <button type="button" class="btn btn-secondary btn-add" onclick="addContigencyBudget({{$activity->id}}, {{$output->id}}, {{$outcome->id}})">Add Contingency Budget</button>

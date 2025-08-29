@@ -704,12 +704,12 @@
                     <h2>Narrative Report</h2>
                 </div>
                 
-                <div class="info-card">
+                {{-- <div class="info-card"> --}}
                     <a href="{{ asset('storage/'.$accountability->narrative_report) }}" target="_blank" class="file-link">
                         <i class="fas fa-download"></i>
                         View Narrative Report
                     </a>
-                </div>
+                {{-- </div> --}}
             </div>
 
             <div class="section">
@@ -801,7 +801,7 @@
             <div class="section no-print">
                 <div class="section-header">
                     <i class="fas fa-paperclip"></i>
-                    <h2>Other Receipt Files</h2>
+                    <h2>Other Attachment Files</h2>
                 </div>
                 
                 @if($accountability->attachments)
@@ -816,9 +816,9 @@
                         @endforeach
                     </ul>
                 @else
-                    <div class="info-card">
-                        <p style="color: #6c757d;">No additional receipts available.</p>
-                    </div>
+                    {{-- <div class="info-card"> --}}
+                        <p style="color: #6c757d;">No additional attachments available.</p>
+                    {{-- </div> --}}
                 @endif
             </div>
             <!-- Comments Section -->
@@ -868,6 +868,12 @@
                         <h3><i class="fas fa-calendar"></i> Created Date</h3>
                         <p>{{ $accountability->created_at->format('d F, Y') }}</p>
                     </div>
+                    @if ($accountability->remarks != null)
+                    <div class="info-card">
+                        <h3><i class="fas fa-calendar"></i> Comment</h3>
+                        <p>{{ $accountability->remarks }}</p>
+                    </div>
+                    @endif
                     
                     @if ($accountability->status == 'closed')
                         <div class="info-card">
@@ -1059,6 +1065,8 @@
                 return response.json();
             })
             .then(data => {
+                window.location.reload();
+
                 console.log('Success:', data);
                 toastr.success('Your decision has been recorded.', 'Success'); // Show success message
                 modal.style.display = "none"; // Close the modal on success

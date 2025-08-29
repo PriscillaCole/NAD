@@ -475,7 +475,7 @@
         const contingencyBudget = Date.now();
     
         const contingencyTemplate = `
-            <div class="panel panel-default budget-line" id="contingencyBudget-${contingencyBudget}}">
+            <div class="panel panel-default budget-line" id="contingencyBudget-${contingencyBudget}">
                 <div class="panel-heading budgetlines">
                     <h6 class="panel-title">
                         <span class="entity-label">Contingency Budget</span>
@@ -490,7 +490,7 @@
                                 <span class="input-group-addon">
                                     <i class="fa fa-pencil fa-fw"></i>
                                 </span>
-                                <input type="text" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}]contingency[${contingencyBudget}][name]" class="form-control" placeholder="Enter Budget Name" required>
+                                <input type="text" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][contingency][${contingencyBudget}][name]" class="form-control" placeholder="Enter Budget Name" required>
                             </div>
                         </div>
                     </div>
@@ -501,7 +501,7 @@
                                 <span class="input-group-addon">
                                     <i class="fa fa-pencil fa-fw"></i>
                                 </span>
-                                <input type="text" id="unit-cost-${contingencyBudget}" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}]contingency[${contingencyBudget}][budget]" oninput= "formatNumber(event)" class="form-control formatted-input" placeholder="Budget" required>
+                                <input type="text" id="unit-cost-${contingencyBudget}" name="outcomes[${outcomeId}][outputs][${outputId}][activities][${activityId}][contingency][${contingencyBudget}][budget]" oninput= "formatNumber(event)" class="form-control formatted-input" placeholder="Budget" required>
                             </div>
                         </div>
                     </div>

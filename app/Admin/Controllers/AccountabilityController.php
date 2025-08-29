@@ -43,6 +43,17 @@ class AccountabilityController extends AdminController
         if ($user->isRole('staff')) {
             $staff_id = Staff::where('user_id', $user->id)->first()->id;
             $grid->model()->where('staff_id', $staff_id);
+            
+            $grid->actions(function ($actions) {
+                if($actions->row->status == 'closed'){
+                    $actions->disableEdit();
+                    $actions->disableDelete();
+                }
+                if($actions->row->status == 'halted' || $actions->row->status == 'pending' ){
+                    $actions->disableDelete();
+                }
+                
+            });
         }
         // disable create button for finance and CD
         if ($user->inRoles(['finance', 'director'])){
@@ -158,7 +169,8 @@ class AccountabilityController extends AdminController
                 ->where('status', 'approved')
                 ->whereDoesntHave('accountability')->pluck('code', 'id'))
                 ->default($existingRequisition)
-                ->attribute('id', 'requisitionId');
+                ->attribute('id', 'requisitionId')
+                ->required();
 
                 $form->text('', __('Amount dispensed'))
                 ->attribute('id', 'amount_dispensed')
@@ -268,7 +280,7 @@ class AccountabilityController extends AdminController
                             // ->rules('file|mimes:pdf,jpg,jpeg,png|max:5120') // 5MB max
                             ->removable();
                             
-                            $form->text('amount', 'Amount');
+                            $form->text('amount', 'Amount Spent');
                         }
                     
                 })
@@ -298,32 +310,33 @@ class AccountabilityController extends AdminController
                     ->attribute('id', 'returned_amount')
                     ->readonly();
             
-                // $form->decimal('amount_to_be_returned', __('Amount returned to staff'))
-                //     ->default(function($amount_to_be_returned)use ($form) {
-                //         $amount = $form->model()->amount_to_be_returned;
+                $form->decimal('amount_to_be_returned', __('Amount returned to staff'))
+                    // ->default(function($amount_to_be_returned)use ($form) {
+                    //     $amount = $form->model()->amount_to_be_returned;
 
-                //         return number_format($amount);
-                //     })
-                //     ->attribute(['id'=>'amount_to_be_returned',
-                //         'name'=>'amount_to_be_returned',
-                //         'oninput' => "this.value = this.value.replace(/[^0-9.]/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');"
-                //     ])
-                //     ->readonly();
+                    //     return number_format($amount);
+                    // })
+                    ->attribute(['id'=>'amount_to_be_returned',
+                        'name'=>'amount_to_be_returned',
+                        'oninput' => "this.value = this.value.replace(/[^0-9.]/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');"
+                    ])
+                    ->readonly();
             
                 // File fields for proof of funds and narrative report
 
-                if($user->isRole('finance')) {
+                // if($user->isRole('finance')) {
                     $form->file('proof_of_funds_to_be_returned', __('Receipt for funds returned to staff'));
-                }else{
+                // }else{
                     $form->file('proof_of_funds_returned', __('Receipt for funds returned to finance'))
                     ->help('upload files of pdf,doc,png,jpg,jpeg formats ');
                     // ->rules('file|mimes:pdf,jpg,jpeg,png|max:5120');
                     
-                }
+                // }
                 if($user->isRole('staff')) {
                     $form->file('narrative_report', __('Narrative Report'))
                     ->help('upload files of pdf,doc formats ')
-                    ->rules('file|mimes:pdf|max:5120');
+                    ->rules('file|mimes:pdf|max:5120')
+                    ->required();
                 }
             }
 
@@ -422,6 +435,12 @@ class AccountabilityController extends AdminController
                                             bindListenersToReceipts(); // very important!
                                             recalculateTotalUsed(); // initialize total
                                         });
+                                        // ✅ Disable Add button
+                                        $("#has-many-requisitionItemReceipts .add").prop("disabled", true).addClass("disabled");
+
+                                        // ✅ Disable all Remove buttons
+                                        $("#has-many-requisitionItemReceipts .remove").prop("disabled", true).addClass("disabled");
+
                                     }, 500); // Increased timeout to ensure forms are ready
                                 }
                             }
@@ -522,8 +541,9 @@ class AccountabilityController extends AdminController
         $validated = $request->validate([
             'status' => 'required|string',
             'accountability' => 'required|integer',
-            'remark' => 'string'
+            'remarks' => 'string'
         ]);
+        Log::info($validated);
         // $user = auth()->user()->id;
         $userId = Admin::user()->id;
 
@@ -531,7 +551,7 @@ class AccountabilityController extends AdminController
 
         $accountability->update([
             'status'=>$validated['status'],
-            'remarks' => $validated['remark']?? null,
+            'remarks' => $validated['remarks']?? null,
             'signature' => $userId
         ]);
 

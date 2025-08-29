@@ -14,9 +14,7 @@ class ContingencyBudget extends Model
     protected $fillable = [
         'name',
         'budget',
-        'program_id',
-        
-        
+        'activity_id',
     ];
 
     //relationship with requisition
