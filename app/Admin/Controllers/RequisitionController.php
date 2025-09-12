@@ -377,8 +377,8 @@ class RequisitionController extends AdminController
                     ->required();
                     $form->decimal('quantity', __('Quantity'))->required();
                     $form->decimal('frequency', __('Frequency'))->required();
-                    $form->text('unit_of_measure', __('Unit of measure'))->required();
                     $form->decimal('unit_price', __('Unit cost(UGX)'))->required();
+                    $form->text('unit_of_measure', __('Unit of measure'))->required();
                     $form->decimal('total_price', __('Total amount'))->readonly()
                             ->customFormat(function ($value) {
                                 return !is_null($value) ? number_format($value, 0, '.', ',') : '';

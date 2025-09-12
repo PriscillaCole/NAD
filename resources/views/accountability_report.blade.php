@@ -629,18 +629,22 @@
                     </div>
                     <div class="info-card">
                         <h3><i class="fas fa-project-diagram"></i> Program</h3>
-                        <p>
-                            @if($accountability->requisition->admin_program_id)
-                                {{ $accountability->requisition->admin_program->name }}
-                            @else
+                        <p>  
+                            {{-- @if($accountability->requisition->program?->type == 2) --}}
+                                {{ $accountability->requisition->program->name }}
+                            {{-- @else
                                 {{ $accountability->requisition->activity->output->outcome->program->name }}
-                            @endif
+                            @endif --}}
                         </p>
                     </div>
                     @if(!$accountability->requisition->admin_program_id)
                     <div class="info-card">
                         <h3><i class="fas fa-tasks"></i> Activity</h3>
-                        <p>{{ $accountability->requisition->activity->name }}</p>
+                        @if($accountability->requisition->program?->type == 2)
+                            <p>{{ $accountability->requisition->adminoutcome->name }}</p>
+                        @else
+                            <p>{{ $accountability->requisition->activity->name }}</p>
+                        @endif
                     </div>
                     @endif
                     <div class="info-card">
@@ -733,7 +737,7 @@
                         @foreach($accountability->requisition->requisition_items as $item)
                             <tr>
                                 <td>
-                                    @if($accountability->requisition->admin_program_id)
+                                    @if($accountability->requisition->program?->type == 2)
                                         {{ $item->adminbudgetline->name }}
                                     @else
                                         {{ $item->budgetline->name }}
@@ -821,42 +825,7 @@
                     {{-- </div> --}}
                 @endif
             </div>
-            <!-- Comments Section -->
-            {{-- <div class="section">
-                <div class="section-header">
-                    <div class="section-icon">
-                        <i class="fas fa-comments"></i>
-                    </div>
-                    <div class="section-title">Comments & Feedback</div>
-                </div>
-                
-                <div class="table-container">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>No.</th>
-                                <th>Comment</th>
-                                <th>Created By</th>
-                                <th>Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @php
-                                $counter = 1; // Initialize a counter variable
-                            @endphp
-                            @foreach($accountability->comments as $comment)
-                                <tr>
-                                    <td>{{ $counter++ }}</td> <!-- Display incremental number -->
-                                    <td>{{ $comment->comment }}</td>
-                                    <td>{{ $comment->staff ? $comment->staff->name : 'Unknown' }}</td>
-                                    <td>{{ $comment->created_at }}</td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            </div> --}}
-
+            
             <div class="section">
                 <div class="section-header">
                     <i class="fas fa-info-circle"></i>
@@ -894,7 +863,7 @@
                         @if ($accountability->staff)
                             <div class="info-card">
                                 <h3><i class="fas fa-signature"></i> Authorized Signature</h3>
-                                <img src="{{ asset('storage/signatures/hofs.png') }}" alt="Signature" style="width: 200px; height: 100px; border-radius: 10px; margin-top: 10px;">
+                                <img src="{{ asset('storage/'. $HOF->signature) }}" alt="Signature" style="width: 200px; height: 100px; border-radius: 10px; margin-top: 10px;">
                             </div>
                         @endif
                     @endif
@@ -907,7 +876,7 @@
                 @endphp
                 
                 <div class="action-buttons">
-                    @if ($user->isRole('staff') && $accountability->status == '')
+                    @if (($user->isRole('staff') || $user->isRole('admin')) && $accountability->status == '')
                         <a href="#" id="forward" class="btn btn-primary">
                             <i class="fas fa-paper-plane"></i>
                             Forward to Finance
@@ -991,17 +960,18 @@
         var reasonInput = document.getElementById("reason");
 
         if (closeBtn) {
-            closeBtn.addEventListener('click', function(e) {
+            closeBtn.onclick = function(e) {
+                e.preventDefault();
                 saveAccept('closed');
-                
-            });
+            }
         }
 
         if (forward) {
-            forward.addEventListener('click', function(e) {
+            forward.onclick = function(e) {
+                e.preventDefault();
                 saveAccept('pending');
                 
-            });
+            };
         }
         cross.onclick = function() {
             modal.style.display = "none";

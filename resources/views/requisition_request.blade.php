@@ -431,8 +431,13 @@
                 
                 <div>
                     <div class="info-label"><i class="fas fa-file-download"></i> Concept Note</div>
-                    @php
-                        $activityConcept = \App\Models\Requisition::where('activity_id', $requisition->activity->id)->first()
+                    @php 
+                        if ($requisition->program?->type == 2){
+                            $activityConcept = \App\Models\Requisition::where('outcome_id', $requisition->adminoutcome?->id)->first();
+                        }else {
+                            $activityConcept = \App\Models\Requisition::where('activity_id', $requisition->activity->id)->first();
+                        }
+                
                     @endphp
                     
                     <a href="{{ asset('storage/'.$activityConcept->concept_note) }}" 
@@ -445,21 +450,7 @@
                 
                 <div>
                     <div class="info-label"><i class="fas fa-info-circle"></i> Status</div>
-                    @php
-                    // function ($status) {
-                        // if ($requisition->status == 'pending') {
-                        //     return "<span class=`status-badge status-{{ $requisition->status ?? `pending` }}`>Pending</span>";
-                        // } elseif ($requisition->status == 'approved') {
-                        //     return "<span class=`status-badge status-{{ $requisition->status }}`>Authorized</span>";
-                        // } elseif ($requisition->status == 'rejected') {
-                        //     return "<span class=`status-badge status-{{ $requisition->status }}`>Rejected</span>";
-                        // } elseif ($requisition->status == 'amended') {
-                        //     return "<span class=`status-badge status-{{ $requisition->status }}`>Amended</span>";
-                        // }elseif ($requisition->status == 'accepted') {
-                        //     return "<span class=`status-badge status-{{ $requisition->status }}`>Approved</span>";
-                        // }
-                    // }
-                    @endphp
+                    
                     <span class="status-badge status-{{ $requisition->status ?? 'pending' }}">
                         {{ ucfirst($requisition->status ?? 'Pending') }}
                     </span>
@@ -501,7 +492,12 @@
                     
                     <div class="info-card">
                         <div class="info-label"><i class="fas fa-tasks"></i> Activity</div>
-                        <div class="info-value">{{ $requisition->activity->name }}</div>
+                        @if ($requisition->program?->type == 2)
+                            <div class="info-value">{{ $requisition->adminoutcome->name }}</div> 
+                        @else
+                            <div class="info-value">{{ $requisition->activity->name }}</div>   
+                        @endif
+                        
                     </div>
                     
                     <div class="info-card">

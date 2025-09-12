@@ -44,16 +44,6 @@ class AccountabilityController extends AdminController
             $staff_id = Staff::where('user_id', $user->id)->first()->id;
             $grid->model()->where('staff_id', $staff_id);
             
-            $grid->actions(function ($actions) {
-                if($actions->row->status == 'closed'){
-                    $actions->disableEdit();
-                    $actions->disableDelete();
-                }
-                if($actions->row->status == 'halted' || $actions->row->status == 'pending' ){
-                    $actions->disableDelete();
-                }
-                
-            });
         }
         // disable create button for finance and CD
         if ($user->inRoles(['finance', 'director'])){
@@ -64,6 +54,16 @@ class AccountabilityController extends AdminController
                 $actions->disableDelete();
             });
         }
+        $grid->actions(function ($actions) {
+            if($actions->row->status == 'closed'){
+                $actions->disableEdit();
+                $actions->disableDelete();
+            }
+            if($actions->row->status == 'halted' || $actions->row->status == 'pending' ){
+                $actions->disableDelete();
+            }
+            
+        });
         
         // $grid->actions(function ($actions) {
         //     if ($actions->row->status == 'closed') {

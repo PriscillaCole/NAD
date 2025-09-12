@@ -43,30 +43,30 @@
                     </div>
                     <div style="padding-top: 2rem;">
                         <div class="status-item">
-                            <span class="status-label">Submitted</span>
+                            <span class="status-label">Staff</span>
                             <div class="status-bar">
-                                <div class="status-progress submitted"></div>
+                                <div class="status-progress submitted" style="width: {{($total/$total)*100}}%"></div>
                             </div>
                             <span class="status-count">{{$total}}</span>
                         </div>
                         <div class="status-item">
                             <span class="status-label">Finance Manager</span>
                             <div class="status-bar">
-                                <div class="status-progress finance"></div>
+                                <div class="status-progress finance" style="width: {{($pendingCount/$total)*100}}%"></div>
                             </div>
                             <span class="status-count">{{$pendingCount}}</span>
                         </div>
                         <div class="status-item">
                             <span class="status-label">Country Director</span>
                             <div class="status-bar">
-                                <div class="status-progress approved"></div>
+                                <div class="status-progress approved" style="width: {{($acceptedCount/$total)*100}}%"></div>
                             </div>
                             <span class="status-count">{{$acceptedCount}}</span>
                         </div>
                         <div class="status-item">
                             <span class="status-label">Approved</span>
                             <div class="status-bar">
-                                <div class="status-progress approved"></div>
+                                <div class="status-progress approved" style="width: {{($approvedCount/$total)*100}}%"></div>
                             </div>
                             <span class="status-count">{{$approvedCount}}</span>
                         </div>
