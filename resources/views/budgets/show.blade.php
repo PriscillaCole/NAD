@@ -4,28 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Show Program</title>
-    {{-- <style>
-        .ml-4 { margin-left: 1.5rem; }
-        .ml-5 { margin-left: 3rem; }
-        .btn-add { margin-top: 10px; margin-bottom: 10px; }
-        .delete-btn { color: red; cursor: pointer; margin-left: 10px; }
-        .panel-body { padding: 15px; }
-        .entity-label { font-weight: bold; margin-right: 10px; }
-        .text-right { text-align: right; }
-
-        .outcomes{
-            background-color: #FFE6E6 !important;
-        }
-        .outputs{
-            background-color: #E8F5E9 !important;
-        }
-        .activities{
-            background-color: #F3E5F5 !important;
-        }
-        .budgetlines{
-            background-color: #b7f7f1 !important;
-        }
-    </style> --}}
 
     <style>
         /* Basic collapsible functionality */
@@ -41,32 +19,16 @@
             position: relative;
             padding-right: 30px;
         }
-
-        /* Add toggle indicators */
-        /* .outcomes::after,
-        .outputs::after,
-        .activities::after,
-        .budgetlines::after {
-            content: '▼';
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%) rotate(-90deg);
-            transition: transform 0.3s ease;
-        } */
-
-        /* When panel is expanded (i.e. NOT collapsed), rotate arrow downward */
-        /* .panel:not(.collapsed) > .outcomes::after,
-        .panel:not(.collapsed) > .outputs::after,
-        .panel:not(.collapsed) > .activities::after,
-        .panel:not(.collapsed) > .budgetlines::after {
-            transform: translateY(-50%) rotate(0deg);
-        } */
-        /* Show panel body when not collapsed */
-        /* .panel:not(.collapsed) > .panel-body {
-            display: block;
-        } */
-
+         .inputx {
+            border: transparent;
+            padding: 1px !important;
+        }
+        .pd{
+            padding: 0px !important;
+        }
+        .form-control {
+            background-color: white !important;
+        }
         /* Initial state - all panels collapsed except outcomes */
         .outcome .output,
         .outcome .activity,
@@ -482,8 +444,63 @@
                                                                                 </div>
                                                                             @endforeach
                                                                         </div>
-                                                                        
+                                                                        <div style="height: 20px; border-bottom: 1px solid #eee; text-align: center;margin-top: 20px;margin-bottom: 20px;">
+                                                                            <span style="font-size: 18px; background-color: #ffffff; padding: 0 10%;">
+                                                                            Contingency Budget
+                                                                            </span>
                                                                         </div>
+
+                                                                        <div id="contingency-{{ $activity->id }}" style="padding: 0 15px;">
+                                                                            @foreach ($activity->contingencies as $contingency)
+                                                                                <div class="panel panel-default activity" id="contingencyBudget-{{ ($contingency->id) }}">
+                                                                                    <div class="panel-heading budgetlines">
+                                                                                        <h6 class="panel-title">
+                                                                                            <span class="entity-label">Contingency Budget</span> 
+                                                                                        </h6>
+                                                                                    </div>
+                                                                                    <div class="panel-body">
+                                                                                        <!-- Budget Lines Fields -->
+                                                                                        <div class="form-group">
+                                                                                            <label class="col-sm-2 control-label">Contingency Name</label>
+                                                                                            <div class="col-sm-8">
+                                                                                                <div class="input-group">
+                                                                                                    <span class="input-group-addon">
+                                                                                                        <i class="fa fa-pencil fa-fw"></i>
+                                                                                                    </span>
+                                                                                                    <!-- outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][budget_lines][{{ $budget_line->id }}][budget] -->
+                                                                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][contingency][{{$contingency->id }}][name]" class="form-control " value="{{ $contingency->name }}" required>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        
+                                                                                        <div class="form-group">
+                                                                                            <label class="col-sm-2 control-label">Contingency Budget (UGX)</label>
+                                                                                            <div class="col-sm-8">
+                                                                                                <div class="input-group">
+                                                                                                    <span class="input-group-addon">
+                                                                                                        <i class="fa fa-pencil fa-fw"></i>
+                                                                                                    </span>
+                                                                                                    
+                                                                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][contingency][{{$contingency->id }}][budget]" class="form-control formatted-input" oninput= "formatNumber(event)" value=" {{($contingency->budget) }}" required>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <div class="form-group">
+                                                                                            <div class="col-sm-8 col-sm-offset-2" style="display: flex; justify-content: flex-end; align-items: center;">
+                                                                                                <!-- Delete Button with Bin Icon -->
+                                                                                                <button type="button" class="btn btn-danger btn-delete" onclick="deleteContingency({{$contingency->id}})">
+                                                                                                    <i class="fa fa-trash"></i> Delete
+                                                                                                </button>
+                                                                                            </div>
+                                                                                        </div>
+                                                                    
+                                                                                        <!-- More fields for Budget Lines -->
+                                                                                    </div>
+                                                                                </div>
+                                                                            @endforeach
+                                                                        </div>
+                                                                        
+                                                                        {{-- </div> --}}
                                                                     </div>
                                                                 </div>
                                                             @endforeach
@@ -502,46 +519,87 @@
 
                         <div style="height: 20px; border-bottom: 1px solid #eee; text-align: center;margin-top: 20px;margin-bottom: 20px;">
                             <span style="font-size: 18px; background-color: #ffffff; padding: 0 10px;">
-                              Contingency Budget
+                                M AND E
                             </span>
                         </div>
 
-                          <div class="panel panel-default" style="margin-left: 20px; margin-right: 20px;">
-                            {{-- <div class="container"> --}}
-                                {{-- <h2 class="mb-4">Contingency Budgets</h2> --}}
+                        <div id="contingency">
+                            {{-- @foreach ($program->contingencyBudgets as $budget) --}}
+                                <div class="panel panel-default " id="activity-{{-- {{ ($budget->id) } --}}}">
+                                    <div class="panel-heading budgetlines">
+                                        <h6 class="panel-title">
+                                            <span class="entity-label">M AND E</span> 
+                                        </h6>
+                                    </div>
+                                    
+                                    <div class="panel-body">
 
-                                <table class="table table-bordered">
-                                    <thead class="thead-dark outcomes">
-                                        <tr>
-                                            <th>#</th>
-                                            <th>Name</th>
-                                            <th>Amount (UGX)</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach ($program->contingencyBudgets as $number => $index )
-                                            <tr>
-                                                <td>{{ $number + 1 }}</td>
-                                                <td>{{ $index->name ?? 'N/A' }}</td>
-                                                <td>{{ number_format($index->budget, 0) }}</td>
-                                                {{-- <td>{{ $budget->description ?? 'No description' }}</td> --}}
-                                                 <td>
-                                                    {{-- <a href="{{ route('contingency-budgets.edit', $budget->id) }}" class="btn btn-sm btn-primary">Edit</a> --}}
-                                                    <form action="#" method="POST" style="display:inline;">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</button>
-                                                    </form>
-                                                </td> 
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
+                                        <table class="table table-bordered" id="MandE-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Cost Type</th>
+                                                    <th>Units</th>
+                                                    <th>Unitcost</th>
+                                                    <th>Quantity</th>
+                                                    <th>Frequency</th>
+                                                    <th>Budget</th>
+                                                    <th>Dev Vs Org Budget</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach ($program->activities->where('name', 'M and E') as $MEData)
+                                                @foreach ($MEData->budget_lines as $MEbudgetLineData)
+                                                <tr>
+                                                    <td class="pd">
+                                                        <input type="text" name="MEbudget_lines[${MandEIndex}][name]" value="{{ $MEbudgetLineData->name }}" class="form-control inputx" readonly>
+                                                    </td>
+                                                    <td class="pd">
+                                                        <input type="text" name="MEbudget_lines[${MandEIndex}][units]" value="{{ $MEbudgetLineData->name }}" class="form-control inputx " readonly>
+                                                    </td>
+                                                    <td class="pd">
+                                                        <input type="number" name="MEbudget_lines[${MandEIndex}][unitcost]" value="{{ $MEbudgetLineData->unitcost }}" class="form-control inputx calc-field" readonly >
+                                                    </td>
+                                                    <td class="pd">
+                                                        <input type="number" name="MEbudget_lines[${MandEIndex}][quantity]" value="{{ $MEbudgetLineData->quantity }}" class="form-control inputx calc-field" readonly>
+                                                    </td>
+                                                    <td class="pd">
+                                                        <input type="number" name="MEbudget_lines[${MandEIndex}][frequency]" value="{{ $MEbudgetLineData->frequency }}" class="form-control inputx calc-field" readonly>
+                                                    </td>
+                                                    <td class="pd">
+                                                        <input type="number" name="MEbudget_lines[${MandEIndex}][budget]" value="{{ $MEbudgetLineData->budget }}" class="form-control inputx budget-field" readonly>
+                                                    </td>
+                                                    <td class="pd">
+                                                        <input type="number" name="MEbudget_lines[${MandEIndex}][dev_org]" value="{{ $MEbudgetLineData->dev_Vs_Org }}" class="form-control inputx" readonly>
+                                                    </td>
+                                                    
+                                                </tr>
+                                                @endforeach
+                                                @endforeach
+                                                <!-- Existing crop rows will be inserted here by PHP -->
+                                            </tbody>
+                                            
+                                            <tfoot>
+                                                <tr>
+                                                    <td colspan="5" class="text-right"><strong>Total:</strong></td>
+                                                    <td>
+                                                        {{-- <strong id="budget-total-display">0.00</strong> --}}
+                                                        <input type="number" name="MandEBudget" id="budget-total-input" class="form-control inputx"  value="{{$program->activities->where('name', 'M and E')->first()->budget}}" readonly>
+                                                    </td>
+                                                    <td colspan="2"></td>
+                                                </tr>
+                                            </tfoot>
 
-                                {{-- <a href="{{ route('contingency-budgets.create') }}" class="btn btn-success mt-3">Add Contingency Budget</a> --}}
-                            {{-- </div> --}}
-                            </div>
+                                        </table>
+
+                                        <button type="button" class="btn btn-primary btn-sm" onclick="addMandERow()">+ Add Budget line</button>
+                    
+                                        <!-- More fields for Budget Lines -->
+                                    </div>
+                                </div>
+                            {{-- @endforeach --}}
+                        </div>
+
+
 
 
                     </form>

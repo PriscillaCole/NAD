@@ -14,11 +14,17 @@ class Activity extends Model
         'description',
         'budget',
         'output_id',
+        'program_id'
     ];
 
     public function output()
     {
         return $this->belongsTo(Output::class);
+    }
+    
+    public function program()
+    {
+        return $this->belongsTo(Program::class);
     }
 
     

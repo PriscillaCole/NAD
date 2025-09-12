@@ -23,6 +23,10 @@ class Program extends Model
     {
         return $this->hasMany(Outcome::class);
     }
+    public function activities()
+    {
+        return $this->hasMany(Activity::class);
+    }
 
     public function adminActivities()
     {

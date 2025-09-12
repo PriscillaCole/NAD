@@ -153,6 +153,17 @@ class ProgramsController extends Controller
             'outcomes.*.outputs.*.activities.*.contingency.*.name' => 'sometimes|required|string|max:255',
             'outcomes.*.outputs.*.activities.*.contingency.*.budget' => 'sometimes|required',
 
+            'MEbudget_lines' => 'sometimes|nullable|array',
+            'MEbudget_lines.*.id' => 'sometimes|nullable',  
+            'MEbudget_lines.*.name' => 'sometimes|required|string|max:255',
+            'MEbudget_lines.*.units' => 'sometimes|required|string|max:255',
+            'MEbudget_lines.*.unitcost' => 'sometimes|required|numeric|min:0',
+            'MEbudget_lines.*.quantity' => 'sometimes|required|numeric|min:0',
+            'MEbudget_lines.*.frequency' => 'sometimes|required|numeric|min:0',
+            'MEbudget_lines.*.budget' => 'sometimes|required|numeric|min:0',
+            'MEbudget_lines.*.dev_org' => 'sometimes|nullable|numeric|min:0',
+            'MandEBudget' => 'sometimes|required|numeric|min:0'
+
         ]);
 
         Log::info(['validated:', $validated]);
@@ -238,9 +249,10 @@ class ProgramsController extends Controller
                                 $activity = Activity::updateOrCreate(
                                     [
                                         'id' => is_numeric($activityId) ? $activityId : null,
-                                        'output_id' => $output->id
+                                        'output_id' => $output->id,
                                     ],
                                     [
+                                        'program_id' =>$program->id,
                                         'name' => $activityData['name'],
                                         'budget' => $activityData['budget'],
                                     ]
@@ -331,37 +343,68 @@ class ProgramsController extends Controller
                     }
                 }
             }
-            /* $contingencies = $validated['contingency'] ?? [];   // default to empty array
 
-            if (!empty($contingencies)) {
-                // Log::info(['hellllll: ',$validated['contingency']]);
-                // Load existing relationships
-                $program->load('contingencyBudgets');
-        
-                // Get all current IDs for comparison
-                $currentOutcomeIds = $program->contingencyBudgets->pluck('id')->toArray();
-                $submittedOutcomeIds = collect($validated['contingency'])->pluck('id')->filter()->toArray();
-                
-                // Remove outcomes that are no longer present
-                ContingencyBudget::whereIn('id', array_diff($currentOutcomeIds, $submittedOutcomeIds))
-                    ->where('program_id', $program->id)
-                    ->delete();
-        
+            $program->load('activities.budget_lines');
 
-                // Handle contingency budgets
-                foreach ($validated['contingency'] as $contingency){
-                    $contingency = ContingencyBudget::updateOrCreate(
-                        [
-                            'id' => $contingency['id'] ?? null,
-                            'program_id' => $program->id
-                        ],
-                        [
-                            'name' => $contingency['name'],
-                            'budget' => $contingency['budget'],
-                        ]
-                    );
+            $currentMandE = $program->activities->where('name', 'M and E')->first();
+
+            // if($currentMandE){
+                $MandE = Activity::updateOrCreate(
+                    [
+                        'id' => $currentMandE ? $currentMandE->id : null,
+                        // 'id' => $currentMandE->id ,
+                        'program_id' => $program->id
+                    ],
+                    [
+                        'name' => 'M and E',
+                        'budget' => $validated['MandEBudget'],
+                    ]
+                );
+
+                if(!empty($validated['MEbudget_lines'])){
+                    $currentBudgetLineIds = $MandE->budget_lines->pluck('id')->toArray();
+                    $submittedBudgetLineIds = array_keys($validated['MEbudget_lines']);
+
+                    // Remove budget lines that are no longer present
+                    BudgetLines::whereIn('id', array_diff($currentBudgetLineIds, $submittedBudgetLineIds))
+                        ->where('activity_id', $MandE->id)
+                        ->delete();
+
+                    // Handle budget lines
+                    foreach ($validated['MEbudget_lines'] ?? [] as $MEbudgetLineId => $MEbudgetLineData) {
+                        BudgetLines::updateOrCreate(
+                            [
+                                'id' => is_numeric($MEbudgetLineId) ? $MEbudgetLineId : null,
+                                'activity_id' => $MandE->id
+                            ],
+                            [
+                                'name' => $MEbudgetLineData['name'],
+                                'unitcost' => $MEbudgetLineData['unitcost'],
+                                'units' => $MEbudgetLineData['units'],
+                                'quantity' => $MEbudgetLineData['quantity'],
+                                'frequency' => $MEbudgetLineData['frequency'],
+                                'budget' => $MEbudgetLineData['budget'],
+                                'dev_Vs_Org'=> $MEbudgetLineData['dev_org']
+                            ]
+                        );
+                    }
                 }
-            } */
+            // }else{
+            //     $MandE = Activity::create(
+            //         [
+            //             // 'id' => $outcomeData['id'] ?? null,
+            //             'id' => null ,
+            //             'program_id' => $program->id
+            //         ],
+            //         [
+            //             'name' => 'M and E',
+            //             'budget' => $validated['MandEBudget'],
+            //         ]
+            //     );
+            // }      
+            
+
+            
             \DB::commit();
             admin_toastr('Budget Updated successfully!', 'success');
             return redirect(admin_url('budgets'));

@@ -354,7 +354,16 @@ class RequisitionController extends Controller
         // $user = auth()->user()->id;
         // dd($user);
         $output = Output::find($id);
-       $activities = $output->activities->pluck('name', 'id');
-        return $activities;
+        $output->load('outcome.program');
+        $program = $output->outcome->program->first();
+
+        $MandE =  $program->activities->where('name', 'M and E')->pluck('name', 'id');
+
+        $activities = $output->activities->pluck('name', 'id');
+
+    //    $all_activities = $MandE->merge($activities);
+       $all_activities = $MandE->concat($activities);
+
+        return $all_activities;
     }
 }
