@@ -13,6 +13,8 @@ class Output extends Model
         'name',
         'outcome_id',
         'budget',
+        'Second_budget',
+        'third_budget'
     ];
     public function outcome()
     {

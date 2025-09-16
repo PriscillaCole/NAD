@@ -119,6 +119,17 @@ class AdminBudgetController extends Controller
                 'outcomes.*.outputs.*.quantity' => 'required|numeric|min:0',
                 'outcomes.*.outputs.*.unitcost' => 'required|numeric|min:0',
                 'outcomes.*.outputs.*.budget' => 'nullable|numeric|min:0',
+
+                'MEbudget_lines' => 'sometimes|nullable|array',
+                'MEbudget_lines.*.id' => 'sometimes|nullable',  
+                'MEbudget_lines.*.name' => 'sometimes|required|string|max:255',
+                'MEbudget_lines.*.units' => 'sometimes|required|string|max:255',
+                'MEbudget_lines.*.unitcost' => 'sometimes|required|numeric|min:0',
+                'MEbudget_lines.*.quantity' => 'sometimes|required|numeric|min:0',
+                'MEbudget_lines.*.frequency' => 'sometimes|required|numeric|min:0',
+                'MEbudget_lines.*.budget' => 'sometimes|required|numeric|min:0',
+                'MEbudget_lines.*.dev_org' => 'sometimes|nullable|numeric|min:0',
+                'MandEBudget' => 'sometimes|nullable|numeric|min:0'
             ]);
     
     
@@ -187,7 +198,55 @@ class AdminBudgetController extends Controller
                     );
                 }
             }
-    
+
+            $adminProgram->load('adminActivities.adminBudgetLines');
+            
+            $currentMandE = $adminProgram->adminActivities->where('name', 'M and E')->first();
+
+            if($validated['MandEBudget']){
+                $MandE = $adminProgram->adminActivities()->updateOrCreate(
+                    [
+                        'id' => $currentMandE ? $currentMandE->id : null,
+                        'admin_program_id' => $adminProgram->id
+                    ],
+                    [
+                        'admin_program_id' => $adminProgram->id,
+                        'name' => 'M and E',
+                        'budget' => $validated['MandEBudget'],
+                    ]
+
+                );
+
+                if(!empty($validated['MEbudget_lines'])){
+                    $currentBudgetLineIds = $MandE->adminBudgetLines->pluck('id')->toArray();
+                    $submittedBudgetLineIds = array_keys($validated['MEbudget_lines']);
+
+                    // Remove budget lines that are no longer present
+                    AdminBudget_lines::whereIn('id', array_diff($currentBudgetLineIds, $submittedBudgetLineIds))
+                        ->where('admin_activity_id', $MandE->id)
+                        ->delete();
+
+                    // Handle budget lines
+                    foreach ($validated['MEbudget_lines'] ?? [] as $MEbudgetLineId => $MEbudgetLineData) {
+                        $MandE->adminBudgetLines()->updateOrCreate(
+                            [
+                                'id' => is_numeric($MEbudgetLineId) ? $MEbudgetLineId : null,
+                                'admin_activity_id' => $MandE->id
+                            ],
+                            [
+                                'name' => $MEbudgetLineData['name'],
+                                'unit_cost' => $MEbudgetLineData['unitcost'],
+                                'units' => $MEbudgetLineData['units'],
+                                'quantity' => $MEbudgetLineData['quantity'],
+                                'frequency' => $MEbudgetLineData['frequency'],
+                                'total_cost' => $MEbudgetLineData['budget'],
+                                'dev_Vs_Org'=> $MEbudgetLineData['dev_org']
+                            ]
+                        );
+                    }
+                }
+            }
+            
             DB::commit();
             admin_toastr('Budget updated successfully!', 'success');
             return redirect('/adminBudget');

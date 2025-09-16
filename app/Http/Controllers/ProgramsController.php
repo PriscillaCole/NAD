@@ -22,7 +22,7 @@ class ProgramsController extends Controller
         return view('programs.edit',);
     }
 
-    public function store(Request $request)
+    /* public function store(Request $request)
     {
 
         try {
@@ -117,7 +117,7 @@ class ProgramsController extends Controller
             return back()->withInput();
         }
     }
-    
+     */
 
     // function to update a program
     public function update(Request $request, $id)
@@ -133,14 +133,20 @@ class ProgramsController extends Controller
             'outcomes.*.id' => 'sometimes|nullable',  
             'outcomes.*.name' => 'sometimes|required|string|max:255',
             'outcomes.*.budget' => 'sometimes|required|numeric|min:0',
+            'outcomes.*.Second_budget' => 'sometimes|nullable|numeric|min:0',
+            'outcomes.*.third_budget' => 'sometimes|nullable|numeric|min:0',
             'outcomes.*.outputs' => 'sometimes|nullable|array',
             'outcomes.*.outputs.*.id' => 'sometimes|nullable',  
             'outcomes.*.outputs.*.name' => 'sometimes|required|string|max:255',
             'outcomes.*.outputs.*.budget' => 'sometimes|required|numeric|min:0',
+            'outcomes.*.outputs.*.Second_budget' => 'sometimes|nullable|numeric|min:0',
+            'outcomes.*.outputs.*.third_budget' => 'sometimes|nullable|numeric|min:0',
             'outcomes.*.outputs.*.activities' => 'sometimes|nullable|array',
             'outcomes.*.outputs.*.activities.*.id' => 'sometimes|nullable',  
             'outcomes.*.outputs.*.activities.*.name' => 'sometimes|required|string|max:255',
             'outcomes.*.outputs.*.activities.*.budget' => 'sometimes|required|numeric|min:0',
+            'outcomes.*.outputs.*.activities.*.Second_budget' => 'sometimes|nullable|numeric|min:0',
+            'outcomes.*.outputs.*.activities.*.third_budget' => 'sometimes|nullable|numeric|min:0',
             'outcomes.*.outputs.*.activities.*.budget_lines' => 'sometimes|nullable|array',
             'outcomes.*.outputs.*.activities.*.budget_lines.*.id' => 'sometimes|nullable',  
             'outcomes.*.outputs.*.activities.*.budget_lines.*.name' => 'sometimes|required|string|max:255',
@@ -205,6 +211,8 @@ class ProgramsController extends Controller
                     [
                         'name' => $outcomeData['name'],
                         'budget' => $outcomeData['budget'],
+                        'Second_budget' => $outcomeData['Second_budget'],
+                        'third_budget' => $outcomeData['third_budget']
                     ]
                 );
                 if(!empty($outcomeData['outputs'])){
@@ -230,6 +238,8 @@ class ProgramsController extends Controller
                             [
                                 'name' => $outputData['name'],
                                 'budget' => $outputData['budget'],
+                                'Second_budget' => $outputData['Second_budget'],
+                                'third_budget' => $outputData['third_budget']
                             ]
                         );
 
@@ -255,6 +265,8 @@ class ProgramsController extends Controller
                                         'program_id' =>$program->id,
                                         'name' => $activityData['name'],
                                         'budget' => $activityData['budget'],
+                                        'Second_budget' => $activityData['Second_budget'],
+                                        'third_budget' => $activityData['third_budget']
                                     ]
                                 );
             
@@ -344,15 +356,16 @@ class ProgramsController extends Controller
                 }
             }
 
-            $program->load('activities.budget_lines');
+            // $program->load('activities.budget_lines');
+            $program->load('outcomes.outputs.activities.budget_lines');
+    
 
-            $currentMandE = $program->activities->where('name', 'M and E')->first();
+            $currentMandE = $program->outcomes->where('name', 'M and E')->first();
 
             // if($currentMandE){
-                $MandE = Activity::updateOrCreate(
+                $MandE_outcome = Outcome::updateOrCreate(
                     [
                         'id' => $currentMandE ? $currentMandE->id : null,
-                        // 'id' => $currentMandE->id ,
                         'program_id' => $program->id
                     ],
                     [
@@ -361,55 +374,76 @@ class ProgramsController extends Controller
                     ]
                 );
 
-                if(!empty($validated['MEbudget_lines'])){
-                    $currentBudgetLineIds = $MandE->budget_lines->pluck('id')->toArray();
-                    $submittedBudgetLineIds = array_keys($validated['MEbudget_lines']);
+                $currentMandE_output = $MandE_outcome->outputs->where('name', 'M and E')->first();
 
-                    // Remove budget lines that are no longer present
-                    BudgetLines::whereIn('id', array_diff($currentBudgetLineIds, $submittedBudgetLineIds))
-                        ->where('activity_id', $MandE->id)
-                        ->delete();
+                if($MandE_outcome){
 
-                    // Handle budget lines
-                    foreach ($validated['MEbudget_lines'] ?? [] as $MEbudgetLineId => $MEbudgetLineData) {
-                        BudgetLines::updateOrCreate(
+                    $MandE_output = Output::updateOrCreate(
+                        [
+                            'id' => $currentMandE_output ? $currentMandE_output->id : null,
+                            'outcome_id' => $MandE_outcome->id ,
+                        ],
+                        [
+                            'name' => 'M and E',
+                            'budget' => $validated['MandEBudget'],
+                        ]
+                    );
+
+                    $currentMandE_activity = $MandE_output->activities->where('name', 'M and E')->first();
+
+                    if($MandE_output){
+
+                        $MandE_activity = Activity::updateOrCreate(
                             [
-                                'id' => is_numeric($MEbudgetLineId) ? $MEbudgetLineId : null,
-                                'activity_id' => $MandE->id
+                                'id' => $currentMandE_activity ? $currentMandE_activity->id : null,
+                                'output_id' => $MandE_output->id,
+                                'program_id' => $program->id
                             ],
                             [
-                                'name' => $MEbudgetLineData['name'],
-                                'unitcost' => $MEbudgetLineData['unitcost'],
-                                'units' => $MEbudgetLineData['units'],
-                                'quantity' => $MEbudgetLineData['quantity'],
-                                'frequency' => $MEbudgetLineData['frequency'],
-                                'budget' => $MEbudgetLineData['budget'],
-                                'dev_Vs_Org'=> $MEbudgetLineData['dev_org']
+                                'name' => 'M and E',
+                                'budget' => $validated['MandEBudget'],
                             ]
                         );
+        
+                        if(!empty($validated['MEbudget_lines'])){
+                            $currentBudgetLineIds = $MandE_activity->budget_lines->pluck('id')->toArray();
+                            $submittedBudgetLineIds = array_keys($validated['MEbudget_lines']);
+        
+                            // Remove budget lines that are no longer present
+                            BudgetLines::whereIn('id', array_diff($currentBudgetLineIds, $submittedBudgetLineIds))
+                                ->where('activity_id', $MandE_activity->id)
+                                ->delete();
+        
+                            // Handle budget lines
+                            foreach ($validated['MEbudget_lines'] ?? [] as $MEbudgetLineId => $MEbudgetLineData) {
+                                BudgetLines::updateOrCreate(
+                                    [
+                                        'id' => is_numeric($MEbudgetLineId) ? $MEbudgetLineId : null,
+                                        'activity_id' => $MandE_activity->id
+                                    ],
+                                    [
+                                        'name' => $MEbudgetLineData['name'],
+                                        'unitcost' => $MEbudgetLineData['unitcost'],
+                                        'units' => $MEbudgetLineData['units'],
+                                        'quantity' => $MEbudgetLineData['quantity'],
+                                        'frequency' => $MEbudgetLineData['frequency'],
+                                        'budget' => $MEbudgetLineData['budget'],
+                                        'dev_Vs_Org'=> $MEbudgetLineData['dev_org']
+                                    ]
+                                );
+                            }
+                        }
+
                     }
+    
                 }
-            // }else{
-            //     $MandE = Activity::create(
-            //         [
-            //             // 'id' => $outcomeData['id'] ?? null,
-            //             'id' => null ,
-            //             'program_id' => $program->id
-            //         ],
-            //         [
-            //             'name' => 'M and E',
-            //             'budget' => $validated['MandEBudget'],
-            //         ]
-            //     );
-            // }      
-            
 
             
-            \DB::commit();
+            DB::commit();
             admin_toastr('Budget Updated successfully!', 'success');
             return redirect(admin_url('budgets'));
         } catch (\Exception $e) {
-            \DB::rollBack();
+            DB::rollBack();
             Log::error($e);
             return redirect()->back()->with('error', 'Failed to update program. ' . $e->getMessage());
         }

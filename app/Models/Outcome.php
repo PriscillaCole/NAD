@@ -13,6 +13,8 @@ class Outcome extends Model
         'name',
         'program_id',
         'budget',
+        'Second_budget',
+        'third_budget'
     ];
     public function program()
     {

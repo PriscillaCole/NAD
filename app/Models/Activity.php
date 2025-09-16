@@ -14,7 +14,9 @@ class Activity extends Model
         'description',
         'budget',
         'output_id',
-        'program_id'
+        'program_id',
+        'Second_budget',
+        'third_budget'
     ];
 
     public function output()

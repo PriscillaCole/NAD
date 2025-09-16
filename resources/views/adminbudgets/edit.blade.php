@@ -4,15 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Program</title>
-    {{-- <style>
-        .ml-4 { margin-left: 1.5rem; }
-        .ml-5 { margin-left: 3rem; }
-        .btn-add { margin-top: 10px; margin-bottom: 10px; }
-        .delete-btn { color: red; cursor: pointer; margin-left: 10px; }
-        .panel-body { padding: 15px; }
-        .entity-label { font-weight: bold; margin-right: 10px; }
-        .text-right { text-align: right; }
-    </style> --}}
+    
     <style>
         /* Basic collapsible functionality */
         
@@ -25,6 +17,13 @@
             padding-right: 30px;
         }
 
+        .inputx {
+            border: transparent;
+            padding: 1px !important;
+        }
+        .pd{
+            padding: 0px !important;
+        }
 
         /* Initial state - all panels collapsed except outcomes */
         .outcome .output,
@@ -276,6 +275,8 @@
                                                 </button>
                                             </div>
                                         </div>
+
+                                        
                                     </div>
                                 </div>
                             @endforeach
@@ -287,6 +288,90 @@
                                 <button type="button" class="btn btn-success btn-add" onclick="addOutcome()">Add Outcome</button>
                             </div>
                         </div>
+                        <div style="height: 20px; border-bottom: 1px solid #eee; text-align: center;margin-top: 20px;margin-bottom: 20px;">
+                                            <span style="font-size: 18px; background-color: #ffffff; padding: 0 10px;">
+                                            M AND E
+                                            </span>
+                                        </div>
+
+                                        <div id="contingency">
+                                            {{-- @foreach ($program->contingencyBudgets as $budget) --}}
+                                                <div class="panel panel-default " id="activity-{{-- {{ ($budget->id) } --}}}">
+                                                    <div class="panel-heading budgetlines">
+                                                        <h6 class="panel-title">
+                                                            <span class="entity-label">M AND E</span> 
+                                                        </h6>
+                                                    </div>
+                                                    
+                                                    <div class="panel-body">
+
+                                                        <table class="table table-bordered" id="MandE-table">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>Cost Type</th>
+                                                                    <th>Units</th>
+                                                                    <th>Unitcost</th>
+                                                                    <th>Quantity</th>
+                                                                    <th>Frequency</th>
+                                                                    <th>Budget</th>
+                                                                    <th>Dev Vs Org Budget</th>
+                                                                    <th>Action</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                @foreach ($adminprogram->adminActivities->where('name', 'M and E') as $MEData)
+                                                                @foreach ($MEData->adminBudgetLines as $MEbudgetLineData)
+                                                                <tr>
+                                                                    <td class="pd">
+                                                                        <input type="text" name="MEbudget_lines[${MandEIndex}][name]" value="{{ $MEbudgetLineData->name }}" class="form-control inputx">
+                                                                    </td>
+                                                                    <td class="pd">
+                                                                        <input type="text" name="MEbudget_lines[${MandEIndex}][units]" value="{{ $MEbudgetLineData->name }}" class="form-control inputx">
+                                                                    </td>
+                                                                    <td class="pd">
+                                                                        <input type="number" name="MEbudget_lines[${MandEIndex}][unitcost]" value="{{ $MEbudgetLineData->unit_cost }}" class="form-control inputx calc-field">
+                                                                    </td>
+                                                                    <td class="pd">
+                                                                        <input type="number" name="MEbudget_lines[${MandEIndex}][quantity]" value="{{ $MEbudgetLineData->quantity }}" class="form-control inputx calc-field">
+                                                                    </td>
+                                                                    <td class="pd">
+                                                                        <input type="number" name="MEbudget_lines[${MandEIndex}][frequency]" value="{{ $MEbudgetLineData->frequency }}" class="form-control inputx calc-field">
+                                                                    </td>
+                                                                    <td class="pd">
+                                                                        <input type="number" name="MEbudget_lines[${MandEIndex}][budget]" value="{{ $MEbudgetLineData->total_cost }}" class="form-control inputx budget-field" readonly>
+                                                                    </td>
+                                                                    <td class="pd">
+                                                                        <input type="number" name="MEbudget_lines[${MandEIndex}][dev_org]" value="{{ $MEbudgetLineData->dev_Vs_Org }}" class="form-control inputx">
+                                                                    </td>
+                                                                    <td>
+                                                                        <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)">Remove</button>
+                                                                    </td>
+                                                                </tr>
+                                                                @endforeach
+                                                                @endforeach
+                                                                <!-- Existing crop rows will be inserted here by PHP -->
+                                                            </tbody>
+                                                            
+                                                            <tfoot>
+                                                                <tr>
+                                                                    <td colspan="5" class="text-right"><strong>Total:</strong></td>
+                                                                    <td>
+                                                                        {{-- <strong id="budget-total-display">0.00</strong> --}}
+                                                                        <input type="number" name="MandEBudget" id="budget-total-input" class="form-control inputx"  value="{{$adminprogram->adminActivities->where('name', 'M and E')->first()?->budget}}" hidden>
+                                                                    </td>
+                                                                    <td colspan="2"></td>
+                                                                </tr>
+                                                            </tfoot>
+
+                                                        </table>
+
+                                                        <button type="button" class="btn btn-primary btn-sm" onclick="addMandERow()">+ Add Budget line</button>
+                                    
+                                                        <!-- More fields for Budget Lines -->
+                                                    </div>
+                                                </div>
+                                            {{-- @endforeach --}}
+                                        </div>
 
                         <!-- Save Button -->
                         <div class="form-group text-right">

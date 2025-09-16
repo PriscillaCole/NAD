@@ -351,3 +351,82 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+let MandEIndex = 0; // set this dynamically with PHP like {$crops->count()}
+
+function addMandERow() {
+    let row = `
+        <tr>
+            <td class="pd">
+                <input type="text" name="MEbudget_lines[${MandEIndex}][name]" class="form-control inputx">
+            </td>
+            <td class="pd">
+                <input type="text" name="MEbudget_lines[${MandEIndex}][units]" class="form-control inputx">
+            </td>
+            <td class="pd">
+                <input type="number" name="MEbudget_lines[${MandEIndex}][unitcost]" class="form-control inputx calc-field">
+            </td>
+            <td class="pd">
+                <input type="number" name="MEbudget_lines[${MandEIndex}][quantity]" class="form-control inputx calc-field">
+            </td>
+            <td class="pd">
+                <input type="number" name="MEbudget_lines[${MandEIndex}][frequency]" class="form-control inputx calc-field">
+            </td>
+            <td class="pd">
+                <input type="number" name="MEbudget_lines[${MandEIndex}][budget]" class="form-control inputx budget-field" readonly>
+            </td>
+            <td class="pd">
+                <input type="number" name="MEbudget_lines[${MandEIndex}][dev_org]" class="form-control inputx">
+            </td>
+            <td>
+                <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)">Remove</button>
+            </td>
+        </tr>`;
+    
+    document.querySelector('#MandE-table tbody').insertAdjacentHTML('beforeend', row);
+    MandEIndex++;
+}
+
+function removeRow(btn) {
+    btn.closest('tr').remove();
+    calculateTotalBudget(); // re-calc total when a row is removed
+}
+
+// 🔹 Calculate budget per row
+function calculateRowBudget(row) {
+    let unitcost = parseFloat(row.querySelector('[name*="[unitcost]"]').value) || 0;
+    let quantity = parseFloat(row.querySelector('[name*="[quantity]"]').value) || 0;
+    let frequency = parseFloat(row.querySelector('[name*="[frequency]"]').value) || 0;
+
+    let budget = unitcost * quantity * frequency;
+    row.querySelector('[name*="[budget]"]').value = budget.toFixed(2);
+
+    calculateTotalBudget();
+}
+
+
+function calculateTotalBudget() {
+    let total = 0;
+    document.querySelectorAll('#MandE-table tbody tr').forEach(row => {
+        let budgetInput = row.querySelector('[name*="[budget]"]');
+        if (budgetInput) {
+            let value = parseFloat(budgetInput.value) || 0;
+            total += value;
+        }
+    });
+
+    // Update display
+    // document.getElementById('budget-total-display').innerHTML = `<strong>${total.toFixed(2)}</strong>`;
+
+    // Update hidden input so it's submitted to backend
+    document.getElementById('budget-total-input').value = total.toFixed(2);
+}
+
+
+// 🔹 Listen for changes in unitcost, quantity, frequency
+document.addEventListener('input', function(e) {
+    if (e.target.closest('#MandE-table') && e.target.classList.contains('calc-field')) {
+        let row = e.target.closest('tr');
+        calculateRowBudget(row);
+    }
+});

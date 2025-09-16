@@ -306,6 +306,29 @@
         // Attach event listener to recalculate budget
         budgetInput.addEventListener('input', recalculateActivityBudget);
     }
+
+    function recalculateBudget(budgetLineId) {
+        const unitCostInput = document.getElementById(`unit-cost-${budgetLineId}`);
+        const quantityInput = document.getElementById(`quantity-${budgetLineId}`);
+        const frequencyInput = document.getElementById(`frequency-${budgetLineId}`);
+        const budgetInput = document.getElementById(`budget-${budgetLineId}`);
+
+        let unitCost = parseFloat(unitCostInput.getAttribute("data-raw")) || 0;
+        console.log(unitCost);
+        let quantity = parseFloat(quantityInput.getAttribute("data-raw")) || 0;
+        console.log(quantity);
+        let frequency = parseFloat(frequencyInput.getAttribute("data-raw")) || 0;
+        console.log(frequency);
+
+        // if (validateBudgetLine(budgetLineId, activityId)) {
+            const calculatedBudget = unitCost * quantity * frequency;
+            budgetInput.value = formatNumberDisplay(calculatedBudget); //format for display
+            budgetInput.setAttribute("data-raw", calculatedBudget); //store raw number.
+        // }
+    }
+        function formatNumberDisplay(number) {
+            return number.toLocaleString('en-US'); // Format as US currency
+        }
     
 
     // Delete Functions
@@ -581,18 +604,6 @@ function calculateRowBudget(row) {
     calculateTotalBudget();
 }
 
-// 🔹 Calculate total of all budgets
-// function calculateTotalBudget() {
-//     let total = 0;
-//     document.querySelectorAll('#MandE-table tbody tr').forEach(row => {
-//         let budgetInput = row.querySelector('[name*="[budget]"]');
-//         if (budgetInput) {
-//             let value = parseFloat(budgetInput.value) || 0;
-//             total += value;
-//         }
-//     });
-//     document.getElementById('budget-total').innerHTML = `<strong>${total.toFixed(2)}</strong>`;
-// }
 
 function calculateTotalBudget() {
     let total = 0;

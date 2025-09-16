@@ -152,15 +152,19 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        
                                         <div class="form-group">
-                                            <label class="col-sm-2 control-label">Outcome Budget (UGX)</label>
-                                            <div class="col-sm-8">
-                                                <div class="input-group">
-                                                    <span class="input-group-addon">
-                                                        <i class="fa fa-pencil fa-fw"></i>
-                                                    </span>
-                                                    <input type="text" name="outcomes[{{ $outcome->id }}][budget]" oninput= "formatNumber(event)"  class="form-control formatted-input" value=" {{$outcome->budget }}" required>
-                                                </div>
+                                            <label for="description" class="col-sm-2 control-label">Outcome Budget (UGX)</label>
+                                            <div class="col-sm-2">
+                                                <input type="text" name="outcomes[{{ $outcome->id }}][budget]" oninput= "formatNumber(event)"  class="form-control formatted-input" value=" {{$outcome->budget }}" required>
+                                            </div>
+                                            <label for="description" class="col-sm-2 control-label">Second budget (revision)</label>
+                                            <div class="col-sm-2">
+                                                    <input type="text" name="outcomes[{{ $outcome->id }}][Second_budget]" oninput= "formatNumber(event)"  class="form-control formatted-input" value=" {{$outcome->Second_budget }}" required>
+                                            </div>
+                                            <label for="description" class="col-sm-2 control-label">Third budget (revision)</label>
+                                            <div class="col-sm-2">
+                                                    <input type="text" name="outcomes[{{ $outcome->id }}][third_budget]" oninput= "formatNumber(event)"  class="form-control formatted-input" value=" {{$outcome->third_budget }}" required>
                                             </div>
                                         </div>
                                         
@@ -186,15 +190,19 @@
                                                                 </div>
                                                             </div>
                                                         </div>
+                                                        
                                                         <div class="form-group">
-                                                            <label class="col-sm-2 control-label">Output Budget (UGX)</label>
-                                                            <div class="col-sm-8">
-                                                                <div class="input-group">
-                                                                    <span class="input-group-addon">
-                                                                        <i class="fa fa-pencil fa-fw"></i>
-                                                                    </span>
+                                                            <label for="description" class="col-sm-2 control-label">Outputs Budget (UGX)</label>
+                                                            <div class="col-sm-2">
                                                                     <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][budget]" oninput= "formatNumber(event)" class="form-control formatted-input" value=" {{$output->budget}}" required>
-                                                                </div>
+                                                            </div>
+                                                            <label for="description" class="col-sm-2 control-label">Second budget (revision)</label>
+                                                            <div class="col-sm-2">
+                                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][Second_budget]" oninput= "formatNumber(event)" class="form-control formatted-input" value=" {{$output->Second_budget}}" required>
+                                                            </div>
+                                                            <label for="description" class="col-sm-2 control-label">Third budget (revision)</label>
+                                                            <div class="col-sm-2">
+                                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][third_budget]" oninput= "formatNumber(event)" class="form-control formatted-input" value=" {{$output->third_budget}}" required>
                                                             </div>
                                                         </div>
 
@@ -220,7 +228,7 @@
                                                                                 </div>
                                                                             </div>
                                                                         </div>
-                                                                        <div class="form-group">
+                                                                        {{-- <div class="form-group">
                                                                             <label class="col-sm-2 control-label">Activity Budget (UGX)</label>
                                                                             <div class="col-sm-8">
                                                                                 <div class="input-group">
@@ -229,6 +237,20 @@
                                                                                     </span>
                                                                                     <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][budget]" oninput= "formatNumber(event)" class="form-control formatted-input" value=" {{($activity->budget) }}" required>
                                                                                 </div>
+                                                                            </div>
+                                                                        </div> --}}
+                                                                        <div class="form-group">
+                                                                            <label for="description" class="col-sm-2 control-label">Activity Budget (UGX)</label>
+                                                                            <div class="col-sm-2">
+                                                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][budget]" oninput= "formatNumber(event)" class="form-control formatted-input" value=" {{($activity->budget) }}" required>
+                                                                            </div>
+                                                                            <label for="description" class="col-sm-2 control-label">Second budget (revision)</label>
+                                                                            <div class="col-sm-2">
+                                                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][Second_budget]" oninput= "formatNumber(event)" class="form-control formatted-input" value=" {{($activity->Second_budget) }}" required>
+                                                                            </div>
+                                                                            <label for="description" class="col-sm-2 control-label">Third budget (revision)</label>
+                                                                            <div class="col-sm-2">
+                                                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][third_budget]" oninput= "formatNumber(event)" class="form-control formatted-input" value=" {{($activity->third_budget) }}" required>
                                                                             </div>
                                                                         </div>
                                                                         <!-- Budget Lines -->
@@ -260,7 +282,7 @@
                                                                                                     <span class="input-group-addon">
                                                                                                         <i class="fa fa-pencil fa-fw"></i>
                                                                                                     </span>
-                                                                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][budget_lines][{{ $budget_line->id }}][unitcost]" class="form-control formatted-input" value="{{ $budget_line->unitcost }}" required>
+                                                                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][budget_lines][{{ $budget_line->id }}][unitcost]" id="unit-cost-{{$budget_line->id}}" class="form-control formatted-input" oninput="recalculateBudget({{$budget_line->id}})" value="{{ $budget_line->unitcost }}" required>
                                                                                                 </div>
                                                                                             </div>
                                                                                         </div>
@@ -271,7 +293,7 @@
                                                                                                     <span class="input-group-addon">
                                                                                                         <i class="fa fa-pencil fa-fw"></i>
                                                                                                     </span>
-                                                                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][budget_lines][{{ $budget_line->id }}][quantity]" class="form-control" value="{{ $budget_line->quantity }}" required>
+                                                                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][budget_lines][{{ $budget_line->id }}][quantity]" id="quantity-{{$budget_line->id}}" class="form-control formatted-input" oninput="recalculateBudget({{$budget_line->id}})" value="{{ $budget_line->quantity }}" required>
                                                                                                 </div>
                                                                                             </div>
                                                                                         </div>
@@ -282,7 +304,7 @@
                                                                                                     <span class="input-group-addon">
                                                                                                         <i class="fa fa-pencil fa-fw"></i>
                                                                                                     </span>
-                                                                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][budget_lines][{{ $budget_line->id }}][frequency]" class="form-control" value="{{ $budget_line->frequency }}" required>
+                                                                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][budget_lines][{{ $budget_line->id }}][frequency]" id="frequency-{{$budget_line->id}}" oninput="recalculateBudget({{$budget_line->id}})" class="form-control formatted-input" value="{{ $budget_line->frequency }}" required>
                                                                                                 </div>
                                                                                             </div>
                                                                                         </div>
@@ -293,7 +315,7 @@
                                                                                                     <span class="input-group-addon">
                                                                                                         <i class="fa fa-pencil fa-fw"></i>
                                                                                                     </span>
-                                                                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][budget_lines][{{ $budget_line->id }}][budget]" oninput= "formatNumber(event)" class="form-control formatted-input" value=" {{($budget_line->budget) }}" required>
+                                                                                                    <input type="text" name="outcomes[{{ $outcome->id }}][outputs][{{ $output->id }}][activities][{{ $activity->id }}][budget_lines][{{ $budget_line->id }}][budget]" id="budget-{{$budget_line->id}}" oninput= "formatNumber(event)" class="form-control formatted-input" value=" {{($budget_line->budget) }}" readonly required>
                                                                                                 </div>
                                                                                             </div>
                                                                                         </div>

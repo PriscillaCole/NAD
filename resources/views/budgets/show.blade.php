@@ -599,9 +599,6 @@
                             {{-- @endforeach --}}
                         </div>
 
-
-
-
                     </form>
                 </div>
             </div>

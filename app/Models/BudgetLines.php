@@ -17,7 +17,9 @@ class BudgetLines extends Model
         'frequency',
         'budget',
         'dev_Vs_Org',
-        'units'
+        'units',
+        'Second_budget',
+        'third_budget'
     ];
 
     public function activity()
