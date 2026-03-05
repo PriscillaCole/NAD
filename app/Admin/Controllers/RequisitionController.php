@@ -444,24 +444,21 @@ class RequisitionController extends AdminController
                     });
             }
             $form->decimal('amount', __('Amount(UGX)'))->readonly();
-            $form->radio('setOff_date', __('Have you already uploaded a Concept Note'))
-                ->options([
-                    '1' => 'Yes',
-                    '2' => 'No',
-                ])
-                ->when(2, function ($form) {
-                    // This closure will only be executed if the radio value is 1
-                    $form->file('concept_note', __('Concept Note File'))
-                        ->rules('mimes:pdf,doc,docx')
-                        ->help('Please upload your concept note.');
-                });
-                // ->required();
+            
+            // Add a hidden div to show existing concept note
             $form->html('
             <div id="existingConceptNoteWrapper"></div>
             ');
             
-// {{-- File input for replacing --}}
-//  $form->file(`concept_note`, __(`Concept note`))->help(`Upload a new concept note (PDF format) if you want to replace the existing one.`);
+            // Add concept note upload field that will be shown/hidden via JavaScript
+            $form->file('concept_note', __('Concept Note File'))
+                ->rules('mimes:pdf,doc,docx')
+                ->help('If a concept note already exists for the selected activity, it will be displayed above and you do not need to upload a new one unless you want to replace it.')
+                ->attribute(['id' => 'concept_note_upload']);
+            
+            
+            // {{-- File input for replacing --}}
+            // $form->file(`concept_note`, __(`Concept note`))->help(`Upload a new concept note (PDF format) if you want to replace the existing one.`);
 
             
             $form->textarea('description', __('Description'));
@@ -570,9 +567,10 @@ class RequisitionController extends AdminController
                                 });
                             });
 
-                            // 🔹 Handle concept note
+                                                        // 🔹 Handle concept note
+                            var conceptNoteField = $(\'[name="concept_note"]\').closest(\'.form-group\');
                             if (data[3]) {
-                                $("#concept_note").val(data[3]);
+                                // Show existing concept note link
                                 $("#existingConceptNoteWrapper").html(`
                                     <div class="mb-3">
                                         <label>Existing Concept Note:</label>
@@ -581,8 +579,14 @@ class RequisitionController extends AdminController
                                         </a>
                                     </div>
                                 `);
+                                // Hide the entire concept note form group
+                                // conceptNoteField.hide();
                             } else {
+                                // Clear existing concept note display and show upload field
                                 $("#existingConceptNoteWrapper").empty();
+                                conceptNoteField.show();
+                               
+                                $(`input[name=\'setOff_date\'][value=\'2\']`).prop(`checked`, true);
                             }
                         });
                 });

@@ -435,7 +435,8 @@
                         if ($requisition->program?->type == 2){
                             $activityConcept = \App\Models\Requisition::where('outcome_id', $requisition->adminoutcome?->id)->first();
                         }else {
-                            $activityConcept = \App\Models\Requisition::where('activity_id', $requisition->activity->id)->first();
+                            $activityConcept = \App\Models\Requisition::where('activity_id', $requisition->activity->id)->where('concept_note', '!=', null)->first();
+                            Log::info('Activity Concept Note: ' . ($activityConcept->concept_note ?? 'Not found'));
                         }
                 
                     @endphp

@@ -313,18 +313,20 @@
         const frequencyInput = document.getElementById(`frequency-${budgetLineId}`);
         const budgetInput = document.getElementById(`budget-${budgetLineId}`);
 
-        let unitCost = parseFloat(unitCostInput.getAttribute("data-raw")) || 0;
-        console.log(unitCost);
-        let quantity = parseFloat(quantityInput.getAttribute("data-raw")) || 0;
-        console.log(quantity);
-        let frequency = parseFloat(frequencyInput.getAttribute("data-raw")) || 0;
-        console.log(frequency);
+        // Remove commas and convert to numbers
+        let unitCost = parseFloat(unitCostInput.value.replace(/,/g, '')) || 0;
+        let quantity = parseFloat(quantityInput.value.replace(/,/g, '')) || 0;
+        let frequency = parseFloat(frequencyInput.value.replace(/,/g, '')) || 0;
 
-        // if (validateBudgetLine(budgetLineId, activityId)) {
-            const calculatedBudget = unitCost * quantity * frequency;
-            budgetInput.value = formatNumberDisplay(calculatedBudget); //format for display
-            budgetInput.setAttribute("data-raw", calculatedBudget); //store raw number.
-        // }
+        const calculatedBudget = unitCost * quantity * frequency;
+        
+        // Format the input values
+        unitCostInput.value = formatNumberDisplay(unitCost);
+        quantityInput.value = formatNumberDisplay(quantity);
+        frequencyInput.value = formatNumberDisplay(frequency);
+        
+        // Format and set the calculated budget
+        budgetInput.value = formatNumberDisplay(calculatedBudget);
     }
         function formatNumberDisplay(number) {
             return number.toLocaleString('en-US'); // Format as US currency

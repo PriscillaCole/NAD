@@ -131,8 +131,10 @@
 
                         <!-- Outcome Section -->
                         <div id="outcomes">
+
+                            {{--  --}}
                         
-                            @foreach ($program->outcomes as $outcome)
+                            @foreach ($program->outcomes->where('name', '!=', 'M and E') as $outcome)
                                 <div class="panel panel-default outcome" id="outcome-{{ $outcome->id }}">
                                     <div class="panel-heading outcomes">
                                         <h4 class="panel-title">
@@ -515,12 +517,15 @@
                                                 <tr>
                                                     <td colspan="5" class="text-right"><strong>Total:</strong></td>
                                                     <td>
-                                                        {{-- <strong id="budget-total-display">0.00</strong> --}}
-                                                        <input type="number" name="MandEBudget" id="budget-total-input" class="form-control inputx"  value="{{$program->activities->where('name', 'M and E')->first()->budget}}" hidden>
+                                                        @php
+                                                            $mandE = $program->activities()->where('name', 'M and E')->first();
+                                                        @endphp
+                                                        <input type="number" name="MandEBudget" id="budget-total-input" class="form-control inputx" value="{{ $mandE?->budget ?? 0 }}" hidden>
                                                     </td>
                                                     <td colspan="2"></td>
                                                 </tr>
                                             </tfoot>
+
 
                                         </table>
 

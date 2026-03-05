@@ -88,7 +88,7 @@ class Requisition extends Model
         parent::boot();
 
         static::created(function ($model) {
-            Notification::send_notification($model, 'Requisition', request()->segment(count(request()->segments())));
+            // Notification::send_notification($model, 'Requisition', request()->segment(count(request()->segments())));
         });
 
 
