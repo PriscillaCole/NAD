@@ -249,11 +249,643 @@ class RequisitionController extends AdminController
      * @return Form
      */
     protected function form()
+    {
+        $form = new Form(new Requisition());
+        //get the logged in users's staff id
+        $user = auth()->user();
+        if ($form->isCreating()) {
+            // Check if the user has any pending accountabilities
+            $user = auth()->user();
+            $staff_id = Staff::where('user_id', $user->id)->first()->id;
+
+            /* $pendingRequisition = Requisition::where('staff_id', $staff_id)
+                ->where('status', 'approved')
+                ->whereDoesntHave('accountability') // Check if there's no accountability
+                ->first();
+
+            if ($pendingRequisition) {
+                // Prevent new requisition creation
+                $error = new MessageBag([
+                    'title'   => 'Warning',
+                    'message' => 'You cannot create a new requisition until you submit accountability for your  requisition '.$pendingRequisition->code,
+                ]);
+
+                return back()->with(compact('error'));
+            } */
+        };
+        
+        $staff_id = Staff::where('user_id', $user->id)->first()->id;
+        
+            //when saving the form, calculate the total amount of the requisition items and save it in the amount field
+            $form->saving(function (Form $form) {
+                $requisition_items = request()->input('requisition_items');
+                // dd($requisition_items);
+        
+                // Check that the requisition items are not empty
+                if (empty($form->requisition_items)) {
+                    admin_toastr('Please add requisition items', 'error');
+                    return back()->withInput();
+                }
+            
+                $total_amount = 0;
+                $budget_lines = [];
+                $duplicateCategoryFound = false;
+                
+                $user = auth()->user();
+                // $staff = Staff::where('user_id', $user->id);
+                if($user->isRole('admin')){
+                    foreach ($requisition_items as $item) {
+                        // dd($requisition_items);
+                        // Check if the category_id is already in the $categories array
+                        if (in_array($item['admin_budget_line_id'], $budget_lines)) {
+                            $duplicateCategoryFound = true;
+                            break; // Exit the loop early if a duplicate is found
+                        }
+                        
+                        // Add the category_id to the $categories array
+                        $budget_lines[] = $item['admin_budget_line_id'];
+
+                        // Calculate the total amount of the requisition
+                        $total_amount += $item['quantity'] * $item['unit_price']; // Fixed unit_price to unit_cost to match the form field
+                    }
+                
+                    // If a duplicate category was found, show an error message and return back with input
+                    if ($duplicateCategoryFound) {
+                        admin_toastr('You have selected the same budget line twice', 'error');
+                        return back()->withInput();
+                    }
+
+                    
+                // Set the total amount after validation
+                $form->amount = $total_amount;
+                }
+                else{
+                    /* foreach ($requisition_items as $item) {
+                        // Check if the category_id is already in the $categories array
+                        if (in_array($item['budget_line_id'], $budget_lines)) {
+                            $duplicateCategoryFound = true;
+                            break; // Exit the loop early if a duplicate is found
+                        }
+                        
+                        // Add the category_id to the $categories array
+                        $budget_lines[] = $item['budget_line_id'];
+                        
+                        // Calculate the total amount of the requisition
+                        $total_amount += $item['quantity'] * $item['unit_price'] * $item['frequency']; // Fixed unit_price to unit_cost to match the form field
+                        Log::info($total_amount);
+                    } */
+                    // If a duplicate category was found, show an error message and return back with input
+                    if ($duplicateCategoryFound) {
+                        admin_toastr('You have selected the same budget line twice', 'error');
+                        return back()->withInput();
+                    }
+                }
+            
+            });
+        
+
+            //when the form is saved , redirect to the show view with a success message that has the total amount of the requisition
+            $form->saved(function (Form $form) {
+                //get the total amount of the requisition
+                $total_amount = $form->amount;
+                $id = $form->model()->id;
+                admin_toastr('Requistion worth '. $total_amount. ' has been successfully submitted');
+                return redirect('/requisitions/'.$id);
+            
+            });
+            
+            $form->hidden('staff_id', __('Staff'))->default( $staff_id );
+        
+            if($user->isRole('admin')){
+                $form->text('code', __('RequisitionID'))->default('Admin-'.rand(1000, 9999))->readonly();
+                // dd($user->id);
+                $form->select('program_id', __('Program'))->options(Program::where('user_id', $user->id)->pluck('name', 'id'))->attribute('id', 'adminprogram_id')->required();
+                $form->select('outcome_id', __('Outcome'))->options(function ($id) {
+                    // Preload the selected activity for editing
+                    $activity = AdminActivity::find($id);
+                    return $activity ? [$activity->id => $activity->name] : [];
+                    })->attribute('id', 'adminactivity_id')->required();
+            
+                $form->hasMany('requisition_items', 'Requisition items', function (Form\NestedForm $form) {
+                    $form->select('admin_budget_line_id', __('Output'))
+                    ->options(function ($id) {
+                        // Preload the selected budget line for editing
+                        $adminbudgetLine = AdminBudget_lines::find($id);
+                        return $adminbudgetLine ? [$adminbudgetLine->id => $adminbudgetLine->name] : [];
+                    })
+                    ->attribute('id', 'admin_budget_line_id')
+                    ->required();
+                    $form->decimal('quantity', __('Quantity'))->required();
+                    $form->decimal('frequency', __('Frequency'))->required();
+                    $form->decimal('unit_price', __('Unit cost(UGX)'))->required();
+                    $form->text('unit_of_measure', __('Unit of measure'))->required();
+                    $form->decimal('total_price', __('Total amount'))->readonly()
+                            ->customFormat(function ($value) {
+                                return !is_null($value) ? number_format($value, 0, '.', ',') : '';
+                            })
+                            ->attribute([
+                                'oninput' => "this.value = this.value.replace(/[^0-9.]/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');"
+                            ]);
+                
+                });
+            }
+            else{
+                $form->text('code', __('RequisitionID'))->default('REQ-'.rand(1000, 9999))->readonly();
+                $form->select('program_id', __('Program'))->options(Program::where('user_id', $user->id)->pluck('name', 'id'))->attribute('id', 'program_id')->required();
+                $form->select('outcome_id', __('Outcome'))->options(function ($id) {
+                    // Preload the selected activity for editing
+                    $outcome = Outcome::find($id);
+                    return $outcome ? [$outcome->id => $outcome->name] : [];
+                    })->attribute('id', 'outcome_id')->required();
+                $form->select('output_id', __('Output'))->options(function ($id) {
+                    // Preload the selected activity for editing
+                    $output = Output::find($id);
+                    return $output ? [$output->id => $output->name] : [];
+                    })->attribute('id', 'output_id')->required();
+                $form->select('activity_id', __('Activity'))->options(function ($id) {
+                    // Preload the selected activity for editing
+                    $activity = Activity::find($id);
+                    return $activity ? [$activity->id => $activity->name] : [];
+                    })->attribute('id', 'activity_id')->required();
+                $form->text('', __('Activity budget(UGX)'))->attribute(
+                    'id', 'activity_budget',
+                    )->readonly();
+                $form->text('', __('Remaining budget(UGX)'))->attribute(
+                    'id', 'remaining_budget',
+                    )->readonly();
+            
+                    //add requisition items
+                    $form->hasMany('requisition_items', 'Requisition items', function (Form\NestedForm $form) {
+                        $form->select('budget_line_id', __('Budget Line'))
+                        ->options(function ($id) {
+                            // Preload the selected budget line for editing
+                            $budgetLine = BudgetLines::find($id);
+                            return $budgetLine ? [$budgetLine->id => $budgetLine->name] : [];
+                        })
+                        ->attribute('id', 'budget_line_id')
+                        ->required()
+                        ->readOnly();
+                        $form->decimal('quantity', __('Quantity'))->required();
+                        $form->text('unit_of_measure', __('Unit of measure'))->required();
+                        $form->decimal('frequency', __('Frequency'))->required();
+                        $form->decimal('unit_price', __('Unit cost(UGX)'))
+                        ->attribute([
+                            'oninput' => "this.value = this.value.replace(/[^0-9.]/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');"
+                        ])
+                        ->required();
+                        $form->decimal('total_price', __('Total amount'))->readonly()
+                            ->customFormat(function ($value) {
+                                return !is_null($value) ? number_format($value, 0, '.', ',') : '';
+                            })
+                            ->attribute([
+                                'oninput' => "this.value = this.value.replace(/[^0-9.]/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');"
+                            ]);
+                    
+                    });
+            }
+            $form->decimal('amount', __('Amount(UGX)'))->readonly();
+            
+            // Add a hidden div to show existing concept note
+            $form->html('
+            <div id="existingConceptNoteWrapper"></div>
+            ');
+            
+            // Add concept note upload field that will be shown/hidden via JavaScript
+            $form->file('concept_note', __('Concept Note File'))
+                ->rules('mimes:pdf,doc,docx')
+                ->help('If a concept note already exists for the selected activity, it will be displayed above and you do not need to upload a new one unless you want to replace it.')
+                ->attribute(['id' => 'concept_note_upload']);
+            
+            
+            // {{-- File input for replacing --}}
+            // $form->file(`concept_note`, __(`Concept note`))->help(`Upload a new concept note (PDF format) if you want to replace the existing one.`);
+
+            
+            $form->textarea('description', __('Description'));
+            
+            
+        Admin::script
+        ('  
+            $(document).ajaxError(function(event, xhr, settings, error) {
+                console.error("AJAX Error:", {
+                    status: xhr.status,
+                    response: xhr.responseText,
+                    error: error
+                });
+            });
+        ');
+
+        //script to show activity based on program selected
+        Admin::script('
+            let globalBudgetLines = {};
+            $("#program_id").change(function(){
+                var program_id = $(this).val();
+                $.get("/program-outcomes/"+program_id, function(data){
+                    $("#outcome_id").empty();
+                    $("#no-activities-message").remove();
+                    
+                    if($.isEmptyObject(data)) {
+                        $("#outcome_id").after("<span id=\'no-activities-message\' style=\'color: red;\'>No outcomes available for this program</span>");
+                    } else {
+                        // Add a default option
+                        $("#outcome_id").append(new Option(\'Select Activity \', \'\'));
+                                
+                        $.each(data, function(key, value){
+                            $("#outcome_id").append("<option value="+key+">"+value+"</option>");
+                        });
+                    }
+                });
+            });
+
+            //show outputs
+            $("#outcome_id").change(function(){
+                var outcome_id = $(this).val();
+                $.get("/outcome-outputs/"+outcome_id, function(data){
+                    $("#output_id").empty();
+                    $("#no-activities-message").remove();
+                    
+                    if($.isEmptyObject(data)) {
+                        $("#output_id").after("<span id=\'no-activities-message\' style=\'color: red;\'>No outputs available for this outcome</span>");
+                    } else {
+                        // Add a default option
+                        $("#output_id").append(new Option(\'Select Activity \', \'\'));
+                                
+                        $.each(data, function(key, value){
+                            $("#output_id").append("<option value="+key+">"+value+"</option>");
+                        });
+                    }
+                });
+            });
+            //show activities
+            $("#output_id").change(function(){
+                var output_id = $(this).val();
+                $.get("/output-activities/"+output_id, function(data){
+                    $("#activity_id").empty();
+                    $("#no-activities-message").remove();
+                    
+                    if($.isEmptyObject(data)) {
+                        $("#activity_id").after("<span id=\'no-activities-message\' style=\'color: red;\'>No activities available for this output</span>");
+                    } else {
+                        // Add a default option
+                        $("#activity_id").append(new Option(\'Select Activity \', \'\'));
+                                
+                        $.each(data, function(key, value){
+                            $("#activity_id").append("<option value="+key+">"+value+"</option>");
+                        });
+                    }
+                });
+            });
+           
+            
+            $("#activity_id").change(function () {
+                var activity_id = $(this).val();
+
+                if (!activity_id) {
+                    alert("Please select an activity");
+                    return;
+                }
+
+                    $.get("/budgetlines/" + activity_id)
+                        .done(function (data) {
+                            globalBudgetLines = data[0];
+                            var activity_budget = Number(data[1]).toLocaleString(`en-US`);
+                            var remaining_budget = Number(data[2]).toLocaleString(`en-US`);
+
+                            $("#activity_budget").val(activity_budget);
+                            $("#remaining_budget").val(remaining_budget);
+
+                            if ($.isEmptyObject(globalBudgetLines)) {
+                                alert("No budget lines available for the selected activity");
+                                return;
+                            }
+
+                            $("[id^=budget_line_id]").each(function () {
+                                let $select = $(this);
+                                $select.empty().append(`<option value="">Select Budget Line</option>`);
+                                $.each(globalBudgetLines, function (key, value) {
+                                    $select.append(new Option(value, key));
+                                });
+                            });
+
+                                                        // 🔹 Handle concept note
+                            var conceptNoteField = $(\'[name="concept_note"]\').closest(\'.form-group\');
+                            if (data[3]) {
+                                // Show existing concept note link
+                                $("#existingConceptNoteWrapper").html(`
+                                    <div class="mb-3">
+                                        <label>Existing Concept Note:</label>
+                                        <a href="${data[3]}" target="_blank" class="btn btn-link">
+                                            View Concept Note
+                                        </a>
+                                    </div>
+                                `);
+                                // Hide the entire concept note form group
+                                // conceptNoteField.hide();
+                            } else {
+                                // Clear existing concept note display and show upload field
+                                $("#existingConceptNoteWrapper").empty();
+                                conceptNoteField.show();
+                               
+                                $(`input[name=\'setOff_date\'][value=\'2\']`).prop(`checked`, true);
+                            }
+                        });
+                });
+
+
+            // Observer to detect new requisition item form added
+            const targetNode = document.querySelector("#has-many-requisition_items .has-many-requisition_items-forms");
+            
+            // Utility to sanitize input by removing commas and parsing float
+            function sanitize(val) {
+                return parseFloat((val || ``).toString().replace(/,/g, ``).trim()) || 0;
+            }
+
+            // Function to calculate grand total of all requisition items
+            function calculateGrandTotal() {
+                let grandTotal = 0;
+
+                // Find all visible requisition items NOT marked for removal
+                const forms = document.querySelectorAll(".has-many-requisition_items-form");
+
+                forms.forEach(function (form) {
+                    const removedInput = form.querySelector("input[name*=\'[_remove_]\']");
+                    if (removedInput && removedInput.value === "1") {
+                        // Skip this form it`s marked for removal
+                        return;
+                    }
+
+                    const totalInput = form.querySelector("input[name*=\'[total_price]\']");
+                    if (totalInput) {
+                        let value = totalInput.getAttribute("data-raw") || totalInput.value;
+                        grandTotal += sanitize(value);
+                    }
+                });
+
+                // Update the main amount field
+                const amountField = document.querySelector("input[name=\'amount\']");
+                if (amountField) {
+                    amountField.value = grandTotal.toLocaleString(\'en-UG\');
+                    amountField.setAttribute("data-raw", grandTotal);
+                }
+
+                return grandTotal;
+            }
+
+
+            // Fixed setupRecalculation function that works with dynamic forms
+            function setupRecalculation(formNode) {
+                // Find inputs within the specific form node (not globally)
+                const unitPriceInput = formNode.querySelector("input[name*=\'unit_price\']");
+                const quantityInput = formNode.querySelector("input[name*=\'quantity\']");
+                const frequencyInput = formNode.querySelector("input[name*=\'frequency\']");
+                const totalPriceInput = formNode.querySelector("input[name*=\'total_price\']");
+
+                // console.log("Setting up recalculation for form:", formNode);
+                // console.log("Found inputs:", {
+                //     unitPrice: !!unitPriceInput,
+                //     quantity: !!quantityInput,
+                //     frequency: !!frequencyInput,
+                //     totalPrice: !!totalPriceInput
+                // });
+
+                function recalculateTotal() {
+                    if (!unitPriceInput || !quantityInput || !frequencyInput || !totalPriceInput) {
+                        console.warn("Missing input elements for calculation");
+                        return;
+                    }
+
+                    const unit = sanitize(unitPriceInput.value);
+                    const qty = sanitize(quantityInput.value);
+                    const freq = sanitize(frequencyInput.value);
+                    const total = unit * qty * freq;
+
+                    // console.log(`Calculated Total: ${unit} x ${qty} x ${freq} = ${total}`);
+
+                    totalPriceInput.value = total.toLocaleString(\'en-UG\');
+                    totalPriceInput.setAttribute("data-raw", total);
+
+                    calculateGrandTotal();
+                
+                }
+                function handleInputChange(inputElement) {
+                    inputElement.value = inputElement.value.replace(/[^\\d.]/g, ``);
+                    recalculateTotal();
+                }
+
+                // Add event listeners to each input
+                if (unitPriceInput) {
+                    $(unitPriceInput).on(`input change keyup blur paste`, function() {
+                        handleInputChange(this);
+                    });
+                }
+
+                if (quantityInput) {
+                    $(quantityInput).on(`input change keyup blur paste`, function() {
+                        handleInputChange(this);
+                    });
+                }
+
+                if (frequencyInput) {
+                    $(frequencyInput).on(`input change keyup blur paste`, function() {
+                        handleInputChange(this);
+                    });
+                }
+            }
+
+            $(document).ready(function() {
+                $(".has-many-requisition_items-form").each(function() {
+                    setupRecalculation(this);
+                });
+
+                calculateGrandTotal();
+                
+            });
+
+            // MutationObserver to watch dynamically added requisition item forms
+            const requisitionObserver = new MutationObserver(function (mutationsList) {
+                mutationsList.forEach(function (mutation) {
+                    mutation.addedNodes.forEach(function (node) {
+                        if (node.nodeType === Node.ELEMENT_NODE && $(node).hasClass("has-many-requisition_items-form")) {
+                            // console.log("New requisition item form detected:", node);
+
+                            // Populate budget line select
+                            let $select = $(node).find("select[name*=\'budget_line_id\']");
+                            if ($select.length) {
+                                $select.empty().append(`<option value="">Select Budget Line</option>`);
+                                $.each(globalBudgetLines, function (key, value) {
+                                    $select.append(new Option(value, key));
+                                });
+                            }
+
+                            // Set up calculation for the new form
+                            setupRecalculation(node);
+                        }
+                    });
+                });
+            });
+
+            // Observer to handle Laravel-Admin-style logical removals (via [_remove_] hidden input)
+            function observeLogicalRemovals() {
+                let previousCount = 0;
+
+                setInterval(function () {
+                    const removedInputs = document.querySelectorAll("input[name*=\'[_remove_]\'][value=\'1\']");
+                    const currentCount = removedInputs.length;
+
+                    if (currentCount !== previousCount) {
+                        console.log("Detected requisition item marked for removal.");
+                        previousCount = currentCount;
+                        calculateGrandTotal();
+                    }
+                }, 300); // Poll every 300ms
+            }
+
+            if (targetNode) {
+                requisitionObserver.observe(targetNode, { childList: true, subtree: true });
+                console.log("MutationObserver started on requisition items container.");
+                observeLogicalRemovals();
+                // observeFormRemovals();
+            } else {
+                console.warn("Target node #has-many-requisition_items not found.");
+            }
+
+
+        ');
+
+        Admin::script('
+        let globalAdminBudgetLines = {};
+            $("#adminprogram_id").change(function(){
+                var program_id = $(this).val();
+                $.get("/admin-activities/"+program_id, function(data){
+                    $("#adminactivity_id").empty();
+                    $("#no-activities-message").remove();
+                    
+                    if($.isEmptyObject(data)) {
+                        $("#adminactivity_id").after("<span id=\'no-activities-message\' style=\'color: red;\'>No budgetlines available for this activity</span>");
+                    } else {
+                        // Add a default option
+                        $("#adminactivity_id").append(new Option(\'Select Activity \', \'\'));
+                                
+                        $.each(data, function(key, value){
+                            $("#adminactivity_id").append("<option value="+key+">"+value+"</option>");
+                        });
+                    }
+                });
+            });
+
+            $("#adminactivity_id").change(function () {
+                var activity_id = $(this).val();
+
+                if (!activity_id) {
+                    alert("Please select an outcome");
+                    return;
+                }
+
+                $.get("/adminprogram-budgetlines/" + activity_id)
+                    .done(function (data) {
+                        globalAdminBudgetLines = data; // Store for later use
+
+                        if ($.isEmptyObject(globalAdminBudgetLines)) {
+                            alert("No outputs available for the selected outcome");
+                            return;
+                        }
+
+                        // Optionally clear existing options in current select inputs
+                        $("[id^=admin_budget_line_id]").each(function () {
+                            let $select = $(this);
+                            $select.empty().append(\'<option value="">Select Budget Line</option>\');
+                            $.each(globalAdminBudgetLines, function (key, value) {
+                                $select.append(new Option(value, key));
+                            });
+                        });
+                    });
+            });
+            // Observer to detect new requisition item form added
+            
+            const adminobserver = new MutationObserver(function (mutationsList) {
+                mutationsList.forEach(function (mutation) {
+                    mutation.addedNodes.forEach(function (node) {
+                        if ($(node).hasClass("has-many-requisition_items-form")) {
+                            // Populate budget lines for the newly added form
+                            let $select = $(node).find("[id^=admin_budget_line_id]");
+                            $select.empty().append(\'<option value="">Select Budget Line</option>\');
+                            $.each(globalAdminBudgetLines, function (key, value) {
+                                $select.append(new Option(value, key));
+                            });
+                        }
+                    });
+                });
+            });
+
+            // Start observing
+            if (targetNode) {
+                adminobserver.observe(targetNode, { childList: true });
+            }
+
+            
+        ');
+        
+        return $form;
+    }
+
+
+    // function to fetch budget lines under a chosen activity
+    public function getActivitiesbudgetlines($id)
+    {
+        $activityConcept = Requisition::where('activity_id', $id)->first();// gets a single column directly
+
+        Log::info($activityConcept);
+
+        $activity_budget = Activity::where('id', $id)->value('budget');
+        
+        $budgetlines = BudgetLines::where('activity_id', $id)->pluck('name', 'id'); // Returns {id: name}
+        
+        // Sum of accountabilities for all requisitions under this activity
+        $usedAmount = Accountability::whereHas('requisition', function ($query) use ($id) {
+            $query->where('activity_id', $id);
+        })->sum('amount_used');
+
+        
+        $remaining = $activity_budget - $usedAmount;
+
+        return [$budgetlines, $activity_budget, $remaining, $activityConcept?->concept_note 
+            ? asset('storage/' . $activityConcept->concept_note) 
+            : null,];
+    }
+
+    // function to fetch activities under a program
+    public function getAdminActivities($id)
+    {
+
+        // $program = AdminProgram::find($id);
+        $activities = AdminActivity::where('admin_program_id', $id) // Get all outcomes for the program
+            ->pluck('name', 'id'); // Extract 'name' and 'id' from the activities
+
+
+        return $activities;
+    }
+
+
+    // function to fetch budget lines under a chosen activity
+    public function getAdminbudgetlines($id)
+    {
+        // $program = AdminProgram::find($id);
+        $budgetlines = AdminBudget_lines::where('admin_activity_id', $id) // Get all outcomes for the program
+            ->pluck('name', 'id'); // Extract 'name' and 'id' from the activities
+
+        return $budgetlines;
+    }
+    
+}
+
+
+protected function form()
 {
     $form = new Form(new Requisition());
     $user = auth()->user();
 
     if ($form->isCreating()) {
+        $user = auth()->user();
         $staff_id = Staff::where('user_id', $user->id)->first()->id;
     };
 
@@ -381,19 +1013,9 @@ class RequisitionController extends AdminController
 
     $form->decimal('amount', __('Amount(UGX)'))->readonly();
 
-    // Draft restore banner + concept note wrapper
-    // $form->html('
-    //     <div id="draftRestoreBanner" style="display:none;" class="alert alert-warning alert-dismissible">
-    //         <button type="button" class="close" data-dismiss="alert">&times;</button>
-    //         <strong>📝 Draft found!</strong> You have an unsaved draft for this form.
-    //         <a href="#" id="restoreDraftBtn" class="btn btn-sm btn-warning ml-2">Restore Draft</a>
-    //         <a href="#" id="discardDraftBtn" class="btn btn-sm btn-danger ml-1">Discard</a>
-    //     </div>
-    //     <div id="existingConceptNoteWrapper"></div>
-    // ');
-
-    // With this:
-    $form->html('<div id="existingConceptNoteWrapper"></div>');
+    $form->html('
+    <div id="existingConceptNoteWrapper"></div>
+    ');
 
     $form->file('concept_note', __('Concept Note File'))
         ->rules('mimes:pdf,doc,docx')
@@ -408,8 +1030,8 @@ class RequisitionController extends AdminController
         $model = Requisition::find(request()->route('requisition'));
 
         if ($user->isRole('admin')) {
-            $programId = $model->program_id;
-            $outcomeId = $model->outcome_id;
+            $programId  = $model->program_id;
+            $outcomeId  = $model->outcome_id;
 
             Admin::script("
                 $(document).ready(function () {
@@ -425,9 +1047,19 @@ class RequisitionController extends AdminController
 
                         $.get('/adminprogram-budgetlines/' + outcome_id, function (data) {
                             globalAdminBudgetLines = data;
+
                             $('[id^=admin_budget_line_id]').each(function () {
+                                var currentVal = $(this).val();
+                                $(this).empty().append('<option value=\"\">Select Budget Line</option>');
+                                $.each(globalAdminBudgetLines, function (key, value) {
+                                    var selected = (key == currentVal) ? 'selected' : '';
+                                    $('[id^=admin_budget_line_id]').filter(function() {
+                                        return $(this).val() === '' || $(this).val() === currentVal;
+                                    });
+                                });
+
+                                // Repopulate properly
                                 var \$sel = $(this);
-                                var currentVal = \$sel.val();
                                 \$sel.empty().append('<option value=\"\">Select Budget Line</option>');
                                 $.each(globalAdminBudgetLines, function (key, value) {
                                     var selected = (key == currentVal) ? 'selected' : '';
@@ -451,6 +1083,7 @@ class RequisitionController extends AdminController
                     var output_id   = '{$outputId}';
                     var activity_id = '{$activityId}';
 
+                    // Step 1: Load outcomes for the saved program
                     $.get('/program-outcomes/' + program_id, function (data) {
                         $('#outcome_id').empty().append('<option value=\"\">Select Outcome</option>');
                         $.each(data, function (key, value) {
@@ -458,6 +1091,7 @@ class RequisitionController extends AdminController
                             $('#outcome_id').append('<option value=\"' + key + '\" ' + selected + '>' + value + '</option>');
                         });
 
+                        // Step 2: Load outputs for the saved outcome
                         $.get('/outcome-outputs/' + outcome_id, function (data) {
                             $('#output_id').empty().append('<option value=\"\">Select Output</option>');
                             $.each(data, function (key, value) {
@@ -465,6 +1099,7 @@ class RequisitionController extends AdminController
                                 $('#output_id').append('<option value=\"' + key + '\" ' + selected + '>' + value + '</option>');
                             });
 
+                            // Step 3: Load activities for the saved output
                             $.get('/output-activities/' + output_id, function (data) {
                                 $('#activity_id').empty().append('<option value=\"\">Select Activity</option>');
                                 $.each(data, function (key, value) {
@@ -472,11 +1107,13 @@ class RequisitionController extends AdminController
                                     $('#activity_id').append('<option value=\"' + key + '\" ' + selected + '>' + value + '</option>');
                                 });
 
+                                // Step 4: Load budget lines + activity budget info
                                 $.get('/budgetlines/' + activity_id, function (data) {
                                     globalBudgetLines = data[0];
                                     $('#activity_budget').val(Number(data[1]).toLocaleString('en-US'));
                                     $('#remaining_budget').val(Number(data[2]).toLocaleString('en-US'));
 
+                                    // Show concept note if exists
                                     if (data[3]) {
                                         $('#existingConceptNoteWrapper').html(
                                             '<div class=\"mb-3\"><label>Existing Concept Note:</label>' +
@@ -484,9 +1121,10 @@ class RequisitionController extends AdminController
                                         );
                                     }
 
+                                    // Step 5: Repopulate each budget_line_id select with saved value re-selected
                                     $('[id^=budget_line_id]').each(function () {
                                         var \$sel     = $(this);
-                                        var savedVal = \$sel.val();
+                                        var savedVal = \$sel.val(); // Laravel-admin has already set the value attribute
                                         \$sel.empty().append('<option value=\"\">Select Budget Line</option>');
                                         $.each(globalBudgetLines, function (key, value) {
                                             var selected = (key == savedVal) ? 'selected' : '';
@@ -516,223 +1154,6 @@ class RequisitionController extends AdminController
 
     Admin::script('
         let globalBudgetLines = {};
-
-        // ─── DRAFT FUNCTIONALITY ────────────────────────────────────────────────
-        var DRAFT_KEY = "requisition_draft_" + (window.location.pathname);
-
-        function collectFormData() {
-            var draft = {
-                code:        $("input[name=\'code\']").val(),
-                program_id:  $("#program_id").val() || $("#adminprogram_id").val(),
-                outcome_id:  $("#outcome_id").val() || $("#adminactivity_id").val(),
-                output_id:   $("#output_id").val(),
-                activity_id: $("#activity_id").val(),
-                description: $("textarea[name=\'description\']").val(),
-                amount:      $("input[name=\'amount\']").val(),
-                items: []
-            };
-
-            $(".has-many-requisition_items-form").each(function () {
-                var removedInput = $(this).find("input[name*=\'[_remove_]\']");
-                if (removedInput.length && removedInput.val() === "1") return;
-
-                var item = {
-                    budget_line_id:      $(this).find("select[name*=\'budget_line_id\']").val(),
-                    admin_budget_line_id: $(this).find("select[name*=\'admin_budget_line_id\']").val(),
-                    quantity:            $(this).find("input[name*=\'quantity\']").val(),
-                    frequency:           $(this).find("input[name*=\'frequency\']").val(),
-                    unit_price:          $(this).find("input[name*=\'unit_price\']").val(),
-                    unit_of_measure:     $(this).find("input[name*=\'unit_of_measure\']").val(),
-                    total_price:         $(this).find("input[name*=\'total_price\']").val(),
-                };
-                draft.items.push(item);
-            });
-
-            return draft;
-        }
-
-        function saveDraft() {
-            var draft = collectFormData();
-            localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
-            
-            // Show a subtle save indicator
-            var indicator = $("#draftSaveIndicator");
-            if (!indicator.length) {
-                $("body").append("<div id=\'draftSaveIndicator\' style=\'position:fixed;bottom:20px;right:20px;background:#333;color:#fff;padding:8px 16px;border-radius:4px;z-index:9999;font-size:13px;\'>Draft saved</div>");
-                indicator = $("#draftSaveIndicator");
-            }
-            indicator.fadeIn(200).delay(1500).fadeOut(600);
-        }
-
-        function clearDraft() {
-            localStorage.removeItem(DRAFT_KEY);
-        }
-
-        function hasDraft() {
-            return localStorage.getItem(DRAFT_KEY) !== null;
-        }
-
-        function restoreDraft() {
-            var raw = localStorage.getItem(DRAFT_KEY);
-            if (!raw) return;
-
-            var draft = JSON.parse(raw);
-
-            // Restore simple fields immediately
-            if (draft.description) $("textarea[name=\'description\']").val(draft.description);
-
-            // Restore program then chain the selects
-            var programSelect = $("#program_id").length ? $("#program_id") : $("#adminprogram_id");
-            var isAdmin       = $("#adminprogram_id").length > 0;
-
-            if (draft.program_id) {
-                programSelect.val(draft.program_id).trigger("change");
-
-                if (isAdmin) {
-                    // Admin chain: program -> activity (outcome) -> budget lines
-                    setTimeout(function () {
-                        $.get("/admin-activities/" + draft.program_id, function (data) {
-                            $("#adminactivity_id").empty().append(\'<option value="">Select Activity</option>\');
-                            $.each(data, function (key, value) {
-                                $("#adminactivity_id").append(new Option(value, key));
-                            });
-
-                            if (draft.outcome_id) {
-                                $("#adminactivity_id").val(draft.outcome_id).trigger("change");
-
-                                setTimeout(function () {
-                                    $.get("/adminprogram-budgetlines/" + draft.outcome_id, function (data) {
-                                        globalAdminBudgetLines = data;
-                                        restoreItems(draft.items, true);
-                                    });
-                                }, 400);
-                            }
-                        });
-                    }, 400);
-
-                } else {
-                    // Regular chain: program -> outcome -> output -> activity -> budget lines
-                    setTimeout(function () {
-                        $.get("/program-outcomes/" + draft.program_id, function (data) {
-                            $("#outcome_id").empty().append(\'<option value="">Select Outcome</option>\');
-                            $.each(data, function (key, value) {
-                                $("#outcome_id").append(new Option(value, key));
-                            });
-
-                            if (draft.outcome_id) {
-                                $("#outcome_id").val(draft.outcome_id);
-
-                                $.get("/outcome-outputs/" + draft.outcome_id, function (data) {
-                                    $("#output_id").empty().append(\'<option value="">Select Output</option>\');
-                                    $.each(data, function (key, value) {
-                                        $("#output_id").append(new Option(value, key));
-                                    });
-
-                                    if (draft.output_id) {
-                                        $("#output_id").val(draft.output_id);
-
-                                        $.get("/output-activities/" + draft.output_id, function (data) {
-                                            $("#activity_id").empty().append(\'<option value="">Select Activity</option>\');
-                                            $.each(data, function (key, value) {
-                                                $("#activity_id").append(new Option(value, key));
-                                            });
-
-                                            if (draft.activity_id) {
-                                                $("#activity_id").val(draft.activity_id);
-
-                                                $.get("/budgetlines/" + draft.activity_id, function (data) {
-                                                    globalBudgetLines = data[0];
-                                                    $("#activity_budget").val(Number(data[1]).toLocaleString("en-US"));
-                                                    $("#remaining_budget").val(Number(data[2]).toLocaleString("en-US"));
-                                                    restoreItems(draft.items, false);
-                                                });
-                                            }
-                                        });
-                                    }
-                                });
-                            }
-                        });
-                    }, 400);
-                }
-            }
-        }
-
-        function restoreItems(items, isAdmin) {
-            if (!items || items.length === 0) return;
-
-            // Remove any existing blank rows first
-            $(".has-many-requisition_items-form .remove").click();
-
-            items.forEach(function (item, index) {
-                // Click the "Add" button to create a new row
-                var addBtn = $(".has-many-requisition_items .add");
-                addBtn.click();
-
-                setTimeout(function () {
-                    var forms  = $(".has-many-requisition_items-form");
-                    var formEl = forms.eq(index);
-
-                    if (isAdmin) {
-                        var $sel = formEl.find("select[name*=`admin_budget_line_id`]");
-                        $sel.empty().append(\'<option value="">Select Budget Line</option>\');
-                        $.each(globalAdminBudgetLines, function (key, value) {
-                            $sel.append(new Option(value, key));
-                        });
-                        $sel.val(item.admin_budget_line_id);
-                    } else {
-                        var $sel = formEl.find("select[name*=\'budget_line_id\']");
-                        $sel.empty().append(\'<option value="">Select Budget Line</option>\');
-                        $.each(globalBudgetLines, function (key, value) {
-                            $sel.append(new Option(value, key));
-                        });
-                        $sel.val(item.budget_line_id);
-                    }
-
-                    formEl.find("input[name*=\'quantity\']").val(item.quantity).trigger("input");
-                    formEl.find("input[name*=\'frequency\']").val(item.frequency).trigger("input");
-                    formEl.find("input[name*=\'unit_price\']").val(item.unit_price).trigger("input");
-                    formEl.find("input[name*=\'unit_of_measure\']").val(item.unit_of_measure);
-                    formEl.find("input[name*=\'total_price\']").val(item.total_price);
-
-                }, 300 * (index + 1)); // stagger to allow DOM to render each row
-            });
-        }
-
-        // Auto-save every 30 seconds
-        var autoSaveInterval = setInterval(saveDraft, 30000);
-
-        // Also save on any input change (debounced)
-        var draftDebounce;
-        $(document).on("input change", "input, select, textarea", function () {
-            clearTimeout(draftDebounce);
-            draftDebounce = setTimeout(saveDraft, 2000);
-        });
-
-        // Clear draft when form is successfully submitted
-        $("form").on("submit", function () {
-            clearDraft();
-        });
-
-        $(document).ready(function () {
-            setTimeout(function() {
-                // console.log("isCreating:", isCreating);
-                console.log("hasDraft:", hasDraft());
-                console.log("DRAFT_KEY:", DRAFT_KEY);
-                console.log("windows loc:", window.location.pathname);
-                // var isCreating = !window.location.pathname.match(/\/\d+\/edit/);
-                if ( hasDraft()) {
-                    var restore = confirm("📝 You have an unsaved draft.\n\nClick OK to restore it, or Cancel to discard it.");
-                    if (restore) {
-                        restoreDraft();
-                    } else {
-                        clearDraft();
-                    }
-                }
-            }, 500);
-        });
-        // ────────────────────────────────────────────────────────────────────────
-
-
         $("#program_id").change(function(){
             var program_id = $(this).val();
             $.get("/program-outcomes/"+program_id, function(data){
@@ -786,6 +1207,7 @@ class RequisitionController extends AdminController
 
         $("#activity_id").change(function () {
             var activity_id = $(this).val();
+
             if (!activity_id) {
                 alert("Please select an activity");
                 return;
@@ -794,7 +1216,7 @@ class RequisitionController extends AdminController
             $.get("/budgetlines/" + activity_id)
                 .done(function (data) {
                     globalBudgetLines = data[0];
-                    var activity_budget  = Number(data[1]).toLocaleString(`en-US`);
+                    var activity_budget = Number(data[1]).toLocaleString(`en-US`);
                     var remaining_budget = Number(data[2]).toLocaleString(`en-US`);
 
                     $("#activity_budget").val(activity_budget);
@@ -818,7 +1240,9 @@ class RequisitionController extends AdminController
                         $("#existingConceptNoteWrapper").html(`
                             <div class="mb-3">
                                 <label>Existing Concept Note:</label>
-                                <a href="${data[3]}" target="_blank" class="btn btn-link">View Concept Note</a>
+                                <a href="${data[3]}" target="_blank" class="btn btn-link">
+                                    View Concept Note
+                                </a>
                             </div>
                         `);
                     } else {
@@ -842,8 +1266,9 @@ class RequisitionController extends AdminController
 
             forms.forEach(function (form) {
                 const removedInput = form.querySelector("input[name*=\'[_remove_]\']");
-                if (removedInput && removedInput.value === "1") return;
-
+                if (removedInput && removedInput.value === "1") {
+                    return;
+                }
                 const totalInput = form.querySelector("input[name*=\'[total_price]\']");
                 if (totalInput) {
                     let value = totalInput.getAttribute("data-raw") || totalInput.value;
@@ -878,6 +1303,7 @@ class RequisitionController extends AdminController
 
                 totalPriceInput.value = total.toLocaleString(\'en-UG\');
                 totalPriceInput.setAttribute("data-raw", total);
+
                 calculateGrandTotal();
             }
 
@@ -925,7 +1351,7 @@ class RequisitionController extends AdminController
             let previousCount = 0;
             setInterval(function () {
                 const removedInputs = document.querySelectorAll("input[name*=\'[_remove_]\'][value=\'1\']");
-                const currentCount  = removedInputs.length;
+                const currentCount = removedInputs.length;
                 if (currentCount !== previousCount) {
                     previousCount = currentCount;
                     calculateGrandTotal();
@@ -963,6 +1389,7 @@ class RequisitionController extends AdminController
 
         $("#adminactivity_id").change(function () {
             var activity_id = $(this).val();
+
             if (!activity_id) {
                 alert("Please select an outcome");
                 return;
@@ -1007,53 +1434,4 @@ class RequisitionController extends AdminController
     ');
 
     return $form;
-}
-
-    // function to fetch budget lines under a chosen activity
-    public function getActivitiesbudgetlines($id)
-    {
-        $activityConcept = Requisition::where('activity_id', $id)->first();// gets a single column directly
-
-        Log::info($activityConcept);
-
-        $activity_budget = Activity::where('id', $id)->value('budget');
-        
-        $budgetlines = BudgetLines::where('activity_id', $id)->pluck('name', 'id'); // Returns {id: name}
-        
-        // Sum of accountabilities for all requisitions under this activity
-        $usedAmount = Accountability::whereHas('requisition', function ($query) use ($id) {
-            $query->where('activity_id', $id);
-        })->sum('amount_used');
-
-        
-        $remaining = $activity_budget - $usedAmount;
-
-        return [$budgetlines, $activity_budget, $remaining, $activityConcept?->concept_note 
-            ? asset('storage/' . $activityConcept->concept_note) 
-            : null,];
-    }
-
-    // function to fetch activities under a program
-    public function getAdminActivities($id)
-    {
-
-        // $program = AdminProgram::find($id);
-        $activities = AdminActivity::where('admin_program_id', $id) // Get all outcomes for the program
-            ->pluck('name', 'id'); // Extract 'name' and 'id' from the activities
-
-
-        return $activities;
-    }
-
-
-    // function to fetch budget lines under a chosen activity
-    public function getAdminbudgetlines($id)
-    {
-        // $program = AdminProgram::find($id);
-        $budgetlines = AdminBudget_lines::where('admin_activity_id', $id) // Get all outcomes for the program
-            ->pluck('name', 'id'); // Extract 'name' and 'id' from the activities
-
-        return $budgetlines;
-    }
-    
 }

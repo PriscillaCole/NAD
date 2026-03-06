@@ -211,8 +211,8 @@ class ProgramsController extends Controller
                     [
                         'name' => $outcomeData['name'],
                         'budget' => $outcomeData['budget'],
-                        'Second_budget' => $outcomeData['Second_budget'],
-                        'third_budget' => $outcomeData['third_budget']
+                        'Second_budget' => $outcomeData['Second_budget']?? null,
+                        'third_budget' => $outcomeData['third_budget'] ?? null
                     ]
                 );
                 if(!empty($outcomeData['outputs'])){
@@ -238,8 +238,8 @@ class ProgramsController extends Controller
                             [
                                 'name' => $outputData['name'],
                                 'budget' => $outputData['budget'],
-                                'Second_budget' => $outputData['Second_budget'],
-                                'third_budget' => $outputData['third_budget']
+                                'Second_budget' => $outputData['Second_budget'] ?? null,
+                                'third_budget' => $outputData['third_budget']?? null
                             ]
                         );
 
@@ -265,8 +265,8 @@ class ProgramsController extends Controller
                                         'program_id' =>$program->id,
                                         'name' => $activityData['name'],
                                         'budget' => $activityData['budget'],
-                                        'Second_budget' => $activityData['Second_budget'],
-                                        'third_budget' => $activityData['third_budget']
+                                        'Second_budget' => $activityData['Second_budget']?? null,
+                                        'third_budget' => $activityData['third_budget']?? null
                                     ]
                                 );
             

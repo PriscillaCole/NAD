@@ -63,6 +63,7 @@
         }
     </style>
     <script src="{{asset('js')}}/createProgram.js"></script>
+    <script src="{{asset('js')}}/draft.js"></script>
 </head>
 <body>
 <div class="col-md-12">
@@ -539,8 +540,16 @@
 
                         <!-- Save Button -->
                         <div class="form-group text-right">
-                            <div class="col-sm-8 col-sm-offset-2">
-                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                            <div class="col-sm-8 col-sm-offset-2" style="display: flex; justify-content: flex-end; gap: 8px;">
+                                <button type="button" class="btn btn-default" onclick="clearDraft()">
+                                    <i class="fa fa-trash"></i> Clear Draft
+                                </button>
+                                <button type="button" class="btn btn-warning" onclick="saveDraft()">
+                                    <i class="fa fa-save"></i> Save Draft
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fa fa-check"></i> Save Changes
+                                </button>
                             </div>
                         </div>
                     </form>

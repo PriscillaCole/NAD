@@ -567,6 +567,19 @@
                 </div>
             </div>
 
+            <!--Description -->
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="fas fa-sticky-note"></i>
+                    </div>
+                    <div class="section-title">Description</div>
+                </div>
+                <div class="section-body">
+                    <p class="text-muted">{{ $requisition->description ?? 'No description provided.' }}</p>
+                </div>
+            </div>
+
             <!-- Approval Section -->
             {{-- <div class="section">
                 <div class="section-header">
@@ -742,6 +755,7 @@
         var acceptBtn = document.getElementById("acceptBtn");
         var rejectBtn = document.getElementById("rejectBtn");
         var haltBtn = document.getElementById("haltBtn");
+        var amendBtn = document.getElementById("amendBtn");
         var submitReason = document.getElementById("submitReason");
         var reasonInput = document.getElementById("reason");
 
@@ -783,6 +797,15 @@
                 modal.style.display = "block";
                 submitReason.onclick = function() {
                     sendReason('halted');
+                }
+            }
+        }
+        if(amendBtn) {
+            amendBtn.onclick = function(e) {
+                e.preventDefault();
+                modal.style.display = "block";
+                submitReason.onclick = function(){
+                    sendReason("amended")
                 }
             }
         }

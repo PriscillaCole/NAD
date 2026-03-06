@@ -39,7 +39,7 @@ class ProgramController extends AdminController
         // show the user their programs only
         $user= auth()->user();
         if($user->isRole('staff')){
-            $grid->model()->where('user_id', auth()->id());
+            $grid->model()->where('user_id', auth()->id())->orderBy('created_at', 'desc');
             $grid->disableCreateButton();
         }
 

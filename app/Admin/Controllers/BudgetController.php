@@ -38,12 +38,12 @@ class BudgetController extends AdminController
     $user = auth()->user();
     // disable create button for finance and CD
     if ($user->inRoles(['finance', 'director', 'adminstrator'])) {
-        $grid->model()->where('type', 1);
+        $grid->model()->where('type', 1)->orderBy('created_at', 'desc');
         $grid->actions(function ($actions) {
             $actions->disableEdit();
         });
     } else {
-        $grid->model()->where('user_id', auth()->id())->where('type', 1);
+        $grid->model()->where('user_id', auth()->id())->where('type', 1)->orderBy('created_at', 'desc');
     }
 
     //filter by name 
