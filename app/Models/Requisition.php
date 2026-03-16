@@ -22,9 +22,8 @@ class Requisition extends Model
         'setOff_date',
         'return_date',
         'amount',
-        'status comment',
-        ''
-        
+        'status',
+        'comment'
     ];
     //relationship between requisitions and staff
     public function staff()

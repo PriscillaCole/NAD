@@ -22,24 +22,11 @@
         .container {
             max-width: 1000px;
             margin: 0 auto;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
+            background: white;
             border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
             overflow: hidden;
-            animation: slideIn 0.8s ease-out;
-            padding-left: 0px;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            padding-left: 0;
         }
 
         .header {
@@ -48,51 +35,29 @@
             padding: 20px;
             text-align: center;
             position: relative;
-            overflow: hidden;
-            width: 1000px
-        }
-
-        .header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
-            background-size: 50px 50px;
-            animation: float 20s infinite linear;
-        }
-
-        @keyframes float {
-            0% { transform: translate(0, 0) rotate(0deg); }
-            100% { transform: translate(-50px, -50px) rotate(360deg); }
+            width: 100%;
         }
 
         .logo1 {
-            width: 120px;
-            height: 120px;
+            width: 80px;
+            height: 80px;
             border-radius: 50%;
-            object-fit: cover;
-            border: 4px solid rgba(255, 255, 255, 0.3);
+            object-fit: contain;
+            background: white;
             margin-bottom: 20px;
-            position: relative;
-            z-index: 2;
         }
 
         .header h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
+            font-size: 2.5em;
+            font-weight: 300;
             margin-bottom: 10px;
-            position: relative;
-            z-index: 2;
+            letter-spacing: 1px;
         }
 
         .header .subtitle {
-            font-size: 1.1rem;
+            font-size: 1.1em;
             opacity: 0.9;
-            position: relative;
-            z-index: 2;
+            font-weight: 300;
         }
 
         .content {
@@ -100,26 +65,7 @@
         }
 
         .section {
-            /* margin-bottom: 40px; */
-            opacity: 0;
-            animation: fadeInUp 0.6s ease-out forwards;
-        }
-
-        .section:nth-child(1) { animation-delay: 0.1s; }
-        .section:nth-child(2) { animation-delay: 0.2s; }
-        .section:nth-child(3) { animation-delay: 0.3s; }
-        .section:nth-child(4) { animation-delay: 0.4s; }
-        .section:nth-child(5) { animation-delay: 0.5s; }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            margin-bottom: 40px;
         }
 
         .section-header {
@@ -127,29 +73,24 @@
             align-items: center;
             margin-bottom: 25px;
             padding-bottom: 15px;
-            border-bottom: 3px solid #667eea;
-            position: relative;
-        }
-
-        .section-header::after {
-            content: '';
-            position: absolute;
-            bottom: -3px;
-            left: 0;
-            width: 60px;
-            height: 3px;
-            background: linear-gradient(90deg, #667eea, #764ba2);
-            border-radius: 2px;
+            border-bottom: 2px solid #e9ecef;
         }
 
         .section-header i {
-            font-size: 1.5rem;
-            color: #667eea;
+            width: 40px;
+            height: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            font-size: 16px;
             margin-right: 15px;
         }
 
         .section-header h2 {
-            font-size: 1.8rem;
+            font-size: 1.4em;
             color: #2c3e50;
             font-weight: 600;
         }
@@ -163,21 +104,16 @@
         }
 
         .status-badge {
-            display: inline-flex;
+            display: inline-block;
             align-items: center;
             padding: 8px 16px;
-            border-radius: 25px;
+            border-radius: 20px;
             font-weight: 600;
-            font-size: 1.2rem;
+            font-size: 0.9em;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-        }
-
-        .status-badge:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            box-shadow: none;
+            transition: none;
         }
 
         .status-badge i {
@@ -214,14 +150,16 @@
             color: white;
             border: none;
             padding: 12px 24px;
-            border-radius: 25px;
-            font-size: 1.2rem;
+            border-radius: 10px;
+            font-size: 0.9em;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
             gap: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .print-button:hover {
@@ -232,28 +170,16 @@
         .info-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px;
+            gap: 20px;
             margin-bottom: 30px;
         }
 
         .info-card {
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            background: #f8f9fa;
             border-radius: 15px;
-            padding-left: 5px;
-            border-left: 5px solid #667eea;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .info-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, #667eea, #764ba2);
+            padding: 20px;
+            border-left: 4px solid #667eea;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
 
         .info-card:hover {
@@ -263,63 +189,53 @@
 
         .info-card h3 {
             color: #2c3e50;
-            font-size: 1.4rem;
+            font-size: 1.1em;
             margin-bottom: 10px;
             font-weight: 600;
         }
 
         .info-card p {
-            color: #5a6c7d;
-            font-size: 1.2rem;
-            font-weight: 500;
+            color: #2c3e50;
+            font-size: 1em;
+            font-weight: 600;
         }
 
         .money-highlight {
-            font-size: 1.3rem;
+            font-size: 1.1em;
             font-weight: 700;
             color: #27ae60;
         }
 
         .modern-table {
             width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
+            border-collapse: collapse;
             background: white;
             border-radius: 15px;
             overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e9ecef;
             margin-bottom: 20px;
         }
 
         .modern-table th {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
-            padding: 20px;
+            padding: 18px 15px;
             text-align: left;
             font-weight: 600;
-            font-size: 1.3rem;
-            position: relative;
-        }
-
-        .modern-table th::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: rgba(255, 255, 255, 0.2);
+            font-size: 0.9em;
+            letter-spacing: 0.5px;
         }
 
         .modern-table td {
-            padding: 20px;
+            padding: 15px;
             border-bottom: 1px solid #e9ecef;
-            transition: all 0.3s ease;
+            color: #495057;
             vertical-align: top;
         }
 
         .modern-table tr:hover td {
-            background-color: #f8f9ff;
+            background-color: #f8f9fa;
         }
 
         .modern-table tr:last-child td {
@@ -342,11 +258,13 @@
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
             text-decoration: none;
-            border-radius: 25px;
-            font-size: 1.2rem;
-            font-weight: 500;
+            border-radius: 10px;
+            font-size: 0.9em;
+            font-weight: 600;
             transition: all 0.3s ease;
             gap: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .file-link:hover {
@@ -361,13 +279,15 @@
             gap: 15px;
             flex-wrap: wrap;
             margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #e9ecef;
         }
 
         .btn {
             padding: 12px 24px;
             border: none;
-            border-radius: 25px;
-            font-size: 1.5rem;
+            border-radius: 10px;
+            font-size: 0.9em;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -375,6 +295,8 @@
             align-items: center;
             gap: 8px;
             text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .btn-primary {
@@ -414,28 +336,11 @@
         .modal-content {
             background: white;
             margin: 5% auto;
-            padding: 40px;
+            padding: 30px;
             border-radius: 20px;
             width: 90%;
             max-width: 500px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-            animation: slideInScale 0.3s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        @keyframes slideInScale {
-            from {
-                opacity: 0;
-                transform: scale(0.8) translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1) translateY(0);
-            }
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
         }
 
         .close {
@@ -454,7 +359,7 @@
         .modal h3 {
             color: #2c3e50;
             margin-bottom: 20px;
-            font-size: 1.5rem;
+            font-size: 1.3em;
         }
 
         .modal textarea {
@@ -462,15 +367,73 @@
             padding: 15px;
             border: 2px solid #e9ecef;
             border-radius: 10px;
-            font-size: 1.5rem;
+            font-size: 1em;
             resize: vertical;
-            min-height: 120px;
+            min-height: 100px;
             transition: border-color 0.3s ease;
         }
 
         .modal textarea:focus {
             outline: none;
             border-color: #667eea;
+        }
+
+        .preview-modal-content {
+            max-width: 900px;
+            padding: 20px;
+            position: relative;
+        }
+
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .preview-header h3 {
+            margin: 0;
+            font-size: 1.2rem;
+            color: #2c3e50;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .preview-frame {
+            width: 100%;
+            height: 65vh;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            background: #f8f9fa;
+        }
+
+        .preview-image {
+            width: 100%;
+            max-height: 65vh;
+            object-fit: contain;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            background: #f8f9fa;
+            display: none;
+        }
+
+        .preview-fallback {
+            display: none;
+            padding: 24px;
+            text-align: center;
+            color: #495057;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            background: #f8f9fa;
+        }
+
+        .preview-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 15px;
         }
 
         .spinner {
@@ -485,7 +448,7 @@
 
         .footer {
             text-align: center;
-            padding: 30px;
+            padding: 20px;
             background: #f8f9fa;
             color: #6c757d;
             font-size: 0.9rem;
@@ -499,6 +462,10 @@
             body {
                 background: white;
                 padding: 0;
+            }
+
+            .info-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
             }
             
             .container {
@@ -654,54 +621,6 @@
                 </div>
             </div>
 
-            <div class="section">
-                <div class="section-header">
-                    <i class="fas fa-calculator"></i>
-                    <h2>Financial Details</h2>
-                </div>
-                
-                <table class="modern-table">
-                    <thead>
-                        <tr>
-                            <th><i class="fas fa-arrow-left"></i> Amount Returned to Finance</th>
-                            <th><i class="fas fa-receipt"></i> Receipt (Finance)</th>
-                            <th><i class="fas fa-arrow-right"></i> Excess Returned to Staff</th>
-                            <th><i class="fas fa-receipt"></i> Receipt (Staff)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>
-                                <span class="money-highlight">UGX {{ number_format($accountability->returned_amount ?? 0) }}</span>
-                            </td>
-                            <td>
-                                @if($accountability->proof_of_funds_returned)
-                                    <a href="{{ asset('storage/'.$accountability->proof_of_funds_returned) }}" target="_blank" class="file-link">
-                                        <i class="fas fa-eye"></i>
-                                        View Receipt
-                                    </a>
-                                @else
-                                    <span style="color: #6c757d;">No Receipt</span>
-                                @endif
-                            </td>
-                            <td>
-                                <span class="money-highlight">UGX {{ number_format($accountability->amount_to_be_returned ?? 0) }}</span>
-                            </td>
-                            <td>
-                                @if($accountability->proof_of_funds_to_be_returned)
-                                    <a href="{{ asset('storage/'.$accountability->proof_of_funds_to_be_returned) }}" target="_blank" class="file-link">
-                                        <i class="fas fa-eye"></i>
-                                        View Receipt
-                                    </a>
-                                @else
-                                    <span style="color: #6c757d;">No Receipt</span>
-                                @endif
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
             <div class="section no-print">
                 <div class="section-header">
                     <i class="fas fa-file-alt"></i>
@@ -709,7 +628,7 @@
                 </div>
                 
                 {{-- <div class="info-card"> --}}
-                    <a href="{{ asset('storage/'.$accountability->narrative_report) }}" target="_blank" class="file-link">
+                    <a href="{{ asset('storage/'.$accountability->narrative_report) }}" target="_blank" class="file-link no-print preview-doc-link">
                         <i class="fas fa-download"></i>
                         View Narrative Report
                     </a>
@@ -758,7 +677,7 @@
                                                 @if ($receipt->Invoice)
                                                     @foreach($receipt->Invoice as $rpt)
                                                         <li>
-                                                            <a href="{{ asset('storage/'.$rpt) }}" target="_blank" class="file-link">
+                                                            <a href="{{ asset('storage/'.$rpt) }}" target="_blank" class="file-link no-print preview-doc-link">
                                                                 <i class="fas fa-file-invoice"></i>
                                                                 Invoice {{ $loop->iteration }}
                                                             </a>
@@ -768,7 +687,7 @@
                                                 @if ($receipt->payment_proof)
                                                     @foreach($receipt->payment_proof as $rpt)
                                                         <li>
-                                                            <a href="{{ asset('storage/'.$rpt) }}" target="_blank" class="file-link">
+                                                            <a href="{{ asset('storage/'.$rpt) }}" target="_blank" class="file-link no-print preview-doc-link">
                                                                 <i class="fas fa-credit-card"></i>
                                                                 Payment Proof {{ $loop->iteration }}
                                                             </a>
@@ -778,7 +697,7 @@
                                                 @if ($receipt->receipt_file)
                                                     @foreach($receipt->receipt_file as $rpt)
                                                         <li>
-                                                            <a href="{{ asset('storage/'.$rpt) }}" target="_blank" class="file-link">
+                                                            <a href="{{ asset('storage/'.$rpt) }}" target="_blank" class="file-link no-print preview-doc-link">
                                                                 <i class="fas fa-receipt"></i>
                                                                 Receipt {{ $loop->iteration }}
                                                             </a>
@@ -802,6 +721,54 @@
                 </table>
             </div>
 
+            <div class="section">
+                <div class="section-header">
+                    <i class="fas fa-calculator"></i>
+                    <h2>Financial Details</h2>
+                </div>
+                
+                <table class="modern-table">
+                    <thead>
+                        <tr>
+                            <th><i class="fas fa-arrow-left"></i> Amount Returned to Finance</th>
+                            <th><i class="fas fa-receipt"></i> Receipt (Finance)</th>
+                            <th><i class="fas fa-arrow-right"></i> Excess Returned to Staff</th>
+                            <th><i class="fas fa-receipt"></i> Receipt (Staff)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <span class="money-highlight">UGX {{ number_format($accountability->returned_amount ?? 0) }}</span>
+                            </td>
+                            <td>
+                                @if($accountability->proof_of_funds_returned)
+                                    <a href="{{ asset('storage/'.$accountability->proof_of_funds_returned) }}" target="_blank" class="file-link no-print preview-doc-link">
+                                        <i class="fas fa-eye"></i>
+                                        View Receipt
+                                    </a>
+                                @else
+                                    <span style="color: #6c757d;">No Receipt</span>
+                                @endif
+                            </td>
+                            <td>
+                                <span class="money-highlight">UGX {{ number_format($accountability->amount_to_be_returned ?? 0) }}</span>
+                            </td>
+                            <td>
+                                @if($accountability->proof_of_funds_to_be_returned)
+                                    <a href="{{ asset('storage/'.$accountability->proof_of_funds_to_be_returned) }}" target="_blank" class="file-link no-print preview-doc-link">
+                                        <i class="fas fa-eye"></i>
+                                        View Receipt
+                                    </a>
+                                @else
+                                    <span style="color: #6c757d;">No Receipt</span>
+                                @endif
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
             <div class="section no-print">
                 <div class="section-header">
                     <i class="fas fa-paperclip"></i>
@@ -812,7 +779,7 @@
                     <ul class="file-list">
                         @foreach($accountability->attachments as $receipt)
                             <li>
-                                <a href="{{ asset('storage/'.$receipt) }}" target="_blank" class="file-link">
+                                <a href="{{ asset('storage/'.$receipt) }}" target="_blank" class="file-link no-print preview-doc-link">
                                     <i class="fas fa-file"></i>
                                     Attachment {{ $loop->iteration }}
                                 </a>
@@ -923,7 +890,32 @@
                 </form>
             </div>
         </div>
+
+        
     </div>
+    <div id="previewModal" class="modal no-print">
+            <div class="modal-content preview-modal-content">
+                <span class="close" id="previewClose">&times;</span>
+                <div class="preview-header">
+                    <h3 id="previewTitle"><i class="fas fa-file-alt"></i> Document Preview</h3>
+                </div>
+                <iframe id="previewFrame" class="preview-frame" title="Document Preview"></iframe>
+                <img id="previewImage" class="preview-image" alt="Document Preview">
+                <div id="previewFallback" class="preview-fallback">
+                    Preview is not available for this file type in-browser.
+                </div>
+                <div class="preview-actions">
+                    <a id="openPreviewDoc" class="btn btn-primary" target="_blank" rel="noopener">
+                        <i class="fas fa-external-link-alt"></i>
+                        Open in New Tab
+                    </a>
+                    <a id="downloadPreviewDoc" class="btn btn-primary" download>
+                        <i class="fas fa-download"></i>
+                        Download
+                    </a>
+                </div>
+            </div>
+        </div>
 
     <script>
             function copyLink() {
@@ -952,6 +944,17 @@
         // Modal functionality
         var modal = document.getElementById("reasonModal");
         var cross = document.getElementsByClassName("close")[0];
+        var previewModal = document.getElementById("previewModal");
+        var previewClose = document.getElementById("previewClose");
+        var previewFrame = document.getElementById("previewFrame");
+        var previewImage = document.getElementById("previewImage");
+        var previewFallback = document.getElementById("previewFallback");
+        var previewTitle = document.getElementById("previewTitle");
+        var openPreviewDoc = document.getElementById("openPreviewDoc");
+        var downloadPreviewDoc = document.getElementById("downloadPreviewDoc");
+        var previewLinks = document.querySelectorAll(".preview-doc-link");
+        var currentPreviewUrl = "";
+
         var closeBtn = document.getElementById("closeBtn");
         var forward = document.getElementById("forward");
         
@@ -986,10 +989,103 @@
             }
         }
 
+        function resetPreviewView() {
+            previewFrame.style.display = "none";
+            previewImage.style.display = "none";
+            previewFallback.style.display = "none";
+            previewFrame.removeAttribute('src');
+            previewImage.removeAttribute('src');
+        }
+
+        function getFileExtension(url) {
+            var cleanUrl = url.split('?')[0].split('#')[0];
+            return cleanUrl.includes('.') ? cleanUrl.split('.').pop().toLowerCase() : '';
+        }
+
+        function openDocumentPreview(url, title) {
+            currentPreviewUrl = url;
+            resetPreviewView();
+            previewTitle.innerHTML = '<i class="fas fa-file-alt"></i> ' + title;
+
+            var extension = getFileExtension(url);
+            var imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'];
+            var frameExtensions = ['pdf', 'txt'];
+
+            if (imageExtensions.indexOf(extension) !== -1) {
+                previewImage.src = url;
+                previewImage.style.display = 'block';
+            } else if (frameExtensions.indexOf(extension) !== -1) {
+                previewFrame.src = url;
+                previewFrame.style.display = 'block';
+            } else {
+                previewFallback.style.display = 'block';
+            }
+
+            openPreviewDoc.href = url;
+            downloadPreviewDoc.href = url;
+            previewModal.style.display = 'block';
+        }
+
+        previewLinks.forEach(function(link, index) {
+            link.addEventListener('click', function(event) {
+                event.preventDefault();
+                var documentTitle = this.textContent.trim() || ('Document ' + (index + 1));
+                openDocumentPreview(this.getAttribute('href'), documentTitle);
+            });
+        });
+        if (downloadPreviewDoc) {
+            downloadPreviewDoc.onclick = function() {
+                if (!currentPreviewUrl) {
+                    return;
+                }
+                forceDownload(event, currentPreviewUrl);
+
+            }
+        }
+
+        if (previewClose) {
+            previewClose.onclick = function() {
+                previewModal.style.display = 'none';
+                resetPreviewView();
+            }
+        }
+
         window.onclick = function(event) {
             if (event.target == modal) {
                 modal.style.display = "none";
             }
+
+            if (event.target == previewModal) {
+                previewModal.style.display = 'none';
+                resetPreviewView();
+            }
+        }
+
+        function forceDownload(event, url) {
+            event.preventDefault();
+            
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.blob();
+                })
+                .then(blob => {
+                    const filename = url.split('/').pop();
+                    const link = document.createElement('a');
+                    link.href = window.URL.createObjectURL(blob);
+                    link.download = filename;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    if (typeof toastr !== 'undefined') {
+                        toastr.error('There was an error downloading the file.', 'Error');
+                    }
+                });
         }
 
         function sendReason(action) {

@@ -128,22 +128,22 @@ function showDraftToast(message, type = 'success') {
 document.addEventListener('DOMContentLoaded', function () {
     const draft = localStorage.getItem(DRAFT_KEY);
 
-    if (draft) {
-        try {
-            const draftData = JSON.parse(draft);
-            const savedAt = new Date(draftData.timestamp).toLocaleString();
-            if (confirm(`You have an unsaved draft from ${savedAt}. Restore it?`)) {
-                restoreDraft();
-            } else {
-                clearDraft();
-            }
-        } catch (e) {
-            clearDraft();
-        }
-    }
+    // if (draft) {
+    //     try {
+    //         const draftData = JSON.parse(draft);
+    //         const savedAt = new Date(draftData.timestamp).toLocaleString();
+    //         if (confirm(`You have an unsaved draft from ${savedAt}. Restore it?`)) {
+    //             restoreDraft();
+    //         } else {
+    //             clearDraft();
+    //         }
+    //     } catch (e) {
+    //         clearDraft();
+    //     }
+    // }
 
     // Auto-save every 30 seconds
-    setInterval(saveDraft, 30000);
+    // setInterval(saveDraft, 30000);
 
     // Save on any input change
     document.getElementById('programEditForm')?.addEventListener('change', saveDraft);

@@ -44,135 +44,265 @@ class RequisitionController extends AdminController
      *
      * @return Grid
      */
+    // protected function grid()
+    // {
+        
+    //     $grid = new Grid(new Requisition());
+    //     $grid->disableBatchActions();
+
+    //     $user = auth()->user();
+    //     // disable create button for finance and CD
+    //     if ($user->inRoles(['finance', 'director'])){
+    //         $grid->disableCreateButton();
+    //         $grid->actions(function ($actions) {
+    //             $actions->disableEdit();
+    //             if ($actions->row->status == 'approved') {
+    //                 $actions->disableDelete();
+    //             }
+    //             // $actions->disableDelete();
+    //         });
+    //     }else{
+    //         $grid->actions(function ($actions) {
+    //             if ($actions->row->status == 'approved') {
+    //                 $actions->disableEdit();
+    //                 $actions->disableDelete();
+    //             }
+    //         });
+        
+    //     }
+        
+            
+
+    //     // order by latest requisition
+    //     $grid->model()->orderBy('created_at', 'desc');
+
+    //     //show staff only requisitions made by them if they are not admin
+    //     if ($user->inRoles(['staff', 'admin'])) {
+    //         $staff_id = Staff::where('user_id', $user->id)->first()->id;
+    //         $grid->model()->where('staff_id', $staff_id);
+    //     }
+        
+    //     // show the CD only accepted requisitions
+    //     // if ($user->inRoles(['director'])) {
+    //     //     $grid->model()->where('status', 'accepted');
+    //     // }
+
+    //      //filter by program and activity
+    //      $grid->filter(function($filter){
+    //         $filter->disableIdFilter();
+    //         $filter->equal('id', 'Requisition ID')->select(Requisition::all()->pluck('code', 'id'));
+    //         $filter->equal('program_id', 'Program')->select(Program::all()->pluck('name', 'id'));
+    //         $filter->equal('activity_id', 'Activity')->select(Activity::all()->pluck('name', 'id'));
+    //         //status filter
+    //         $filter->equal('status', 'Status')->select([
+    //             'pending' => 'Pending',
+    //             'approved' => 'Authorized',
+    //             'rejected' => 'Rejected',
+    //             'accepted' => 'Approved',
+    //             'amended' => 'Amended'
+    //         ]);
+    //     });
+       
+    //     $grid->column('code', __('Code'));
+    //     $grid->column('staff_id', __('Requested by'))->display(function($staff_id){
+    //         return Staff::find($staff_id)->name;
+    //     });
+        
+    //         $grid->column('', 'Program')->display(function(){
+    //             if ($this->program_id) {
+    //                 return Program::find($this->program_id)->name ?? 'N/A';
+    //             }
+    //             if ($this->admin_program_id) {
+    //                 return AdminProgram::find($this->admin_program_id)->name ?? 'N/A';
+    //             }
+    //             return 'N/A';
+                
+    //         });
+        
+    //     $grid->column('amount', __('Amount (UGX)'))->display(function ($value) {
+    //         return number_format($value, 0, '.', ','); // Format with commas
+    //     });
+    //     $grid->column('status', __('Status'))->display(
+    //         function ($status) {
+    //             if ($status == 'pending') {
+    //                 return "<span class='label label-warning'>pending</span>";
+    //             } elseif ($status == 'approved') {
+    //                 return "<span class='label label-success'>Authorized</span>";
+    //             } elseif ($status == 'rejected') {
+    //                 return "<span class='label label-danger'>Rejected</span>";
+    //             } elseif ($status == 'amended') {
+    //                 return "<span class='label label-info'>Amended</span>";
+    //             }elseif ($status == 'accepted') {
+    //                 return "<span class='label label-primary'>Approved</span>";
+    //             }
+    //         }
+    //     );
+        
+    //     // $id = $grid->column('id');
+    //     // $downloadLink = admin_url('/requisitions/download/'. $id);
+    //     // $grid->column('id', __('Requisition Documents'))->display(function ($id)
+    //     // {
+    //     //     $requisition = Requisition::find($id);
+
+    //     //     // if ($requisition && $requisition->status == 'approved') {
+    //     //         $token = csrf_token();
+    //     //         $downloadLink = admin_url('/requisitions/download/'. $id);
+    //     //         return "<b>Download documents</b>";
+    //     //     // } else
+    //     //     // {          
+    //     //     //     return '<b> No accountability</b>';
+    //     //     // }
+    //     // })
+    //     // ->link(function ($value, $row) {
+    //     //     // Generate the download link using the row's ID
+    //     //     return admin_url('/requisitions/download/'. $row->id);
+    //     // }, '', function () {
+    //     //     // Add download attribute to force download instead of opening new tab
+    //     //     return [
+    //     //         'class' => 'btn btn-sm btn-primary',
+    //     //         'download' => true  // This forces download
+    //     //     ];
+    //     // });
+
+    //     $grid->column('id', __('Requisition Documents'))->display(function ($id)
+    //     {
+    //         $requisition = Requisition::find($id);
+
+    //         if ($requisition && $requisition->status == 'approved') {
+    //              $downloadLink = admin_url('/requisitions/download/'. $id);
+    //              $token = csrf_token();
+            
+    //         return "
+    //                 <form method='POST' action='{$downloadLink}' style='display: inline;'>
+    //                     <input type='hidden' name='_token' value='{$token}'>
+    //                     <button type='submit' class='btn btn-sm btn-primary'>
+    //                         <b>Download documents</b>
+    //                     </button>
+    //                 </form>";
+    //         }
+    //         else
+    //         {          
+    //             return '<b> No accountability</b>';
+    //         }
+           
+    //     });
+        
+        
+
+    //     // or pass in a specified href
+    //     // $grid->column('homepage')->link($href);
+    //     $grid->column('created_at', __('Created at'))->display(function ($created_at) {
+    //         //return human readable format
+    //         return (Carbon::parse($created_at)->diffForHumans());
+    //     });
+         
+
+    //     return $grid;
+    // }
+
     protected function grid()
     {
-        
         $grid = new Grid(new Requisition());
         $grid->disableBatchActions();
 
         $user = auth()->user();
-        // disable create button for finance and CD
-        if ($user->inRoles(['finance', 'director'])){
+        $staff_id = Staff::where('user_id', $user->id)->first()->id;
+        
+        // Define role priorities - finance/director wins over admin
+        $isAdminOnly = $user->inRoles(['admin']);
+        $isFinanceOrDirector = $user->inRoles(['finance', 'director']) && !$isAdminOnly;
+        $isStaffOnly = $user->inRoles(['staff']);
+
+        // Disable create button for finance and director (even if they also have admin)
+        if ($isFinanceOrDirector) {
             $grid->disableCreateButton();
             $grid->actions(function ($actions) {
                 $actions->disableEdit();
                 if ($actions->row->status == 'approved') {
                     $actions->disableDelete();
                 }
-                // $actions->disableDelete();
+
             });
-        }else{
+        } else {
+            // admin, staff, or any other role
             $grid->actions(function ($actions) {
-                if ($actions->row->status == 'approved') {
+                $staff_id = Staff::where('user_id', auth()->user()->id)->first()->id;
+                Log::info('Checking actions for requisition ID: ' . $actions->row->id . ' with status: ' . $actions->row->status . ' and staff_id: ' . $actions->row->staff_id. ' and current user id: ' . $staff_id);
+                
+                if (($actions->row->staff_id != $staff_id) && in_array($actions->row->status, ['approved', 'amended', 'accepted', 'pending']) ) {
                     $actions->disableEdit();
                     $actions->disableDelete();
                 }
+                
             });
-        
         }
-        
-            
 
-        // order by latest requisition
+        // Order by latest requisition
         $grid->model()->orderBy('created_at', 'desc');
 
-        //show staff only requisitions made by them if they are not admin
-        if ($user->inRoles(['staff', 'admin'])) {
+        // Staff sees only their own requisitions; admin sees all
+        if ($isStaffOnly) {
             $staff_id = Staff::where('user_id', $user->id)->first()->id;
             $grid->model()->where('staff_id', $staff_id);
         }
-        
-        // show the CD only accepted requisitions
-        // if ($user->inRoles(['director'])) {
-        //     $grid->model()->where('status', 'accepted');
-        // }
 
-         //filter by program and activity
-         $grid->filter(function($filter){
+        // Filter by program and activity
+        $grid->filter(function($filter) {
             $filter->disableIdFilter();
             $filter->equal('id', 'Requisition ID')->select(Requisition::all()->pluck('code', 'id'));
             $filter->equal('program_id', 'Program')->select(Program::all()->pluck('name', 'id'));
             $filter->equal('activity_id', 'Activity')->select(Activity::all()->pluck('name', 'id'));
-            //status filter
             $filter->equal('status', 'Status')->select([
-                'pending' => 'Pending',
+                'pending'  => 'Pending',
                 'approved' => 'Authorized',
                 'rejected' => 'Rejected',
                 'accepted' => 'Approved',
-                'amended' => 'Amended'
+                'amended'  => 'Amended'
             ]);
         });
-       
+
         $grid->column('code', __('Code'));
-        $grid->column('staff_id', __('Requested by'))->display(function($staff_id){
+        $grid->column('staff_id', __('Requested by'))->display(function ($staff_id) {
             return Staff::find($staff_id)->name;
         });
-        
-            $grid->column('', 'Program')->display(function(){
-                if ($this->program_id) {
-                    return Program::find($this->program_id)->name ?? 'N/A';
-                }
-                if ($this->admin_program_id) {
-                    return AdminProgram::find($this->admin_program_id)->name ?? 'N/A';
-                }
-                return 'N/A';
-                
-            });
-        
-        $grid->column('amount', __('Amount (UGX)'))->display(function ($value) {
-            return number_format($value, 0, '.', ','); // Format with commas
-        });
-        $grid->column('status', __('Status'))->display(
-            function ($status) {
-                if ($status == 'pending') {
-                    return "<span class='label label-warning'>pending</span>";
-                } elseif ($status == 'approved') {
-                    return "<span class='label label-success'>Authorized</span>";
-                } elseif ($status == 'rejected') {
-                    return "<span class='label label-danger'>Rejected</span>";
-                } elseif ($status == 'amended') {
-                    return "<span class='label label-info'>Amended</span>";
-                }elseif ($status == 'accepted') {
-                    return "<span class='label label-primary'>Approved</span>";
-                }
+
+        $grid->column('', 'Program')->display(function () {
+            if ($this->program_id) {
+                return Program::find($this->program_id)->name ?? 'N/A';
             }
-        );
-        
-        // $id = $grid->column('id');
-        // $downloadLink = admin_url('/requisitions/download/'. $id);
-        // $grid->column('id', __('Requisition Documents'))->display(function ($id)
-        // {
-        //     $requisition = Requisition::find($id);
+            if ($this->admin_program_id) {
+                return AdminProgram::find($this->admin_program_id)->name ?? 'N/A';
+            }
+            return 'N/A';
+        });
 
-        //     // if ($requisition && $requisition->status == 'approved') {
-        //         $token = csrf_token();
-        //         $downloadLink = admin_url('/requisitions/download/'. $id);
-        //         return "<b>Download documents</b>";
-        //     // } else
-        //     // {          
-        //     //     return '<b> No accountability</b>';
-        //     // }
-        // })
-        // ->link(function ($value, $row) {
-        //     // Generate the download link using the row's ID
-        //     return admin_url('/requisitions/download/'. $row->id);
-        // }, '', function () {
-        //     // Add download attribute to force download instead of opening new tab
-        //     return [
-        //         'class' => 'btn btn-sm btn-primary',
-        //         'download' => true  // This forces download
-        //     ];
-        // });
+        $grid->column('amount', __('Amount (UGX)'))->display(function ($value) {
+            return number_format($value, 0, '.', ',');
+        });
 
-        $grid->column('id', __('Requisition Documents'))->display(function ($id)
-        {
+        $grid->column('status', __('Status'))->display(function ($status) {
+            if ($status == 'pending') {
+                return "<span class='label label-warning'>Pending</span>";
+            } elseif ($status == 'approved') {
+                return "<span class='label label-success'>Authorized</span>";
+            } elseif ($status == 'rejected') {
+                return "<span class='label label-danger'>Rejected</span>";
+            } elseif ($status == 'amended') {
+                return "<span class='label label-info'>Amended</span>";}
+            elseif ($status == 'amend') {
+                return "<span class='label label-info'>Amend</span>";
+            } elseif ($status == 'accepted') {
+                return "<span class='label label-primary'>Approved</span>";
+            }
+        });
+
+        $grid->column('id', __('Requisition Documents'))->display(function ($id) {
             $requisition = Requisition::find($id);
 
             if ($requisition && $requisition->status == 'approved') {
-                 $downloadLink = admin_url('/requisitions/download/'. $id);
-                 $token = csrf_token();
-            
-            return "
+                $downloadLink = admin_url('/requisitions/download/' . $id);
+                $token = csrf_token();
+                return "
                     <form method='POST' action='{$downloadLink}' style='display: inline;'>
                         <input type='hidden' name='_token' value='{$token}'>
                         <button type='submit' class='btn btn-sm btn-primary'>
@@ -180,25 +310,17 @@ class RequisitionController extends AdminController
                         </button>
                     </form>";
             }
-            else
-            {          
-                return '<b> No accountability</b>';
-            }
-           
-        });
-        
-        
 
-    // or pass in a specified href
-        // $grid->column('homepage')->link($href);
-        $grid->column('created_at', __('Created at'))->display(function ($created_at) {
-            //return human readable format
-            return (Carbon::parse($created_at)->diffForHumans());
+            return '<b>No accountability</b>';
         });
-         
+
+        $grid->column('created_at', __('Created at'))->display(function ($created_at) {
+            return Carbon::parse($created_at)->diffForHumans();
+        });
 
         return $grid;
     }
+
 
     /**
      * Make a show builder.
@@ -239,6 +361,8 @@ class RequisitionController extends AdminController
             $remaining = $activity_budget - $usedAmount;
         }
 
+        Log::info($requisition->concept_note);
+
         return view('requisition_request', compact('requisition', 'remaining'));
 
     }
@@ -257,6 +381,13 @@ class RequisitionController extends AdminController
         $staff_id = Staff::where('user_id', $user->id)->first()->id;
     };
 
+    $form->footer(function ($footer) {
+                $footer->disableReset();
+                $footer->disableViewCheck();
+                $footer->disableEditingCheck();
+                $footer->disableCreatingCheck();
+            });
+
     $staff_id = Staff::where('user_id', $user->id)->first()->id;
 
     $form->saving(function (Form $form) {
@@ -266,6 +397,15 @@ class RequisitionController extends AdminController
             admin_toastr('Please add requisition items', 'error');
             return back()->withInput();
         }
+        Log::info('Saving requisition with items: ' . json_encode($requisition_items));
+        
+        // Access the underlying model to check current status
+        $model = $form->model();
+        if ($model->status == 'amend') {
+            $model->status = 'amended';
+        }
+
+        Log::info('Requisition status after checking for amend: ' . $model->status);
 
         $total_amount = 0;
         $budget_lines = [];
@@ -381,28 +521,59 @@ class RequisitionController extends AdminController
 
     $form->decimal('amount', __('Amount(UGX)'))->readonly();
 
-    // Draft restore banner + concept note wrapper
-    // $form->html('
-    //     <div id="draftRestoreBanner" style="display:none;" class="alert alert-warning alert-dismissible">
-    //         <button type="button" class="close" data-dismiss="alert">&times;</button>
-    //         <strong>📝 Draft found!</strong> You have an unsaved draft for this form.
-    //         <a href="#" id="restoreDraftBtn" class="btn btn-sm btn-warning ml-2">Restore Draft</a>
-    //         <a href="#" id="discardDraftBtn" class="btn btn-sm btn-danger ml-1">Discard</a>
-    //     </div>
-    //     <div id="existingConceptNoteWrapper"></div>
-    // ');
-
     // With this:
-    $form->html('<div id="existingConceptNoteWrapper"></div>');
+    $form->html('<div id="existingConceptNoteWrapper"></div>');  
 
-    $form->file('concept_note', __('Concept Note File'))
+    $form->file('concept_note', __('Concept Note File'))->name(function ($file) {
+        $name = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+        Log::info('Original file name: ' . $name);
+        return \Illuminate\Support\Str::slug($name) . '-' . time() . '.' . $file->getClientOriginalExtension();
+    })
         ->rules('mimes:pdf,doc,docx')
         ->help('If a concept note already exists for the selected activity, it will be displayed above and you do not need to upload a new one unless you want to replace it.')
         ->attribute(['id' => 'concept_note_upload']);
 
     $form->textarea('description', __('Description'));
 
+    // $form->html('
+    //     <script>
+    //     $(document).ready(function() {
+    //         $(".box-footer").find(".col-md-2").append(
+    //             \'<div id="requisitionDraftBtnWrap" class="row" style="margin-top:8px; width:fit-content;">\'
+    //             + \'<div class="col-md-2" style="padding-left:0; padding-right:16px;">\'
+    //             + \'<button type="button" class="btn btn-info" id="saveDraftBtn">\'
+    //             + \'<i class="fa fa-save"></i> Save Draft\'
+    //             + \'</button>\'
+    //             + \'</div>\'
+    //             + \'<div class="col-md-2" style="padding-left:105px;">\'
+    //             + \'<button type="button" class="btn btn-warning" id="fetchDraftBtn">\'
+    //             + \'<i class="fa fa-download"></i> Fetch Draft\'
+    //             + \'</button>\'
+    //             + \'</div>\'
+    //             + \'</div>\'
+    //         );
+    //     });
+    //     </script>
+    // ');
 
+    $form->html('
+    <script>
+    $(document).ready(function() {
+        $(".box-footer").find(".col-md-2").append(
+            \'<div id="requisitionDraftBtnWrap" style="display:flex; gap:8px; margin-top:8px;">\'
+            + \'<button type="button" class="btn btn-info" id="saveDraftBtn">\'
+            + \'<i class="fa fa-save"></i> Save Draft\'
+            + \'</button>\'
+            + \'<button type="button" class="btn btn-warning" id="fetchDraftBtn">\'
+            + \'<i class="fa fa-download"></i> Fetch Draft\'
+            + \'</button>\'
+            + \'</div>\'
+        );
+    });
+    </script>
+');
+
+    
     // ─── EDIT MODE: pre-populate cascading dropdowns ──────────────────────────
     if ($form->isEditing()) {
         $model = Requisition::find(request()->route('requisition'));
@@ -698,37 +869,39 @@ class RequisitionController extends AdminController
             });
         }
 
-        // Auto-save every 30 seconds
-        var autoSaveInterval = setInterval(saveDraft, 30000);
-
-        // Also save on any input change (debounced)
-        var draftDebounce;
-        $(document).on("input change", "input, select, textarea", function () {
-            clearTimeout(draftDebounce);
-            draftDebounce = setTimeout(saveDraft, 2000);
-        });
-
         // Clear draft when form is successfully submitted
         $("form").on("submit", function () {
             clearDraft();
         });
 
         $(document).ready(function () {
-            setTimeout(function() {
-                // console.log("isCreating:", isCreating);
-                console.log("hasDraft:", hasDraft());
-                console.log("DRAFT_KEY:", DRAFT_KEY);
-                console.log("windows loc:", window.location.pathname);
-                // var isCreating = !window.location.pathname.match(/\/\d+\/edit/);
-                if ( hasDraft()) {
-                    var restore = confirm("📝 You have an unsaved draft.\n\nClick OK to restore it, or Cancel to discard it.");
-                    if (restore) {
-                        restoreDraft();
+            $("#saveDraftBtn").off("click").on("click", function (e) {
+                e.preventDefault();
+                saveDraft();
+                if (typeof toastr !== "undefined") {
+                    toastr.success("Draft saved successfully.", "Success");
+                }
+            });
+
+            $("#fetchDraftBtn").off("click").on("click", function (e) {
+                e.preventDefault();
+                if (!hasDraft()) {
+                    if (typeof toastr !== "undefined") {
+                        toastr.warning("No saved draft found.", "Info");
                     } else {
-                        clearDraft();
+                        alert("No saved draft found.");
+                    }
+                    return;
+                }
+
+                var restore = confirm("Load saved draft? This will replace current form values.");
+                if (restore) {
+                    restoreDraft();
+                    if (typeof toastr !== "undefined") {
+                        toastr.success("Draft loaded successfully.", "Success");
                     }
                 }
-            }, 500);
+            });
         });
         // ────────────────────────────────────────────────────────────────────────
 

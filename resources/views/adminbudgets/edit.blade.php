@@ -61,6 +61,7 @@
     </style>
     
     <script src="{{asset('js')}}/adminbudget.js"></script>
+    <script src="{{asset('js')}}/draft.js"></script>
 </head>
 <body>
 <div class="col-md-12">
@@ -375,7 +376,18 @@
 
                         <!-- Save Button -->
                         <div class="form-group text-right">
-                            <div class="col-sm-8 col-sm-offset-2">
+                            <div class="col-sm-8 col-sm-offset-2" style="display: flex; justify-content: flex-start; gap: 8px;">
+                                <button type="button" class="btn btn-default" onclick="clearDraft()">
+                                    <i class="fa fa-trash"></i> Clear Draft
+                                </button>
+                                <button type="button" class="btn btn-default" onclick="restoreDraft()">
+                                    <i class="fa fa-trash"></i> Fetch Draft
+                                </button>
+                                <button type="button" class="btn btn-warning" onclick="saveDraft()">
+                                    <i class="fa fa-save"></i> Save Draft
+                                </button>
+                            </div>
+                            <div >
                                 <button type="submit" class="btn btn-primary">Save Changes</button>
                             </div>
                         </div>

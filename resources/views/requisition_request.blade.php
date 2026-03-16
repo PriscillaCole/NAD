@@ -41,7 +41,7 @@
             padding: 20px;
             text-align: center;
             position: relative;
-            width: 1000px;
+            width: 100%;
         }
 
         .logo1 {
@@ -377,16 +377,201 @@
             border-color: #667eea;
         }
 
+        .preview-modal-content {
+            max-width: 900px;
+            padding: 20px;
+        }
+
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            gap: 10px;
+        }
+
+        .preview-header h3 {
+            margin: 0;
+            font-size: 1.2em;
+            color: #2c3e50;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .preview-frame {
+            width: 100%;
+            height: 65vh;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            background: #f8f9fa;
+        }
+
+        .preview-image {
+            width: 100%;
+            max-height: 65vh;
+            object-fit: contain;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            background: #f8f9fa;
+        }
+
+        .preview-fallback {
+            display: none;
+            padding: 25px;
+            text-align: center;
+            color: #495057;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+        }
+
+        .preview-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 15px;
+            gap: 10px;
+        }
+
         .spinner {
             display: none;
             margin-right: 8px;
         }
 
         @media print {
+            @page {
+                size: A4;
+                margin: 12mm;
+            }
+
             .no-print { display: none !important; }
-            body { background: white; padding: 0; }
-            .container { box-shadow: none; border-radius: 0; }
-            .header { background: #667eea !important; -webkit-print-color-adjust: exact; }
+            .modal { display: none !important; }
+
+            html,
+            body {
+                background: white !important;
+                margin: 0;
+                padding: 0;
+                width: 100%;
+                font-size: 12px;
+                color: #000;
+            }
+
+            .container {
+                max-width: 100% !important;
+                width: 100% !important;
+                box-shadow: none !important;
+                border-radius: 0 !important;
+                overflow: visible;
+            }
+
+            .content {
+                padding: 16px;
+            }
+
+            .header {
+                width: 100% !important;
+                border-radius: 0;
+                padding: 16px 20px;
+                background: #667eea !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .header h1 {
+                font-size: 22px;
+                margin-bottom: 6px;
+            }
+
+            .header .subtitle {
+                font-size: 12px;
+            }
+
+            .logo1 {
+                width: 60px;
+                height: 60px;
+                margin-bottom: 10px;
+            }
+
+            .section {
+                margin-bottom: 20px;
+                page-break-inside: avoid;
+            }
+
+            .section-header {
+                margin-bottom: 12px;
+                padding-bottom: 8px;
+            }
+
+            .status-bar {
+                display: block;
+                margin-bottom: 20px;
+                padding: 12px;
+                border: 1px solid #ddd;
+                background: #fff;
+            }
+
+            .status-bar > div {
+                margin-bottom: 8px;
+            }
+
+            .status-bar > div:last-child {
+                margin-bottom: 0;
+            }
+
+            .info-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+                gap: 10px;
+            }
+            .signatures-grid{
+                grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+                
+            }
+             
+            .info-card {
+                border: 1px solid #ddd;
+                border-left: 4px solid #667eea;
+                border-radius: 8px;
+                background: #fff;
+                padding: 12px;
+                box-shadow: none;
+                transform: none !important;
+            }
+
+            .table-container {
+                border: 1px solid #ddd;
+                border-radius: 0;
+                box-shadow: none;
+                overflow: visible;
+            }
+
+            .table th,
+            .table td {
+                padding: 7px;
+                font-size: 11px;
+                border: 1px solid #ddd;
+            }
+
+            .table th {
+                background: #667eea !important;
+                color: #fff;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .signatures-section {
+                background: #fff;
+                border: 1px solid #ddd;
+                border-radius: 0;
+                padding: 16px;
+                margin-top: 20px;
+            }
+
+            .signature-card {
+                box-shadow: none;
+                border: 1px solid #ddd;
+                border-radius: 8px;
+            }
         }
 
         @media (max-width: 768px) {
@@ -433,19 +618,28 @@
                     <div class="info-label"><i class="fas fa-file-download"></i> Concept Note</div>
                     @php 
                         if ($requisition->program?->type == 2){
-                            $activityConcept = \App\Models\Requisition::where('outcome_id', $requisition->adminoutcome?->id)->first();
+                            $aC = \App\Models\Requisition::where('outcome_id', $requisition->adminoutcome?->id)->first();
+                            $activityConcept = $aC->concept_note;
+                            Log::info('Admin Outcome Concept Note: ' . ($activityConcept ?? 'Not found').' for outcome ID: ' . $requisition->adminoutcome?->id);
                         }else {
-                            $activityConcept = \App\Models\Requisition::where('activity_id', $requisition->activity->id)->where('concept_note', '!=', null)->first();
-                            Log::info('Activity Concept Note: ' . ($activityConcept->concept_note ?? 'Not found'));
+                            
+                            if($requisition->concept_note){
+                                $activityConcept = $requisition->concept_note;
+                            }else {
+                                $aC = \App\Models\Requisition::where('activity_id', $requisition->activity->id)->where('concept_note', '!=', null)->first();
+                                $activityConcept = $aC->concept_note;
+                                Log::info('Activity Concept Note: ' . ($activityConcept ?? 'Not found'));
+                        
+                            }
                         }
                 
                     @endphp
                     
-                    <a href="{{ asset('storage/'.$activityConcept->concept_note) }}" 
-                       download 
-                       class="download-link no-print"
-                       onclick="forceDownload(event, '{{ asset('storage/' . ($activityConcept->concept_note ?? '')) }}')">
-                        Download Concept Note
+                    
+                    <a href="{{ asset('storage/'.$activityConcept) }}" 
+                       class="file-link no-print preview-doc-link"
+                       data-file-name="Concept Note">
+                        Preview Concept Note
                     </a>
                 </div>
                 
@@ -687,7 +881,7 @@
             @if(auth()->user()!=null)
                 @if(auth()->user()->roles->isNotEmpty())
                     @foreach(auth()->user()->roles as $role)
-                        @if($role->slug == 'finance' && $requisition->status == 'pending')
+                        @if($role->slug == 'finance' && ($requisition->status == 'pending' || $requisition->status == 'amended'))
                 <!-- Action Buttons -->
                             <div class="action-buttons no-print">
                                 <a href="#" id="acceptBtn" class="btn btn-approve">
@@ -746,10 +940,41 @@
         </div>
     </div>
 
+    <div id="previewModal" class="modal no-print">
+        <div class="modal-content preview-modal-content">
+            <span class="close" id="previewClose">&times;</span>
+            <div class="preview-header">
+                <h3 id="previewTitle"><i class="fas fa-file-alt"></i> Document Preview</h3>
+            </div>
+            <iframe id="previewFrame" class="preview-frame" title="Document Preview"></iframe>
+            <img id="previewImage" class="preview-image" alt="Document Preview" style="display: none;">
+            <div id="previewFallback" class="preview-fallback">
+                Preview is not supported for this file type in the browser.
+                <br>
+                Use the button below to download the document.
+            </div>
+            <div class="preview-actions">
+                <button type="button" id="downloadPreviewDoc" class="btn btn-primary">
+                    <i class="fas fa-download"></i> Download
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Modal functionality
         var modal = document.getElementById("reasonModal");
-        var closeBtn = document.getElementsByClassName("close")[0];
+        var closeBtn = document.querySelector("#reasonModal .close");
+
+        var previewModal = document.getElementById("previewModal");
+        var previewClose = document.getElementById("previewClose");
+        var previewFrame = document.getElementById("previewFrame");
+        var previewImage = document.getElementById("previewImage");
+        var previewFallback = document.getElementById("previewFallback");
+        var previewTitle = document.getElementById("previewTitle");
+        var previewLinks = document.querySelectorAll(".preview-doc-link");
+        var downloadPreviewDocBtn = document.getElementById("downloadPreviewDoc");
+        var currentPreviewUrl = "";
         
         var approveBtn = document.getElementById("approveBtn");
         var acceptBtn = document.getElementById("acceptBtn");
@@ -805,7 +1030,7 @@
                 e.preventDefault();
                 modal.style.display = "block";
                 submitReason.onclick = function(){
-                    sendReason("amended")
+                    sendReason("amend")
                 }
             }
         }
@@ -814,13 +1039,80 @@
             modal.style.display = "none";
         }
 
+        function resetPreviewView() {
+            previewFrame.style.display = "none";
+            previewImage.style.display = "none";
+            previewFallback.style.display = "none";
+            previewFrame.removeAttribute("src");
+            previewImage.removeAttribute("src");
+        }
+
+        function getFileExtension(url) {
+            var cleanUrl = url.split('?')[0].split('#')[0];
+            return cleanUrl.includes('.') ? cleanUrl.split('.').pop().toLowerCase() : '';
+        }
+
+        function openPreviewModal(url, title) {
+            currentPreviewUrl = url;
+            previewTitle.innerHTML = '<i class="fas fa-file-alt"></i> ' + title;
+            resetPreviewView();
+
+            var extension = getFileExtension(url);
+            var imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'];
+            var frameExtensions = ['pdf', 'txt'];
+
+            if (imageExtensions.indexOf(extension) !== -1) {
+                previewImage.src = url;
+                previewImage.style.display = "block";
+            } else if (frameExtensions.indexOf(extension) !== -1) {
+                previewFrame.src = url;
+                previewFrame.style.display = "block";
+            } else {
+                previewFallback.style.display = "block";
+            }
+
+            previewModal.style.display = "block";
+        }
+
+        previewLinks.forEach(function(link) {
+            link.addEventListener('click', function(event) {
+                event.preventDefault();
+                var docUrl = this.getAttribute('href');
+                var docName = this.getAttribute('data-file-name') || 'Document Preview';
+                openPreviewModal(docUrl, docName);
+            });
+        });
+
+        if (downloadPreviewDocBtn) {
+            downloadPreviewDocBtn.onclick = function() {
+                if (!currentPreviewUrl) {
+                    return;
+                }
+                forceDownload(event, currentPreviewUrl);
+
+            }
+        }
+
+        if (previewClose) {
+            previewClose.onclick = function() {
+                previewModal.style.display = "none";
+                resetPreviewView();
+            }
+        }
+
         window.onclick = function(event) {
             if (event.target == modal) {
                 modal.style.display = "none";
             }
+
+            if (event.target == previewModal) {
+                previewModal.style.display = "none";
+                resetPreviewView();
+            }
         }
 
         // Function to force download a file
+                      
         function forceDownload(event, url) {
             event.preventDefault();
             
@@ -926,19 +1218,7 @@
             }, 2000); */
         }
 
-        // Add smooth scrolling for better UX
-        // document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        //     anchor.addEventListener('click', function (e) {
-        //         e.preventDefault();
-        //         const target = document.querySelector(this.getAttribute('href'));
-        //         if (target) {
-        //             target.scrollIntoView({
-        //                 behavior: 'smooth',
-        //                 block: 'start'
-        //             });
-        //         }
-        //     });
-        // });
+        
     </script>
 </body>
 </html>

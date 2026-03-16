@@ -169,163 +169,204 @@ class RequisitionController extends Controller
 
     public function downloadDocuments($id)
     {
-        // Clear any output buffers that might interfere
-        if (ob_get_level()) {
+        @set_time_limit(180);
+
+        while (ob_get_level()) {
             ob_end_clean();
         }
-        
+
         $requisition = Requisition::findOrFail($id);
-        $activityid = $requisition->activity->id;
+        $accountability = Accountability::with('requisitionItemReceipts')->where('requisition_id', $id)->first();
 
-        // Sum of accountabilities for all requisitions under this activity
-        $activity_budget = $requisition->activity->budget;
-    
-        $usedAmount = Accountability::whereHas('requisition', function ($query) use ($activityid) {
-            $query->where('activity_id', $activityid);
-        })->sum('amount_used');
+        // Keep remaining budget calculation consistent with the requisition report page.
+        if ($requisition->program?->type == 2) {
+            $activityBudget = $requisition->adminoutcome?->budget ?? 0;
+            $activityId = $requisition->activity?->id;
+        } else {
+            $activityBudget = $requisition->activity?->budget ?? 0;
+            $activityId = $requisition->activity?->id;
+        }
 
-        Log::info($usedAmount);
-        Log::info($activity_budget);
-        $remaining = $activity_budget - $usedAmount;
+        $usedAmount = 0;
+        if ($activityId) {
+            $usedAmount = Accountability::whereHas('requisition', function ($query) use ($activityId) {
+                $query->where('activity_id', $activityId);
+            })->sum('amount_used');
+        }
+        $remaining = $activityBudget - $usedAmount;
 
-        $accountability = Accountability::where('requisition_id', $id)->first();
-
-        // Create unique temporary directory with timestamp
         $tempDirName = 'temp_' . uniqid() . '_' . time();
         $tempDir = storage_path('app/temp/' . $tempDirName);
         $zipPath = null;
 
         try {
-            // Ensure the temp directory exists with proper permissions
             if (!File::exists($tempDir)) {
                 File::makeDirectory($tempDir, 0755, true);
             }
 
-            // Set proper permissions on the directory
-            chmod($tempDir, 0755);
-            
-            // Generate PDFs
-            $requisitionPdf = PDF::loadView('requisition_request', ['requisition' => $requisition, 'remaining'=>$remaining]);
-            $requisitionPath = $tempDir . '/requisition_form.pdf';
-            $requisitionPdf->save($requisitionPath);
-            chmod($requisitionPath, 0644);
-            
-            $accountabilityPdf = PDF::loadView('accountability_report', ['accountability' => $accountability]);
-            $accountabilityPath = $tempDir . '/accountability_form.pdf';
-            $accountabilityPdf->save($accountabilityPath);
-            chmod($accountabilityPath, 0644);
-            
-            // Create ZIP file path
             $zipFileName = 'requisition_' . $requisition->code . '_documents_' . time() . '.zip';
             $zipPath = storage_path('app/temp/' . $zipFileName);
-            
-            // Create and open ZIP file
+
             $zip = new ZipArchive();
             $zipResult = $zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE);
-            
             if ($zipResult !== true) {
                 throw new \Exception('Failed to create ZIP file: ' . $zipResult);
             }
-            
-            // Add files to ZIP
-            Log::info([$accountabilityPath]);
-            $zip->addFile($requisitionPath, 'requisition_form.pdf');
-            $zip->addFile($accountabilityPath, 'accountability_form.pdf');
-            
-            // Create receipts directory in ZIP
-            $zip->addEmptyDir('receipts');
-            $zip->addEmptyDir('Invoices');
-            $zip->addEmptyDir('payment_proof');
-            
-            // Add receipts if they exist
-            if ($accountability && $accountability->requisitionItemReceipts) {
-                foreach ($accountability->requisitionItemReceipts as $receipt) {
-                    // $receiptPath = public_path('storage/' . $receipt->receipt_file);
-                    // $invoicePath = public_path('storage/' . $receipt->Invoice);
-                    // $proofPath = public_path('storage/' . $receipt->payment_proof);
-                    
-                    // Log::info([$receiptPath]);
-                    if (!empty($receipt->receipt_file)) {
-                        $receiptPath = public_path('storage/' . $receipt->receipt_file);
-                        if (file_exists($receiptPath) && is_readable($receiptPath)) {
-                            $zip->addFile($receiptPath, 'receipts/' . basename($receipt->receipt_file));
-                            Log::info('Added receipt file to zip: ' . $receiptPath);
-                        } else {
-                            Log::warning('Receipt file not found or not readable: ' . $receiptPath);
-                        }
-                    } else {
-                        Log::info('Skipping receipt file due to empty path for item: ' . ($receipt->id ?? 'N/A'));
-                    }
-            
-                    // For Invoice
-                    if (!empty($receipt->Invoice)) {
-                        $invoicePath = public_path('storage/' . $receipt->Invoice);
-                        if (file_exists($invoicePath) && is_readable($invoicePath)) {
-                            $zip->addFile($invoicePath, 'Invoices/' . basename($receipt->Invoice));
-                            Log::info('Added invoice file to zip: ' . $invoicePath);
-                        } else {
-                            Log::warning('Invoice file not found or not readable: ' . $invoicePath);
-                        }
-                    } else {
-                        Log::info('Skipping invoice file due to empty path for item: ' . ($receipt->id ?? 'N/A'));
-                    }
 
-                    // For payment_proof
-                    if (!empty($receipt->payment_proof)) {
-                        $proofPath = public_path('storage/' . $receipt->payment_proof);
-                        if (file_exists($proofPath) && is_readable($proofPath)) {
-                            $zip->addFile($proofPath, 'payment_proof/' . basename($receipt->payment_proof));
-                            Log::info('Added proof file to zip: ' . $proofPath);
-                        } else {
-                            Log::warning('Payment proof file not found or not readable: ' . $proofPath);
-                        }
-                    } else {
-                        Log::info('Skipping payment proof file due to empty path for item: ' . ($receipt->id ?? 'N/A'));
+            // 1) Requisition report PDF
+            $requisitionPdfPath = $tempDir . '/01_requisition_request.pdf';
+            $requisitionPdf = PDF::loadView('requisition_request', [
+                'requisition' => $requisition,
+                'remaining' => $remaining,
+            ]);
+            $this->applyFastPdfOptions($requisitionPdf);
+            $requisitionPdf->save($requisitionPdfPath);
+            $zip->addFile($requisitionPdfPath, '01_requisition_request.pdf');
+
+            // 2) Concept note file
+            $conceptNotePath = $this->resolveConceptNotePath($requisition);
+            if ($conceptNotePath && File::exists($conceptNotePath) && is_readable($conceptNotePath)) {
+                $zip->addFile($conceptNotePath, 'concept_note/' . basename($conceptNotePath));
+            }
+
+            // 3) Accountability report + all accountability attachments (only if accountability exists)
+            if ($accountability) {
+                $accountabilityPdfPath = $tempDir . '/02_accountability_report.pdf';
+                $accountabilityPdf = PDF::loadView('accountability_report', ['accountability' => $accountability]);
+                $this->applyFastPdfOptions($accountabilityPdf);
+                $accountabilityPdf->save($accountabilityPdfPath);
+                $zip->addFile($accountabilityPdfPath, '02_accountability_report.pdf');
+
+                foreach ($this->normalizeFileList($accountability->narrative_report) as $path) {
+                    $this->addPublicStorageFileToZip($zip, $path, 'accountability/narrative_reports');
+                }
+                foreach ($this->normalizeFileList($accountability->proof_of_funds_returned) as $path) {
+                    $this->addPublicStorageFileToZip($zip, $path, 'accountability/returned_funds_receipts');
+                }
+                foreach ($this->normalizeFileList($accountability->proof_of_funds_to_be_returned) as $path) {
+                    $this->addPublicStorageFileToZip($zip, $path, 'accountability/staff_return_receipts');
+                }
+                foreach ($this->normalizeFileList($accountability->attachments) as $path) {
+                    $this->addPublicStorageFileToZip($zip, $path, 'accountability/attachments');
+                }
+
+                foreach ($accountability->requisitionItemReceipts as $receipt) {
+                    foreach ($this->normalizeFileList($receipt->Invoice) as $path) {
+                        $this->addPublicStorageFileToZip($zip, $path, 'accountability/item_receipts/invoices');
+                    }
+                    foreach ($this->normalizeFileList($receipt->payment_proof) as $path) {
+                        $this->addPublicStorageFileToZip($zip, $path, 'accountability/item_receipts/payment_proofs');
+                    }
+                    foreach ($this->normalizeFileList($receipt->receipt_file) as $path) {
+                        $this->addPublicStorageFileToZip($zip, $path, 'accountability/item_receipts/receipts');
                     }
                 }
             }
-            
-            // Close ZIP file
+
             $zip->close();
-            
-            // Verify the ZIP file was created and has content
-            if (!file_exists($zipPath) || filesize($zipPath) == 0) {
-                throw new \Exception('ZIP file was not created properly or is empty');
+
+            if (!File::exists($zipPath) || filesize($zipPath) === 0) {
+                throw new \Exception('ZIP file was not created properly or is empty.');
             }
-            
-            // Clear any output that might have been generated
-            while (ob_get_level()) {
-                ob_end_clean();
+
+            // Remove generated PDFs/folders but keep zip until sent.
+            if (File::exists($tempDir)) {
+                File::deleteDirectory($tempDir);
             }
-            
-            // Set headers and return download response
+
             return response()->download($zipPath, $zipFileName, [
                 'Content-Type' => 'application/zip',
                 'Content-Length' => filesize($zipPath),
                 'Cache-Control' => 'no-cache, no-store, must-revalidate',
                 'Pragma' => 'no-cache',
-                'Expires' => '0'
+                'Expires' => '0',
             ])->deleteFileAfterSend(true);
-            
         } catch (\Exception $e) {
             Log::error('Download Documents Error: ' . $e->getMessage(), [
+                'requisition_id' => $id,
                 'temp_dir' => $tempDir,
                 'zip_path' => $zipPath,
-                'requisition_id' => $id,
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
-            
-            // Clean up
+
             if (File::exists($tempDir)) {
                 File::deleteDirectory($tempDir);
             }
             if ($zipPath && File::exists($zipPath)) {
-                unlink($zipPath);
+                File::delete($zipPath);
             }
-            
-            // Return a proper error response instead of throwing
-            return response()->json(['error' => 'Failed to generate documents: ' . $e->getMessage()], 500);
+
+            return response()->json([
+                'error' => 'Failed to generate documents package.',
+            ], 500);
         }
+    }
+
+    private function normalizeFileList($value): array
+    {
+        if (is_array($value)) {
+            return array_values(array_filter($value));
+        }
+
+        if (is_string($value) && trim($value) !== '') {
+            return [trim($value)];
+        }
+
+        return [];
+    }
+
+    private function addPublicStorageFileToZip(ZipArchive $zip, string $relativePath, string $zipDirectory): void
+    {
+        $cleanPath = ltrim($relativePath, '/\\');
+        $fullPath = public_path('storage/' . $cleanPath);
+
+        if (File::exists($fullPath) && is_readable($fullPath)) {
+            $zip->addFile($fullPath, $zipDirectory . '/' . basename($fullPath));
+        } else {
+            Log::warning('File not found or unreadable for ZIP', [
+                'relative_path' => $relativePath,
+                'resolved_path' => $fullPath,
+            ]);
+        }
+    }
+
+    private function resolveConceptNotePath(Requisition $requisition): ?string
+    {
+        $conceptPath = $requisition->concept_note;
+
+        if (!$conceptPath) {
+            if ($requisition->program?->type == 2) {
+                $existing = Requisition::where('outcome_id', $requisition->adminoutcome?->id)
+                    ->whereNotNull('concept_note')
+                    ->first();
+                $conceptPath = $existing?->concept_note;
+            } else {
+                $existing = Requisition::where('activity_id', $requisition->activity?->id)
+                    ->whereNotNull('concept_note')
+                    ->first();
+                $conceptPath = $existing?->concept_note;
+            }
+        }
+
+        if (!$conceptPath) {
+            return null;
+        }
+
+        return public_path('storage/' . ltrim($conceptPath, '/\\'));
+    }
+
+    private function applyFastPdfOptions($pdf): void
+    {
+        // Use print CSS and disable remote fetch for faster, more reliable generation.
+        $pdf->setPaper('a4', 'portrait');
+        $pdf->setOptions([
+            'defaultMediaType' => 'print',
+            'isRemoteEnabled' => false,
+            'isHtml5ParserEnabled' => true,
+            'isJavascriptEnabled' => false,
+            'dpi' => 96,
+            'defaultFont' => 'DejaVu Sans',
+        ]);
     }
    
     // function to fetch activities under a program

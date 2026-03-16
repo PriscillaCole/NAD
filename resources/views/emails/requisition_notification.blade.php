@@ -69,12 +69,23 @@
 
         <p>Dear {{ $user->name }},</p>
 
-        <p>
-            This is to inform you that requisition 
-            <strong>{{ $requisition->code ?? 'N/A' }}</strong> 
-            has been <span class="status">{{ ucfirst($action) }}</span>
-            by {{$by}}.
-        </p>
+        @if($action === 'amend')
+            <p>
+                {{ $by }} has made a comment on requisition
+                <strong>{{ $requisition->code ?? 'N/A' }}</strong>.
+            </p>
+            <ul>
+                <li><strong>{{ $comment }}</strong></li>
+            </ul>
+            <p>Please review the requisition and make necessary amendments.</p>
+        @else
+            <p>
+                This is to inform you that requisition
+                <strong>{{ $requisition->code ?? 'N/A' }}</strong>
+                has been <span class="status">{{ ucfirst($action) }}</span>
+                by {{ $by }}.
+            </p>
+        @endif
 
         <table>
             <tr>

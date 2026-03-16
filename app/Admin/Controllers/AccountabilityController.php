@@ -38,38 +38,40 @@ class AccountabilityController extends AdminController
         $grid = new Grid(new Accountability());
         $grid->disableBatchActions();
 
-
         $user = auth()->user();
-        if ($user->isRole('staff')) {
+        // Define role priorities - finance/director wins over admin
+        $isAdminOnly = $user->inRoles(['admin']);
+        $isFinanceOrDirector = $user->inRoles(['finance', 'director']) && !$isAdminOnly;
+        $isStaffOnly = $user->inRoles(['staff']);
+
+        if ($isStaffOnly) {
             $staff_id = Staff::where('user_id', $user->id)->first()->id;
             $grid->model()->where('staff_id', $staff_id);
             
+        }else{
+            
+            $grid->model()->whereNot('status', Null);
         }
         // disable create button for finance and CD
-        if ($user->inRoles(['finance', 'director'])){
+        if ($isFinanceOrDirector){
             $grid->disableCreateButton();
-            $grid->model()->whereNot('status', Null);
             $grid->actions(function ($actions) {
                 $actions->disableEdit();
                 $actions->disableDelete();
             });
+        }else{
+            $grid->actions(function ($actions) {
+                if($actions->row->status == 'closed'){
+                    $actions->disableEdit();
+                    $actions->disableDelete();
+                }
+                if($actions->row->status == 'halted' || $actions->row->status == 'pending' ){
+                    $actions->disableDelete();
+                }
+                
+            });
         }
-        $grid->actions(function ($actions) {
-            if($actions->row->status == 'closed'){
-                $actions->disableEdit();
-                $actions->disableDelete();
-            }
-            if($actions->row->status == 'halted' || $actions->row->status == 'pending' ){
-                $actions->disableDelete();
-            }
-            
-        });
         
-        // $grid->actions(function ($actions) {
-        //     if ($actions->row->status == 'closed') {
-        //         $actions->disableEdit();
-        //     }
-        // });
 
         //filter by program and activity
         $grid->filter(function($filter){
@@ -202,6 +204,13 @@ class AccountabilityController extends AdminController
                     $form->text('amount', 'Invoice Amount');
                 });
                 $form->decimal('amount_used', __('Total amount used(UGX)'))->readonly();
+                $form->decimal('returned_amount', __('Amount returned to finance(UGX)'))
+                    ->attribute('id', 'returned_amount')
+                    ->readonly();
+
+                $form->decimal('amount_to_be_returned', __('Amount returned to staff'))
+                    ->attribute('id', 'amount_to_be_returned')
+                    ->readonly();
                 // Log::info('Received form data', $form()->all());
             
 
@@ -344,10 +353,75 @@ class AccountabilityController extends AdminController
                 ->help('upload fies of jpg,jpeg,png formats ')
                 // ->rules('file|mimes:pdf,jpg,jpeg,png|max:5120') // 5MB max
                 ->removable();
+                
+            $form->footer(function ($footer) {
+                $footer->disableReset();
+                $footer->disableViewCheck();
+                $footer->disableEditingCheck();
+                $footer->disableCreatingCheck();
+            });
+
+            // $form->html('
+            //     <script>
+            //     $(document).ready(function() {
+            //         $(".box-footer").find(".col-md-2").append(
+            //             \'<div id="accountabilityDraftBtnWrap" class="row" style="margin-top:8px; width:fit-content;">\'
+            //             + \'<div class="col-md-2" style="padding-left:0; padding-right:100px;">\'
+            //             + \'<button type="button" class="btn btn-info" id="saveAccountabilityDraftBtn">\'
+            //             + \'<i class="fa fa-save"></i> Save Draft\'
+            //             + \'</button>\'
+            //             + \'</div>\'
+            //             + \'<div class="col-md-2" style="padding-left:105px;">\'
+            //             + \'<button type="button" class="btn btn-warning" id="fetchAccountabilityDraftBtn">\'
+            //             + \'<i class="fa fa-download"></i> Fetch Draft\'
+            //             + \'</button>\'
+            //             + \'</div>\'
+            //             + \'</div>\'
+            //         );
+            //     });
+            //     </script>
+            // ');
+
+            $form->html('
+    <script>
+    $(document).ready(function() {
+        $(".box-footer").find(".col-md-2").append(
+            \'<div id="accountabilityDraftBtnWrap" style="display:flex; gap:8px; margin-top:8px;">\'
+            + \'<button type="button" class="btn btn-info" id="saveAccountabilityDraftBtn">\'
+            + \'<i class="fa fa-save"></i> Save Draft\'
+            + \'</button>\'
+            + \'<button type="button" class="btn btn-warning" id="fetchAccountabilityDraftBtn">\'
+            + \'<i class="fa fa-download"></i> Fetch Draft\'
+            + \'</button>\'
+            + \'</div>\'
+        );
+    });
+    </script>
+');
+            
 
             $form->saving(function (Form $form) {
                 Log::info('Form saving started', ['data' => request()->all()]);
                 // Log::info('Received form data', $form()->all());
+
+                $normalizeAmount = static function ($value) {
+                    return (float) str_replace(',', '', (string) $value);
+                };
+
+                $form->amount_used = $normalizeAmount($form->amount_used);
+
+                if ($form->requisition_id) {
+                    $requisition = Requisition::find($form->requisition_id);
+                    $amountDispensed = $requisition ? (float) $requisition->amount : 0;
+
+                    $form->returned_amount = $amountDispensed > $form->amount_used
+                        ? $amountDispensed - $form->amount_used
+                        : 0;
+
+                    $form->amount_to_be_returned = $form->amount_used > $amountDispensed
+                        ? $form->amount_used - $amountDispensed
+                        : 0;
+                }
             
                 $token = request()->input('_token');
             
@@ -391,7 +465,170 @@ class AccountabilityController extends AdminController
 
         Admin::script('
         var amount = "";
+        var DRAFT_KEY = "accountability_draft_" + window.location.pathname;
+
+        function sanitizeMoney(value) {
+            return parseFloat((value || "").toString().replace(/,/g, "").trim()) || 0;
+        }
+
+        function collectAccountabilityDraft() {
+            var draft = {
+                requisition_id: $("#requisitionId").val() || "",
+                amount_dispensed: $("#amount_dispensed").val() || "",
+                amount_used: $("#amount_used").val() || "",
+                returned_amount: $("#returned_amount").val() || "",
+                amount_to_be_returned: $("#amount_to_be_returned").val() || "",
+                items: []
+            };
+
+            $(".has-many-requisitionItemReceipts-form").each(function () {
+                var removedInput = $(this).find("input[name*=\'[_remove_]\']");
+                if (removedInput.length && removedInput.val() === "1") {
+                    return;
+                }
+
+                draft.items.push({
+                    requisition_item_id: $(this).find("select[name*=\'[requisition_item_id]\']").val() || "",
+                    amount: $(this).find("input[name*=\'[amount]\']").val() || "",
+                    transfer_charges: $(this).find("input[name*=\'[transfer_charges]\']").val() || ""
+                });
+            });
+
+            return draft;
+        }
+
+        function saveAccountabilityDraft() {
+            var draft = collectAccountabilityDraft();
+            localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+        }
+
+        function hasAccountabilityDraft() {
+            return localStorage.getItem(DRAFT_KEY) !== null;
+        }
+
+        function clearAccountabilityDraft() {
+            localStorage.removeItem(DRAFT_KEY);
+        }
+
+        function restoreAccountabilityDraft() {
+            var raw = localStorage.getItem(DRAFT_KEY);
+            if (!raw) {
+                return;
+            }
+
+            var draft = JSON.parse(raw);
+            var requisitionId = draft.requisition_id || "";
+
+            function applyValuesToRows(items) {
+                if (!items || !items.length) {
+                    return;
+                }
+
+                setTimeout(function () {
+                    var forms = $(".has-many-requisitionItemReceipts-form");
+                    items.forEach(function (item, index) {
+                        var row = forms.eq(index);
+                        if (!row.length) {
+                            return;
+                        }
+
+                        if (item.requisition_item_id) {
+                            var select = row.find("select[name*=\'[requisition_item_id]\']");
+                            var hasOption = select.find("option").filter(function () {
+                                return $(this).val() == item.requisition_item_id;
+                            }).length > 0;
+
+                            if (select.length && !hasOption) {
+                                select.append(new Option(item.requisition_item_id, item.requisition_item_id, true, true));
+                            }
+                            select.val(item.requisition_item_id).trigger("change");
+                        }
+
+                        row.find("input[name*=\'[amount]\']").val(item.amount || "").trigger("input");
+                        row.find("input[name*=\'[transfer_charges]\']").val(item.transfer_charges || "").trigger("input");
+                    });
+
+                    if (draft.amount_used) {
+                        $("#amount_used").val(draft.amount_used).trigger("input");
+                    }
+                    if (draft.returned_amount) {
+                        $("#returned_amount").val(draft.returned_amount);
+                    }
+                    if (draft.amount_to_be_returned) {
+                        $("#amount_to_be_returned").val(draft.amount_to_be_returned);
+                    }
+
+                    updateReturnAmounts();
+                }, 700);
+            }
+
+            if (requisitionId && $("#requisitionId").length) {
+                $("#requisitionId").val(requisitionId).trigger("change");
+
+                if (draft.items && draft.items.length) {
+                    var desiredRows = draft.items.length;
+                    var currentRows = $(".has-many-requisitionItemReceipts-form").length;
+                    for (var i = currentRows; i < desiredRows; i++) {
+                        $(".add").click();
+                    }
+                }
+
+                applyValuesToRows(draft.items || []);
+            } else {
+                if (draft.amount_dispensed) {
+                    $("#amount_dispensed").val(draft.amount_dispensed);
+                }
+                if (draft.amount_used) {
+                    $("#amount_used").val(draft.amount_used).trigger("input");
+                }
+                if (draft.returned_amount) {
+                    $("#returned_amount").val(draft.returned_amount);
+                }
+                if (draft.amount_to_be_returned) {
+                    $("#amount_to_be_returned").val(draft.amount_to_be_returned);
+                }
+                applyValuesToRows(draft.items || []);
+            }
+        }
+
+        function updateReturnAmounts() {
+            var amountUsed = sanitizeMoney($("#amount_used").val());
+            var amountDispensed = sanitizeMoney($("#amount_dispensed").val());
+
+            var returnedAmount = amountDispensed > amountUsed ? (amountDispensed - amountUsed) : 0;
+            var amountToBeReturned = amountUsed > amountDispensed ? (amountUsed - amountDispensed) : 0;
+
+            $("#returned_amount").val(returnedAmount.toFixed(2));
+            $("#amount_to_be_returned").val(amountToBeReturned.toFixed(2));
+        }
+
         $(document).ready(function() {
+            $("#saveAccountabilityDraftBtn").off("click").on("click", function (e) {
+                e.preventDefault();
+                saveAccountabilityDraft();
+                if (typeof toastr !== "undefined") {
+                    toastr.success("Draft saved successfully.", "Success");
+                }
+            });
+
+            $("#fetchAccountabilityDraftBtn").off("click").on("click", function (e) {
+                e.preventDefault();
+                if (!hasAccountabilityDraft()) {
+                    if (typeof toastr !== "undefined") {
+                        toastr.warning("No saved draft found.", "Info");
+                    }
+                    return;
+                }
+
+                var restore = confirm("Load saved draft? This will replace current form values.");
+                if (restore) {
+                    restoreAccountabilityDraft();
+                    if (typeof toastr !== "undefined") {
+                        toastr.success("Draft loaded successfully.", "Success");
+                    }
+                }
+            });
+
             $("#requisitionId").change(function() {
                 var requisition_id = $(this).val();
                 if (requisition_id) {
@@ -434,6 +671,7 @@ class AccountabilityController extends AdminController
 
                                             bindListenersToReceipts(); // very important!
                                             recalculateTotalUsed(); // initialize total
+                                            
                                         });
                                         // ✅ Disable Add button
                                         $("#has-many-requisitionItemReceipts .add").prop("disabled", true).addClass("disabled");
@@ -465,8 +703,8 @@ class AccountabilityController extends AdminController
 
                 // Loop through each requisition item form
                 $(".has-many-requisitionItemReceipts-form").each(function () {
-                    let amountUsed = parseFloat($(this).find("input[name*=\'[amount]\']").val()) || 0;
-                    let transferCharges = parseFloat($(this).find("input[name*=\'[transfer_charges]\']").val()) || 0;
+                    let amountUsed = sanitizeMoney($(this).find("input[name*=\'[amount]\']").val());
+                    let transferCharges = sanitizeMoney($(this).find("input[name*=\'[transfer_charges]\']").val());
                     console.log("transferCharges= ", transferCharges);
                     console.log("amountUsed= ", amountUsed);
                     totalUsed += (amountUsed + transferCharges);
@@ -486,18 +724,10 @@ class AccountabilityController extends AdminController
 
 
             $("#amount_used").on("input", function() {
-                var amount_used = $(this).val();
-                var amount_dispensed = parseFloat($("#amount_dispensed").val()) || 0;
-                // var amount_dispensed = {{ $form->requisition->amount ?? 0 }};
-
-                console.log(amount_dispensed);
-        
-                var returned_amount = amount_dispensed > amount_used ? (amount_dispensed - amount_used) : 0;
-                var amount_to_be_returned = amount_used > amount_dispensed ? (amount_used - amount_dispensed) : 0;
-        
-                $("#returned_amount").val(returned_amount.toFixed(2));
-                $("#amount_to_be_returned").val(amount_to_be_returned.toFixed(2));
+                updateReturnAmounts();
             });
+
+            updateReturnAmounts();
 
            
         });
