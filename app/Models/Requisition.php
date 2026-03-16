@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
+use Illuminate\Support\Facades\Log;
 
 class Requisition extends Model
 {
@@ -87,7 +87,8 @@ class Requisition extends Model
         parent::boot();
 
         static::created(function ($model) {
-            // Notification::send_notification($model, 'Requisition', request()->segment(count(request()->segments())));
+            Log::info('Requisition created: ' . $model->id);
+            Notification::send_notification($model, 'Requisition', request()->segment(count(request()->segments())));
         });
 
 

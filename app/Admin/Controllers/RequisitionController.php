@@ -206,6 +206,7 @@ class RequisitionController extends AdminController
         $grid->disableBatchActions();
 
         $user = auth()->user();
+        Log::info('Authenticated user: ' . $user->id . ' with roles: ' . implode(', ', $user->roles->pluck('name')->toArray()));
         $staff_id = Staff::where('user_id', $user->id)->first()->id;
         
         // Define role priorities - finance/director wins over admin
@@ -223,11 +224,12 @@ class RequisitionController extends AdminController
                 }
 
             });
+            $grid->model()->whereNot('status', 'pending');
         } else {
             // admin, staff, or any other role
             $grid->actions(function ($actions) {
                 $staff_id = Staff::where('user_id', auth()->user()->id)->first()->id;
-                Log::info('Checking actions for requisition ID: ' . $actions->row->id . ' with status: ' . $actions->row->status . ' and staff_id: ' . $actions->row->staff_id. ' and current user id: ' . $staff_id);
+                // Log::info('Checking actions for requisition ID: ' . $actions->row->id . ' with status: ' . $actions->row->status . ' and staff_id: ' . $actions->row->staff_id. ' and current user id: ' . $staff_id);
                 
                 if (($actions->row->staff_id != $staff_id) && in_array($actions->row->status, ['approved', 'amended', 'accepted', 'pending']) ) {
                     $actions->disableEdit();
@@ -257,7 +259,8 @@ class RequisitionController extends AdminController
                 'approved' => 'Authorized',
                 'rejected' => 'Rejected',
                 'accepted' => 'Approved',
-                'amended'  => 'Amended'
+                'amended'  => 'Amended',
+                'amend'    => 'Amend'
             ]);
         });
 

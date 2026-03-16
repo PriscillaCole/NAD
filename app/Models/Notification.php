@@ -156,6 +156,7 @@ class Notification extends Model
             if($model_name == 'Requisition'){
                 
                 $action = 'created';
+                Log::info('Requisition created: ');    
                 Mail::to($user->email)->send(new RequisitionNotificationMail($model, $action, $user, $name));
             }
         }
@@ -212,48 +213,74 @@ class Notification extends Model
         $role = Administrator::find($logged_in_user->id)->roles->first()->name;
         $user = Staff::find($model->staff_id);
         $name = $user ? $user->name : null;
+         Log::info('amend........' . $name);
     
         $notificationData = [
             'approved' => [
                 'message' => "Requisition by {$name} has been approved by {$role}.",
-                'form_link' => "http://127.0.0.1:8000/requisitions/{$model->id}",
+                'form_link' => env('APP_URL') . "/requisitions/{$model->id}",
             ],
             'accepted' => [
                 'message' => "Requisition by {$name} has been approved by {$role}.",
-                'form_link' => "http://127.0.0.1:8000/requisitions/{$model->id}",
+                'form_link' => env('APP_URL') . "/requisitions/{$model->id}",
             ],
             'rejected' => [
                 'message' => "Requisition by {$name} has been rejected by {$role}.",
-                'form_link' => "http://127.0.0.1:8000/requisitions/{$model->id}",
+                'form_link' => env('APP_URL') . "/requisitions/{$model->id}",
             ],
 
             'halted' => [
                 'message' => "Requisition by {$name} has been halted by {$role}.",
-                'form_link' => "http://127.0.0.1:8000/requisitions/{$model->id}",
+                'form_link' => env('APP_URL') . "/requisitions/{$model->id}",
             ],
-            // 'halted' => [
-            //     'message' => "Accountability by {$name} has been halted by {$role}.",
-            //     'form_link' => "http://127.0.0.1:8000/accountabilities/{$model->id}",
-            // ],
+            'amend' => [
+                'message' => "Requisition by {$name} has a query from {$role}.",
+                'form_link' => env('APP_URL') . "/accountabilities/{$model->id}",
+            ],
 
             'amended' => [
                 'message' => "Requisition by {$name} has been amended by {$role}.",
-                'form_link' => "http://127.0.0.1:8000/requisitions/{$model->id}",
+                'form_link' => env('APP_URL') . "/requisitions/{$model->id}",
             ],
             'closed' => [
                 'message' => "Accountability by {$name} has been closed by {$role}.",
-                'form_link' => "http://127.0.0.1:8000/accountabilities/{$model->id}",
+                'form_link' => env('APP_URL') . "/accountabilities/{$model->id}",
             ],
         ];
-        //check the admin_user_roles table to get the user_id whose role_id is 5
-        $another_receiver_id = AdminRoleUser::where('role_id', 6)->first()->user_id;
-    
         $user = Staff::find($model->staff_id);
-        $receiver_ids = [$user->user_id, $another_receiver_id]; // Add another receiver ID here
-        error_log(json_encode($receiver_ids));
 
         foreach ($notificationData as $status => $data) {
             if ($model->status == $status) {
+                $receiver_ids = [$user->user_id];
+
+                if ($status === 'amended') {
+                    $finance_receiver_ids = self::get_users_by_role(5)
+                        ->pluck('id')
+                        ->toArray();
+
+                    $amend_comment = Comments::where('requisition_id', $model->id)
+                        ->where('status', 'amend')
+                        ->oldest('id')
+                        ->first();
+
+                    $amend_requester_id = null;
+                    if ($amend_comment) {
+                        $amend_requester = Staff::find($amend_comment->commented_by);
+                        $amend_requester_id = $amend_requester ? $amend_requester->user_id : null;
+                    }
+
+                    $receiver_ids = array_values(array_unique(array_filter(array_merge(
+                        $finance_receiver_ids,
+                        [$amend_requester_id]
+                    ))));
+                } else {
+                    //check the admin_user_roles table to get the user_id whose role_id is 6
+                    $another_receiver_id = AdminRoleUser::where('role_id', 6)->first()->user_id;
+                    $receiver_ids[] = $another_receiver_id;
+                    $receiver_ids = array_values(array_unique(array_filter($receiver_ids)));
+                }
+
+                error_log(json_encode($receiver_ids));
                 
                 foreach ($receiver_ids as $receiver_id) {  // Loop through each receiver ID
                     $receiver = Administrator::find($receiver_id);
@@ -276,7 +303,29 @@ class Notification extends Model
                     //hildahnantabo@gmail.com
                 if($model_name == 'Requisition'){
                     Log::info($user);
-                    Mail::to($user->email)->send(new RequisitionNotificationMail($model, $status, $user, $role));
+                    // Pull the latest reviewer comment for this requisition/status from comments table.
+                    $comment = Comments::where('requisition_id', $model->id)
+                        ->where('status', $model->status)
+                        ->latest('id')
+                        ->value('comment');
+
+                    if (empty($comment)) {
+                        $comment = Comments::where('requisition_id', $model->id)
+                            ->latest('id')
+                            ->value('comment') ?: 'No comments';
+                    }
+
+                    if ($status === 'amended') {
+                        $mail_receivers = Administrator::whereIn('id', $receiver_ids)->get();
+
+                        foreach ($mail_receivers as $mail_receiver) {
+                            if (!empty($mail_receiver->email)) {
+                                Mail::to($mail_receiver->email)->send(new RequisitionNotificationMail($model, $status, $mail_receiver, $role, $comment));
+                            }
+                        }
+                    } else {
+                        Mail::to($user->email)->send(new RequisitionNotificationMail($model, $status, $user, $role, $comment));
+                    }
                 }
                 if($model_name == 'Accountability'){
                     Log::info($user);
@@ -304,9 +353,11 @@ class Notification extends Model
         $emails = $receivers->pluck('email')->toArray();
 
         try {
+            Log::info('Sending email to: ' . implode(', ', $emails));
             // Mail::to($emails)->send(new LeaveRequestStatus($notification->message, $notification->link));
         } catch (\Exception $e) {
             // Handle the exception (e.g., log the error or send another notification)
+            Log::error('Email sending failed: ' . $e->getMessage());
             return "Email sending failed: " . $e->getMessage();
         }
 
